@@ -14,7 +14,8 @@ import (
 
     "millionaire/script"
     "millionaire/network"
-    "millionaire/conf"
+    "millionaire/proto"
+    //"millionaire/conf"
 )
 
 
@@ -36,12 +37,12 @@ func main() {
     //    log.Println(http.ListenAndServe("localhost:6061", nil))
     //}()
 
-    pyMgr := script.NewPyMgr()
-
-    gs := network.NewGateServer(pyMgr)
-    go gs.Start()
-
-    fmt.Println(conf.CF.V1)
+    in := make(chan *proto.GateInPack)
+    out := make(chan *proto.GateOutPack)
+    pymgr := script.NewPyMgr(in, out)
+    gate := network.NewGate(in, out)
+    go gate.Start()
+    go pymgr.Start()
 
     handleSig()
 }

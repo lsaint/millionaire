@@ -15,16 +15,9 @@ const (
     URI_REGISTER        = 1
     URI_TRANSPORT       = 2
     URI_UNREGISTER      = 3
-    LEN_URI             = 2
-    LEN_FID             = 2
     GATE_PORT          = ":40212"
 )
  
-type ConnBuff struct {
-    conn    *ClientConnection
-    buff    []byte
-}
-
 type Gate struct {
     buffChan            chan *ConnBuff
     fid2frontend        map[uint16]*ClientConnection         
@@ -36,7 +29,7 @@ type Gate struct {
 func NewGate(entry chan *proto.GateInPack,  exit chan *proto.GateOutPack) *Gate {
     gs := &Gate{buffChan: make(chan *ConnBuff),
                     fid2frontend:  make(map[uint16]*ClientConnection),
-                    fids: make([]uint16, 0)
+                    fids: make([]uint16, 0),
                     GateInChan: entry,
                     GateOutPack:  exit}
     go gs.parse()
@@ -104,11 +97,11 @@ func (this *Gate) unpack(b []byte) (msg *proto.GateInPack, err error) {
     fp := &proto.FrontendPack{}
     if err = pb.Unmarshal(b, fp); err != nil {
         fmt.Println("pb Unmarshal FrontendPack", err)
-        lp = &proto.LogicPack{}
+        lp := &proto.LogicPack{}
         if err = pb.Unmarshal(fp.Bin, lp); err != nil {
             fmt.Println("pb Unmarshal LogicPack", err)
-            msg = &proto.GateInPack{tsid: fp.GetTsid(), ssid: fp.GetSsid(),
-                                    uri: lp.GetUri(), bin: lp.Bin}
+            msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid,
+                                    Uri: lp.Uri, Bin: lp.Bin}
         }
     }
     return
@@ -116,14 +109,13 @@ func (this *Gate) unpack(b []byte) (msg *proto.GateInPack, err error) {
 
 func (this *Gate) comein(b []byte) {
     if msg, err := this.unpack(b); err == nil {
-        this.GateInPack <- msg
+        this.GateInChan <- msg
     }
 }
 
 func (this *Gate) comeout(pack *proto.GateOutPack) {
-    if l := len(this.fids); l == 0 {
-        return
-    }
+    l := len(this.fids)
+    if l == 0 { return }
     if pack.GetAction() == proto.Action_Broadcast {
         // broadcast
         for _, conn := range this.fid2frontend {
@@ -136,32 +128,38 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
     }
 }
 
-func (this *Gate) doPack(pack *proto.GateOutPack) b []byte {
-    lp := &proto.LogicPack{uri: pack.GetUri(), bin: pack.Bin}
+func (this *Gate) doPack(pack *proto.GateOutPack) (ret []byte) {
+    lp := &proto.LogicPack{Uri: pack.Uri, Bin: pack.Bin}
     if data, err := pb.Marshal(lp); err == nil {
-        fp := &proto.FrontendPack{tsid: pack.GetTsid(), ssid: pack.GetSsid(), bin: data}
+        fp := &proto.FrontendPack{Tsid: pack.Tsid, Ssid: pack.Ssid, Bin: data}
         if data, err = pb.Marshal(fp); err == nil {
             uri_field := make([]byte, LEN_URI)
             binary.LittleEndian.PutUint16(uri_field, uint16(URI_TRANSPORT))
-            return append(uri_field, data...)
+            ret = append(uri_field, data...)
         }
     }
+    return
 }
 
 func (this *Gate) register(b []byte, cc *ClientConnection) {
-    fid := binary.LittleEndian.Uint16(b[:LEN_FID])
-    if fid == 0 {
-        fmt.Println("fid 0 err")
-        return
-    }
-    cc_ex := this.fid2frontend[fid]
-    if !cc_ex {
-        this.fid2frontend[fid] = cc
-        this.fids = append(this.fids, fid)
+    lp := &proto.FrontendRegister{}
+    if err := pb.Unmarshal(b, lp); err != nil {
+        fid := uint16(lp.GetFid())
+        if fid == 0 {
+            fmt.Println("fid 0 err")
+            return
+        }
+        cc_ex := this.fid2frontend[fid]
+        if cc_ex == nil {
+            this.fid2frontend[fid] = cc
+            this.fids = append(this.fids, fid)
+        } else {
+            this.unregister(cc_ex)
+        }
+        fmt.Println("register fid:", fid)
     } else {
-        this.unregister(cc_ex)
+        fmt.Println("Unmarshal register pack err")
     }
-    fmt.Println("register fid:", fid)
 }
 
 func (this *Gate) unregister(cc *ClientConnection) {

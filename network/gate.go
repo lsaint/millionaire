@@ -15,7 +15,7 @@ const (
     URI_REGISTER        = 1
     URI_TRANSPORT       = 2
     URI_UNREGISTER      = 3
-    GATE_PORT          = ":40212"
+    GATE_PORT          = ":40214"
 )
  
 type Gate struct {
@@ -23,7 +23,7 @@ type Gate struct {
     fid2frontend        map[uint16]*ClientConnection         
     fids                []uint16
     GateInChan          chan *proto.GateInPack
-    GateOutPack         chan *proto.GateOutPack
+    GateOutChan         chan *proto.GateOutPack
 }
 
 func NewGate(entry chan *proto.GateInPack,  exit chan *proto.GateOutPack) *Gate {
@@ -31,7 +31,7 @@ func NewGate(entry chan *proto.GateInPack,  exit chan *proto.GateOutPack) *Gate 
                     fid2frontend:  make(map[uint16]*ClientConnection),
                     fids: make([]uint16, 0),
                     GateInChan: entry,
-                    GateOutPack:  exit}
+                    GateOutChan:  exit}
     go gs.parse()
     return gs
 }
@@ -77,6 +77,13 @@ func (this *Gate) parse() {
                 this.unregister(conn)
                 continue
             }
+            len_msg := len(msg)
+            fmt.Println("len_msg", len_msg)
+            if len_msg < LEN_URI {
+                continue
+            } else {
+                fmt.Println("msg=", string(msg))
+            }
 
             f_uri := binary.LittleEndian.Uint16(msg[:LEN_URI])
             switch f_uri {
@@ -88,7 +95,7 @@ func (this *Gate) parse() {
                     this.unregister(conn)
             }
 
-        case pack := <-this.GateOutPack:
+        case pack := <-this.GateOutChan:
             this.comeout(pack)
     }}
 }
@@ -114,6 +121,7 @@ func (this *Gate) comein(b []byte) {
 }
 
 func (this *Gate) comeout(pack *proto.GateOutPack) {
+    fmt.Println("coming out", pack)
     l := len(this.fids)
     if l == 0 { return }
     if pack.GetAction() == proto.Action_Broadcast {
@@ -149,8 +157,8 @@ func (this *Gate) register(b []byte, cc *ClientConnection) {
             fmt.Println("fid 0 err")
             return
         }
-        cc_ex := this.fid2frontend[fid]
-        if cc_ex == nil {
+        cc_ex, exist := this.fid2frontend[fid]
+        if !exist {
             this.fid2frontend[fid] = cc
             this.fids = append(this.fids, fid)
         } else {

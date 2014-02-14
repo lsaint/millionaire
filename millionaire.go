@@ -37,8 +37,8 @@ func main() {
     //    log.Println(http.ListenAndServe("localhost:6061", nil))
     //}()
 
-    in := make(chan *proto.GateInPack)
-    out := make(chan *proto.GateOutPack)
+    in := make(chan *proto.GateInPack, 10240)
+    out := make(chan *proto.GateOutPack, 10240)
     pymgr := script.NewPyMgr(in, out)
     gate := network.NewGate(in, out)
     go gate.Start()

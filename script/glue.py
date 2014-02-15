@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sys; sys.path.extend(["./proto/", "./script/"])
-import logic_pb2
+import server_pb2
+import go
 
 from timer import Timer
 
@@ -17,19 +18,21 @@ def OnTicker():
 
 def test():
     print "testtestbanbang"
-    import go
-    go.SendMsg(1, 2, 3, "lSaint", 1)
     t = Timer()
     t.SetTimer(3, foo)
 
 
 def Broadcast(tsid, ssid, uri, bin):
-    go.SendMsg(tsid, ssid, uri, bin, logic_pb2.Braoadcast)
+    go.SendMsg(tsid, ssid, uri, bin, server_pb2.Broadcast)
 
 
 def Randomcast(tsid, ssid, uri, bin):
-    go.SendMsg(tsid, ssid, uri, bin, logic_pb2.Randomcast)
+    go.SendMsg(tsid, ssid, uri, bin, server_pb2.Randomcast)
 
 
 def foo():
     print "onTimer"
+    Broadcast(2080, 1234, 33, "Broadcast-bin")
+    Randomcast(2080, 1234, 77, "Randomcast-bin")
+    t = Timer()
+    t.SetTimer(3, foo)

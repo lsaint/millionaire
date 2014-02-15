@@ -11,6 +11,7 @@ import (
 const (
     LEN_HEAD    =   4
     LEN_URI     =   4
+    LEN_EXTRA   =   LEN_HEAD    // 总长度包括包长
     MAX_LEN_HEAD   = 10240
 )
 
@@ -32,7 +33,7 @@ func NewClientConnection(c net.Conn) *ClientConnection {
 
 func (this *ClientConnection) Send(buf []byte) {
     head := make([]byte, LEN_HEAD)
-    binary.LittleEndian.PutUint16(head, uint16(len(buf)))
+    binary.LittleEndian.PutUint32(head, uint32(len(buf) + LEN_EXTRA))
     buf = append(head, buf...)
 
     select {
@@ -99,7 +100,7 @@ func (this *ClientConnection) duplexReadBody() (ret []byte,  ok bool) {
     if !this.duplexRead(buff_head) {
         return
     }
-    len_head := binary.LittleEndian.Uint16(buff_head)
+    len_head := binary.LittleEndian.Uint32(buff_head) - LEN_EXTRA
     if len_head > MAX_LEN_HEAD {
         fmt.Println("message len too long", len_head, string(buff_head))
         return

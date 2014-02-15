@@ -68,13 +68,12 @@ func (this *PyMgr) onProto(pack *proto.GateInPack) {
     _, err := this.pymod.CallMethodObjArgs("OnProto", tsid.Obj(), ssid.Obj(), uri.Obj(), data.Obj())
     if err != nil {
         fmt.Println("OnProto err:", err)
-        py.Raise(err)
     }
 }
 
 func (this *PyMgr) OnTicker() {
     if _, err := this.pymod.CallMethodObjArgs("OnTicker"); err != nil {
-        py.Raise(err)
+        fmt.Println("OnTicker err:", err)
     }
 }
 

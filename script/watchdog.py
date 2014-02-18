@@ -25,10 +25,12 @@ class WatchDog(object):
         ins = cls()
         ins.ParseFromString(data)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
-        method = getattr(room, method_name)
-        if not method_name:
-            print "not exist method", method_name
-            return
+        method = getattr(room.state, method_name)
+        if not method:
+            method = getattr(room, method_name)
+            if not method:
+                print "not exist method", method_name
+                return
         method(ins)
 
 

@@ -11,8 +11,18 @@ class Room(Sender):
         sender.__init__(self, tsid, ssid)
         self.timer = Timer()
         self.uid2player = {}
-        self.status = Idle
         self.presenter = None
+
+        self.idle_state = IdleState(self)
+        self.ready_state = ReadyState(self)
+        self.timing_state = TimingState(self)
+        self.timeup_state = TimeupState(self)
+        self.statistics_state = StatisticsState(self)
+        self.answer_state = AnswerState(self)
+        self.announce_state = AnnounceState(self)
+        self.award_state = AwardState(self)
+        self.ending_state = EndingState(self)
+        self.state = self.idle_state
 
 
     def reset(self):
@@ -44,8 +54,104 @@ class Room(Sender):
             self.presenter = player
 
 
-    def OnNextStep(self, ins):
-        pass
 
+
+#
+class IdleState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.ready_state
+
+
+#
+class ReadyState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.timing_state
+
+
+#
+class TimingState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.timing_state
+
+
+#
+class TimeupState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.statistics_state
+
+
+#
+class StatisticsState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.answer_state
+
+
+#
+class AnswerState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.announce_state
+
+
+#
+class AnnounceState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.award_state
+
+
+#
+class AwardState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.ending_state
+
+
+#
+class EndingState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnNextStep(self, ins):
+        self.room.state = self.room.idle_state
 
 

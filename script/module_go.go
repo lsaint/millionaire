@@ -6,15 +6,17 @@ import (
 
     pb "code.google.com/p/goprotobuf/proto"
     "millionaire/proto"
+    "millionaire/postman"
 )
 
 
 type GoModule struct {
     sendChan        chan *proto.GateOutPack
+    pm              *postman.Postman
 }
 
-func NewGoModule(out chan *proto.GateOutPack) *GoModule {
-    mod := &GoModule{sendChan: out}
+func NewGoModule(out chan *proto.GateOutPack, pm *postman.Postman) *GoModule {
+    mod := &GoModule{sendChan: out, pm: pm}
     return mod
 }
 
@@ -31,6 +33,14 @@ func (this *GoModule) Py_SendMsg(args *py.Tuple) (ret *py.Base, err error) {
                                         Uri: pb.Uint32(uint32(uri)), 
                                         Action: proto.Action(action).Enum(),
                                         Bin: []byte(sbin)}
+    return py.IncNone(), nil
+}
+
+func (this *GoModule) Py_PostAsync(args *py.Tuple) (ret *py.Base, err error) {
+    var url, content string
+    var sn int
+    err = py.Parse(args, url, content, sn)
+    this.pm.PostAsync(url, content, int64(sn))
     return py.IncNone(), nil
 }
 

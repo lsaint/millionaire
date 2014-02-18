@@ -6,6 +6,7 @@ import (
     
     "github.com/qiniu/py"
     "millionaire/proto"
+    "millionaire/postman"
 )
 
 const (
@@ -19,14 +20,15 @@ const (
 type PyMgr struct {
     recvChan         chan *proto.GateInPack
     sendChan         chan *proto.GateOutPack
+    pm               *postman.Postman
     pymod            *py.Module 
     gomod            py.GoModule
 }
 
 func NewPyMgr(in chan *proto.GateInPack,  out chan *proto.GateOutPack) *PyMgr {
-    mgr := &PyMgr{recvChan: in, sendChan: out}
+    mgr := &PyMgr{recvChan: in, sendChan: out, pm: postman.NewPostman()}
     var err error
-    mgr.gomod, err = py.NewGoModule("go", "", NewGoModule(out))
+    mgr.gomod, err = py.NewGoModule("go", "", NewGoModule(out, mgr.pm))
     // defer gomod.Decref()
     if err != nil {
         fmt.Println(err)
@@ -41,6 +43,10 @@ func NewPyMgr(in chan *proto.GateInPack,  out chan *proto.GateOutPack) *PyMgr {
     defer code.Decref()
 
     mgr.pymod, err = py.ExecCodeModule("glue", code.Obj())
+    if err != nil {
+        fmt.Println(err)
+        panic("ExecCodeModule glue err:")
+    }
     _, err = mgr.pymod.CallMethodObjArgs("test")
     // defer mgr.pymode.Decref()
     if err != nil {
@@ -54,9 +60,11 @@ func (this *PyMgr) Start() {
     ticker := time.Tick(1 * time.Second)
     for { select {
         case <-ticker:
-            this.OnTicker()
+            this.onTicker()
         case pack := <-this.recvChan:
             this.onProto(pack)
+        case post_ret := <-this.pm.DoneChan:
+            this.onPostDone(post_ret.Sn, <-post_ret.Ret)
     }}
 }
 
@@ -71,9 +79,18 @@ func (this *PyMgr) onProto(pack *proto.GateInPack) {
     }
 }
 
-func (this *PyMgr) OnTicker() {
+func (this *PyMgr) onTicker() {
     if _, err := this.pymod.CallMethodObjArgs("OnTicker"); err != nil {
-        fmt.Println("OnTicker err:", err)
+        fmt.Println("onTicker err:", err)
     }
 }
+
+func (this *PyMgr) onPostDone(sn int64, ret string) {
+    py_sn := py.NewInt64(sn); defer py_sn.Decref()
+    py_ret := py.NewString(string(ret)); defer py_ret.Decref()
+    if _, err := this.pymod.CallMethodObjArgs("OnPostDone", py_sn.Obj(), py_ret.Obj()); err != nil {
+        fmt.Println("onPostDone err:", err)
+    }
+}
+
 

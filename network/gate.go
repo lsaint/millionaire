@@ -105,8 +105,7 @@ func (this *Gate) unpack(b []byte) (msg *proto.GateInPack, err error) {
         fmt.Println("FrontendPack String()", fp.String())
         lp := &proto.LogicPack{}
         if err = pb.Unmarshal(fp.Bin, lp); err == nil {
-            msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid,
-                                    Uri: lp.Uri, Bin: lp.Bin}
+            msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid, Uri: lp.Uri, Bin: lp.Bin}
         } else {
             fmt.Println("pb Unmarshal LogicPack", err)
         }
@@ -123,37 +122,47 @@ func (this *Gate) comein(b []byte) {
 }
 
 func (this *Gate) comeout(pack *proto.GateOutPack) {
-    fmt.Println("coming out", pack)
+    fmt.Println("coming out", pack, "fid2frontend", this.fid2frontend)
     l := len(this.fids)
     if l == 0 { return }
+    p := this.doPack(pack)
+    fmt.Println("sended len -> ", len(p))
     if pack.GetAction() == proto.Action_Broadcast {
         // broadcast
         for _, conn := range this.fid2frontend {
-            conn.Send(this.doPack(pack))
+            fmt.Println("broadcast", pack)
+            conn.Send(p)
         }
     } else {
         // randomcast
+        fmt.Println("randomcast", pack)
         cc := this.fid2frontend[this.fids[rand.Intn(l)]]
-        cc.Send(this.doPack(pack))
+        cc.Send(p)
     }
 }
 
 func (this *Gate) doPack(pack *proto.GateOutPack) (ret []byte) {
     lp := &proto.LogicPack{Uri: pack.Uri, Bin: pack.Bin}
     if data, err := pb.Marshal(lp); err == nil {
+        fmt.Println("pack logicpack sucess")
         fp := &proto.FrontendPack{Tsid: pack.Tsid, Ssid: pack.Ssid, Bin: data}
         if data, err = pb.Marshal(fp); err == nil {
+            fmt.Println("pack FrontendPack sucess")
             uri_field := make([]byte, LEN_URI)
             binary.LittleEndian.PutUint32(uri_field, uint32(URI_TRANSPORT))
             ret = append(uri_field, data...)
+        } else {
+            fmt.Println("pack FrontendPack err", err)
         }
+    } else {
+        fmt.Println("pack LogicPack err", err)
     }
     return
 }
 
 func (this *Gate) register(b []byte, cc *ClientConnection) {
     lp := &proto.FrontendRegister{}
-    fmt.Println("unpacking ->", len(b), b, string(b))
+    //fmt.Println("unpacking ->", len(b), b, string(b))
     if err := pb.Unmarshal(b, lp); err == nil {
         fid := uint16(lp.GetFid())
         if fid == 0 {
@@ -161,12 +170,11 @@ func (this *Gate) register(b []byte, cc *ClientConnection) {
             return
         }
         cc_ex, exist := this.fid2frontend[fid]
-        if !exist {
-            this.fid2frontend[fid] = cc
-            this.fids = append(this.fids, fid)
-        } else {
+        if exist {
             this.unregister(cc_ex)
         }
+        this.fid2frontend[fid] = cc
+        this.fids = append(this.fids, fid)
         fmt.Println("register fid:", fid)
     } else {
         fmt.Println("Unmarshal register pack err")
@@ -174,10 +182,11 @@ func (this *Gate) register(b []byte, cc *ClientConnection) {
 }
 
 func (this *Gate) unregister(cc *ClientConnection) {
-    fmt.Println("unregister")
     for fid, c := range this.fid2frontend {
         if c == cc {
-            this.fid2frontend[fid] = nil
+            //this.fid2frontend[fid] = nil
+            delete(this.fid2frontend, fid)
+            fmt.Println("unregister", fid)
             for i, f := range this.fids {
                 if fid == f {
                     last := len(this.fids) - 1

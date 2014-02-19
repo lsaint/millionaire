@@ -5,6 +5,7 @@ from sender import Sender
 from player import Player
 from award import AwardChecker
 from match import g_match_mgr
+from stati import StatiMgr
 from logic_pb2 import *
 
 
@@ -15,7 +16,6 @@ class Room(Sender):
         sender.__init__(self, tsid, ssid)
         self.timer = Timer()
         self.uid2player = {}
-        self.presenter = None
 
         self.idle_state = IdleState(self)
         self.ready_state = ReadyState(self)
@@ -26,19 +26,25 @@ class Room(Sender):
         self.announce_state = AnnounceState(self)
         self.award_state = AwardState(self)
         self.ending_state = EndingState(self)
-        self.state = self.idle_state
+
+        self.reset()
 
 
-    def setState(self, state):
+    def SetState(self, state):
         self.state = state
 
 
     def reset(self):
+        self.SetState(self.idle_state)
         self.timer.ReleaseTimer()
         self.timer = Timer()
+        self.presenter = None
         self.match = None
         self.achecker = None
         self.qpackage = QuesionPackage()
+        self.cur_qid = 0
+        self.cur_q_start_time = 0
+        self.stati = StatiMgr()
 
 
     def OnMatchInfo(self, ins):
@@ -65,9 +71,19 @@ class Room(Sender):
         self.qpackage.Load(qid, doneLoad)
 
 
+    def GenNextQuestion(self, qid):
+        self.cur_qid += 1
+        self.cur_q_start_time = int(time.time())
+        return self.qpackage.GetQuestion(qid)
+
+
+    def GetPlayer(self, uid):
+        return self.uid2player.get(uid)
+
+
     def OnLogin(self, ins):
         player = Player(ins.user)
-        self.uid2player[ins.user.uid] = player
+        player = self.GetPlayer(ins.user.uid)
         rep = L2CLoginRep()
         rep.user = ins.user
         rep.ret = OK
@@ -85,8 +101,11 @@ class Room(Sender):
 
     def OnNotifyMic1(self, ins):
         if ins.action == Up:
-            player = self.uid2player.get(ins.user.uid)
+            player = self.GetPlayer(ins.user.uid)
             self.presenter = player
+            self.SetState(self.ready_state)
+        else:
+            pass
 
 
     def isPresenter(self, user):
@@ -101,7 +120,7 @@ class IdleState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.setState(self.room.ready_state)
+        self.room.SetState(self.room.ready_state)
 
 
 #
@@ -112,7 +131,11 @@ class ReadyState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.setState(self.room.timing_state)
+        self.room.SetState(self.room.timing_state)
+        pb = L2CNotifyTimingStatus()
+        pb.question = self.room.GenNextQuestion()
+        pb.start_time = self.room.cur_q_start_time
+        self.room.Randomcast(pb)
 
 
 #
@@ -122,8 +145,15 @@ class TimingState(object):
         self.room = room
 
 
+    def OnAnswerQuestion(self, ins):
+        if ins.answer.id != self.room.cur_qid:
+            return
+        player = self.GetPlayer(ins.answer.user.uid)
+        self.stati.OnAnswer(player, ins.answer.answer, int(time.time()) - self.cur_q_start_time)
+
+
     def OnNextStep(self, ins):
-        self.room.setState(self.room.timing_state)
+        self.room.SetState(self.room.timeup_state)
 
 
 #
@@ -134,7 +164,7 @@ class TimeupState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.setState(self.room.statistics_state)
+        self.room.SetState(self.room.statistics_state)
 
 
 #
@@ -145,7 +175,7 @@ class StatisticsState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.setState(self.room.answer_state)
+        self.room.SetState(self.room.answer_state)
 
 
 #
@@ -156,7 +186,7 @@ class AnswerState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.setState(self.room.announce_state)
+        self.room.SetState(self.room.announce_state)
 
 
 
@@ -169,7 +199,7 @@ class AnnounceState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.setState(self.room.award_state)
+        self.room.SetState(self.room.award_state)
 
 
 #
@@ -180,7 +210,7 @@ class AwardState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.setState(self.room.ending_state)
+        self.room.SetState(self.room.ending_state)
 
 
 #
@@ -191,6 +221,6 @@ class EndingState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.setState(self.room.idle_state)
+        self.room.SetState(self.room.idle_state)
 
 

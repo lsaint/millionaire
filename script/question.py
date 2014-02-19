@@ -47,5 +47,6 @@ class QuesionPackage(object):
 
 
     def GetQuestion(self, qid):
-        pass
+        return self.id2question.get(qid)
+
 

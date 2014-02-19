@@ -20,7 +20,7 @@ class AwardChecker(object):
     def loadSection(self, race_award):
         if not race_award:
             return
-        for i, section in range race_award_section:
+        for i, section in race_award:
             self.section_remain[section.id] = section
 
 

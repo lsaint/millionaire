@@ -3,6 +3,7 @@
 import sys; sys.path.extend(["./proto/", "./script/"])
 import server_pb2, logic_pb2
 import go
+import post
 
 from timer import Timer
 from watchdog import watchdog
@@ -18,15 +19,8 @@ def OnTicker():
     Timer.Update()
 
 
-sn = 1
-g_post_callback = {}
 def OnPostDone(sn, ret):
-    cb = g_post_callback.get(sn)
-    if cb:
-        cb(ret)
-        del g_post_callback[sn]
-    else:
-        print "not exist post sn", sn
+    post.OnPostDone(sn, ret)
 
 
 def test():

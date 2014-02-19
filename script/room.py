@@ -29,15 +29,16 @@ class Room(Sender):
         self.state = self.idle_state
 
 
-    def setState(self, state)
+    def setState(self, state):
         self.state = state
 
 
     def reset(self):
         self.timer.ReleaseTimer()
         self.timer = Timer()
-        self.achecker = None
         self.match = None
+        self.achecker = None
+        self.qpackage = QuesionPackage()
 
 
     def OnMatchInfo(self, ins):
@@ -59,7 +60,9 @@ class Room(Sender):
             print "[WARNING]", "start non-exist mid", ins.match_id
             return
         self.achecker = AwardChecker(self.match.race_award, self.match.personal_award)
-        self.setState(self.timing_state)
+        def doneLoad():
+            self.state.OnNextStep()
+        self.qpackage.Load(qid, doneLoad)
 
 
     def OnLogin(self, ins):

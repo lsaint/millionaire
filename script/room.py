@@ -5,7 +5,7 @@ from sender import Sender
 from player import Player
 from award import AwardChecker
 from match import g_match_mgr
-import logic_pb2
+from logic_pb2 import *
 
 
 

@@ -6,7 +6,6 @@
 
 
 
-
 class AwardChecker(object):
 
     def __init__(self, race_award, personal_award):
@@ -22,6 +21,11 @@ class AwardChecker(object):
             return
         for i, section in race_award:
             self.section_remain[section.id] = section
+
+
+    def GetFinalId(self):
+        if self.race_award:
+            return self.race_award.final_id
 
 
     def CheckRaceAward(self, qid, survivor_num):

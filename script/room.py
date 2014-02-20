@@ -46,6 +46,7 @@ class Room(Sender):
         self.qpackage = QuesionPackage()
         self.cur_qid = 0
         self.cur_q_start_time = 0
+        self.final_qid = 0
 
 
     def OnMatchInfo(self, ins):
@@ -69,7 +70,19 @@ class Room(Sender):
         self.achecker = AwardChecker(self.match.race_award, self.match.personal_award)
         def doneLoad():
             self.state.OnNextStep()
+            self.SetFinalQid()
         self.qpackage.Load(qid, doneLoad)
+
+
+    def SetFinalQid(self):
+        self.final_qid = self.qpackage.GetQuestionCount()
+        f = self.achecker.GetFinalId()
+        if f and f < self.final_qid:
+            self.final_qid = f
+
+
+    def IsOver(self):
+        return self.cur_qid >= self.final_qid
 
 
     def GenNextQuestion(self, qid):
@@ -120,6 +133,12 @@ class Room(Sender):
         return user.uid == self.presenter.uid
 
 
+    def Settle(self, right_answer):
+        for player, uid in self.uid2player.iteritems():
+            if right_answer != player.GetAnswer(self.cur_qid) and player.role != Presenter:
+                player.role = Loser
+
+
     def GetCurRightAnswer(self):
         return self.qpackage.GetRightAnswer(self.cur_qid)
 
@@ -136,7 +155,18 @@ class Room(Sender):
         return self.achecker.CheckRaceAward(self.cur_qid, self.GetSurvivorNum())
 
 
+    def SetReviver2Surivor(self):
+        for uid, player in self.uid2player.iteritems():
+            player.TurnSurvivor()
+
+
     def PrizeGiving(self):
         return self.achecker.PrizeGiving(self.cur_qid)
 
+
+    def EnterEndingOrTiming(self):
+        if self.IsOver():
+            self.SetState(self.ending_state)
+        else:
+            self.SetState(self.timing_state)
 

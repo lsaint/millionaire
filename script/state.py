@@ -38,6 +38,7 @@ class TimingState(object):
 
 
     def OnEnterState(self):
+        self.room.SetReviver2Surivor()
         pb = L2CNotifyTimingStatus()
         pb.question = self.room.GenNextQuestion()
         pb.start_time = self.room.cur_q_start_time
@@ -54,7 +55,6 @@ class TimingState(object):
         if not player.DoAnswer(ins.answer.id, ins.answer.answer):
             return
         self.stati.OnAnswer(player, ins.answer.answer, int(time.time()) - self.cur_q_start_time)
-
 
 
     def OnNextStep(self, ins):
@@ -106,6 +106,25 @@ class AnswerState(object):
         pb = L2CNotifyAnswerStatus()
         pb.right_answer = self.room.GetRightAnswer()
         self.room.Randomcast(pb)
+        self.room.Settle(pb.right_answer)
+
+
+    def OnNextStep(self, ins):
+        self.room.SetState(self.room.announce_state)
+
+
+#
+class AnnounceState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnEnterState(self):
+        pb = L2CNotifyAnnounceStatus()
+        pb.win_user_amount = self.room.GetSurvivorNum()
+        pb.topn.extend(self.question.GetTopN())
+        self.room.Randomcast(pb)
 
 
     def OnNextStep(self, ins):
@@ -113,8 +132,7 @@ class AnswerState(object):
         if exist:
             self.room.SetState(self.room.award_state)
         else:
-            self.room.SetState(self.room.timing_state)
-
+            self.room.EnterEndingOrTiming()
 
 
 
@@ -130,23 +148,7 @@ class AwardState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.ending_state)
-
-
-
-#
-class AnnounceState(object):
-
-    def __init__(self, room):
-        self.room = room
-
-
-    def OnEnterState(self):
-        pass
-
-
-    def OnNextStep(self, ins):
-        self.room.SetState(self.room.award_state)
+        self.room.EnterEndingOrTiming()
 
 
 #
@@ -157,10 +159,12 @@ class EndingState(object):
 
 
     def OnEnterState(self):
-        pass
+        pb = L2CNotifyEndingStatus()
+        self.room.Randomcast(pb)
 
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.idle_state)
+        # set timer to idle
 
 

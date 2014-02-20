@@ -46,6 +46,10 @@ class QuesionPackage(object):
                     self.id2rightanswer[gq.id] = OP_HEAD[i]
 
 
+    def GetQuestionCount(self):
+        return len(self.id2question)
+
+
     def GetQuestion(self, qid):
         return self.id2question.get(qid)
 

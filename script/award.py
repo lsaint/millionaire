@@ -24,16 +24,24 @@ class AwardChecker(object):
             self.section_remain[section.id] = section
 
 
-    def Check(self, qid, survivor_num):
-        return None
-
-
-    def checkRaceAward(self, qid, survivor_num):
-        ret = []
+    def CheckRaceAward(self, qid, survivor_num):
+        exist = False
+        ret = self.section_done.get(qid) or []
+        if len(ret) > 0:
+            exist = True
+            return ret, exist
         for i, section in self.section_remain.items():
             if qid >= section_done.trigger_id and survivor_num <= section.survivor_num:
+                exist = True
                 ret.append(section)
-                self.section_done[i] = section
+                self.section_done.setdefault(qid, section)
                 del self.section_remain[i]
-        return ret
+        return ret, exist
+
+
+    def PrizeGiving(self, qid):
+        if self.section_done.get(qid) is None:
+            return
+        print "section giving"
+
 

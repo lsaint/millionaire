@@ -32,6 +32,7 @@ class Room(Sender):
 
     def SetState(self, state):
         self.state = state
+        self.state.OnEnterState()
 
 
     def reset(self):
@@ -107,8 +108,31 @@ class Room(Sender):
             pass
 
 
+    def OnNotifyRevive(self, ins):
+        player = self.GetPlayer(ins.user.uid)
+        if not player:
+            return
+        player.DoRevive()
+
+
     def isPresenter(self, user):
         return user.uid == self.presenter.uid
+
+
+    def GetSurvivorNum(self):
+        num = 0
+        for uid, player in self.uid2player.iteritems():
+            if player.role == Survivor:
+                num += 1
+        return num
+
+
+    def CheckCurRaceAward(self):
+        return self.achecker.CheckRaceAward(self.cur_qid, self.GetSurvivorNum())
+
+
+    def PrizeGiving(self):
+        return self.achecker.PrizeGiving(self.cur_qid)
 
 
 #
@@ -116,6 +140,10 @@ class IdleState(object):
 
     def __init__(self, room):
         self.room = room
+
+
+    def OnEnterState(self):
+        pass
 
 
     def OnNextStep(self, ins):
@@ -129,13 +157,12 @@ class ReadyState(object):
         self.room = room
 
 
+    def OnEnterState(self):
+        pass
+
+
     def OnNextStep(self, ins):
         self.room.SetState(self.room.timing_state)
-        pb = L2CNotifyTimingStatus()
-        pb.question = self.room.GenNextQuestion()
-        pb.start_time = self.room.cur_q_start_time
-        self.room.Randomcast(pb)
-        self.stati = StatiMgr(self.room.qpackage.GetRightAnswer(self.cur_qid))
 
 
 #
@@ -145,17 +172,28 @@ class TimingState(object):
         self.room = room
 
 
+    def OnEnterState(self):
+        pb = L2CNotifyTimingStatus()
+        pb.question = self.room.GenNextQuestion()
+        pb.start_time = self.room.cur_q_start_time
+        self.room.Randomcast(pb)
+        self.stati = StatiMgr(self.room.qpackage.GetRightAnswer(self.cur_qid))
+
+
     def OnAnswerQuestion(self, ins):
         if ins.answer.id != self.room.cur_qid:
             return
         player = self.GetPlayer(ins.answer.user.uid)
+        if not player:
+            return
+        if not player.DoAnswer(ins.answer.id, ins.answer.answer):
+            return
         self.stati.OnAnswer(player, ins.answer.answer, int(time.time()) - self.cur_q_start_time)
+
 
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.timeup_state)
-        pb = L2CNotifyTimeupStatus()
-        self.room.Randomcast(pb)
 
 
 #
@@ -165,11 +203,13 @@ class TimeupState(object):
         self.room = room
 
 
+    def OnEnterState(self):
+        pb = L2CNotifyTimeupStatus()
+        self.room.Randomcast(pb)
+
+
     def OnNextStep(self, ins):
         self.room.SetState(self.room.statistics_state)
-        pb = L2CNotifyStatisticsStatus()
-        pb.stati.extend(self.room.stati.GetDistribution())
-        self.room.Randomcast(pb)
 
 
 #
@@ -179,11 +219,15 @@ class StatisticsState(object):
         self.room = room
 
 
+    def OnEnterState(self):
+        pb = L2CNotifyStatisticsStatus()
+        pb.stati.extend(self.room.stati.GetDistribution())
+        pb.sections = self.room.CheckCurRaceAward()
+        self.room.Randomcast(pb)
+
+
     def OnNextStep(self, ins):
         self.room.SetState(self.room.answer_state)
-        pb = L2CNotifyAnswerStatus()
-        pb.right_answer = self.room.qpackage.GetRightAnswer(self.cur_qid)
-        self.room.Randomcast(pb)
 
 
 #
@@ -193,9 +237,35 @@ class AnswerState(object):
         self.room = room
 
 
-    def OnNextStep(self, ins):
-        self.room.SetState(self.room.announce_state)
+    def OnEnterState(self):
+        pb = L2CNotifyAnswerStatus()
+        pb.right_answer = self.room.qpackage.GetRightAnswer(self.cur_qid)
+        self.room.Randomcast(pb)
 
+
+    def OnNextStep(self, ins):
+        _, exist = self.room.CheckCurRaceAward()
+        if exist:
+            self.room.SetState(self.room.award_state)
+        else:
+            self.room.SetState(self.room.timing_state)
+
+
+
+
+#
+class AwardState(object):
+
+    def __init__(self, room):
+        self.room = room
+
+
+    def OnEnterState(self):
+        self.room.PrizeGiving()
+
+
+    def OnNextStep(self, ins):
+        self.room.SetState(self.room.ending_state)
 
 
 
@@ -206,19 +276,12 @@ class AnnounceState(object):
         self.room = room
 
 
+    def OnEnterState(self):
+        pass
+
+
     def OnNextStep(self, ins):
         self.room.SetState(self.room.award_state)
-
-
-#
-class AwardState(object):
-
-    def __init__(self, room):
-        self.room = room
-
-
-    def OnNextStep(self, ins):
-        self.room.SetState(self.room.ending_state)
 
 
 #
@@ -226,6 +289,10 @@ class EndingState(object):
 
     def __init__(self, room):
         self.room = room
+
+
+    def OnEnterState(self):
+        pass
 
 
     def OnNextStep(self, ins):

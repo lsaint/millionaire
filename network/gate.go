@@ -20,16 +20,16 @@ const (
  
 type Gate struct {
     buffChan            chan *ConnBuff
-    fid2frontend        map[uint16]*ClientConnection         
-    fids                []uint16
+    fid2frontend        map[uint32]*ClientConnection         
+    fids                []uint32
     GateInChan          chan *proto.GateInPack
     GateOutChan         chan *proto.GateOutPack
 }
 
 func NewGate(entry chan *proto.GateInPack,  exit chan *proto.GateOutPack) *Gate {
     gs := &Gate{buffChan: make(chan *ConnBuff),
-                    fid2frontend:  make(map[uint16]*ClientConnection),
-                    fids: make([]uint16, 0),
+                    fid2frontend:  make(map[uint32]*ClientConnection),
+                    fids: make([]uint32, 0),
                     GateInChan: entry,
                     GateOutChan:  exit}
     go gs.parse()
@@ -121,12 +121,15 @@ func (this *Gate) comein(b []byte) {
     }
 }
 
+func (this *Gate) randomFid() uint32 {
+    return this.fids[rand.Intn(len(this.fids))]
+}
+
 func (this *Gate) comeout(pack *proto.GateOutPack) {
     fmt.Println("coming out", pack, "fid2frontend", this.fid2frontend)
     l := len(this.fids)
     if l == 0 { return }
     p := this.doPack(pack)
-    fmt.Println("sended len -> ", len(p))
     if pack.GetAction() == proto.Action_Broadcast {
         // broadcast
         for _, conn := range this.fid2frontend {
@@ -136,7 +139,7 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
     } else {
         // randomcast
         fmt.Println("randomcast", pack)
-        cc := this.fid2frontend[this.fids[rand.Intn(l)]]
+        cc := this.fid2frontend[this.randomFid()]
         cc.Send(p)
     }
 }
@@ -144,10 +147,11 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
 func (this *Gate) doPack(pack *proto.GateOutPack) (ret []byte) {
     lp := &proto.LogicPack{Uri: pack.Uri, Bin: pack.Bin}
     if data, err := pb.Marshal(lp); err == nil {
-        fmt.Println("pack logicpack sucess")
         fp := &proto.FrontendPack{Tsid: pack.Tsid, Ssid: pack.Ssid, Bin: data}
+        if pack.GetAction() == proto.Action_Broadcast {
+            fp.Fid = pb.Uint32(this.randomFid())
+        }
         if data, err = pb.Marshal(fp); err == nil {
-            fmt.Println("pack FrontendPack sucess")
             uri_field := make([]byte, LEN_URI)
             binary.LittleEndian.PutUint32(uri_field, uint32(URI_TRANSPORT))
             ret = append(uri_field, data...)
@@ -164,7 +168,7 @@ func (this *Gate) register(b []byte, cc *ClientConnection) {
     lp := &proto.FrontendRegister{}
     //fmt.Println("unpacking ->", len(b), b, string(b))
     if err := pb.Unmarshal(b, lp); err == nil {
-        fid := uint16(lp.GetFid())
+        fid := uint32(lp.GetFid())
         if fid == 0 {
             fmt.Println("fid 0 err")
             return

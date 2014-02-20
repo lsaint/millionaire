@@ -44,7 +44,6 @@ class Room(Sender):
         self.qpackage = QuesionPackage()
         self.cur_qid = 0
         self.cur_q_start_time = 0
-        self.stati = StatiMgr()
 
 
     def OnMatchInfo(self, ins):
@@ -136,6 +135,7 @@ class ReadyState(object):
         pb.question = self.room.GenNextQuestion()
         pb.start_time = self.room.cur_q_start_time
         self.room.Randomcast(pb)
+        self.stati = StatiMgr(self.room.qpackage.GetRightAnswer(self.cur_qid))
 
 
 #
@@ -154,6 +154,8 @@ class TimingState(object):
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.timeup_state)
+        pb = L2CNotifyTimeupStatus()
+        self.room.Randomcast(pb)
 
 
 #
@@ -165,6 +167,9 @@ class TimeupState(object):
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.statistics_state)
+        pb = L2CNotifyStatisticsStatus()
+        pb.stati.extend(self.room.stati.GetDistribution())
+        self.room.Randomcast(pb)
 
 
 #
@@ -176,6 +181,9 @@ class StatisticsState(object):
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.answer_state)
+        pb = L2CNotifyAnswerStatus()
+        pb.right_answer = self.room.qpackage.GetRightAnswer(self.cur_qid)
+        self.room.Randomcast(pb)
 
 
 #

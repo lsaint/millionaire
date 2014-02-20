@@ -50,3 +50,6 @@ class QuesionPackage(object):
         return self.id2question.get(qid)
 
 
+    def GetRightAnswer(self, qid):
+        return self.id2rightanswer.get(qid)
+

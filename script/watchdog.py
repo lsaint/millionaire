@@ -7,6 +7,7 @@ class WatchDog(object):
 
     def __init__(self):
         self.ssid2room = {}
+        self.uid2ssid = {}
 
 
     def gainRoom(self, tsid, ssid):
@@ -21,9 +22,13 @@ class WatchDog(object):
         if cls is None:
             print "not exist uri", uri
             return
-        room = self.gainRoom(tsid, ssid)
         ins = cls()
         ins.ParseFromString(data)
+        ssid = self.checkInRoom(ins)
+        if not ssid:
+            print "not exist ssid"
+            return
+        room = self.gainRoom(tsid, ssid)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
         method = getattr(room.state, method_name)
         if not method:
@@ -32,6 +37,21 @@ class WatchDog(object):
                 print "not exist method", method_name
                 return
         method(ins)
+
+
+    def checkInRoom(self, ins):
+        try:
+            uid = ins.user.uid
+        except:
+            return None
+        if ins.DESCRIPTOR.name == "C2LLogin":
+            if self.uid2ssid.get(uid) != ins.subsid:
+                self.uid2ssid[uid] = ins.subsid
+                return ins.subsid
+        else:
+            return self.uid2ssid.get(uid)
+
+
 
 
 watchdog = WatchDog()

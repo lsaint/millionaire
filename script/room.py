@@ -46,6 +46,8 @@ class Room(Sender):
         self.qpackage = QuesionPackage()
         self.cur_qid = 0
         self.cur_q_start_time = 0
+        self.cur_survivor_num = 0
+        self.cur_award = None
         self.final_qid = 0
 
 
@@ -71,6 +73,10 @@ class Room(Sender):
         def doneLoad():
             self.state.OnNextStep()
             self.SetFinalQid()
+            pb = L2CNotifyMatchInfo()
+            pb.is_warmup = ins.is_warmup
+            pb.match = self.match
+            self.Randomcast(pb)
         self.qpackage.Load(qid, doneLoad)
 
 
@@ -143,16 +149,14 @@ class Room(Sender):
         return self.qpackage.GetRightAnswer(self.cur_qid)
 
 
-    def GetSurvivorNum(self):
-        num = 0
+    def CalSurvivorNum(self):
         for uid, player in self.uid2player.iteritems():
             if player.role == Survivor:
-                num += 1
-        return num
+                self.cur_survivor_num += 1
 
 
-    def CheckCurRaceAward(self):
-        return self.achecker.CheckRaceAward(self.cur_qid, self.GetSurvivorNum())
+    def CheckCurAward(self):
+        self.cur_award = self.achecker.Check(self.cur_qid, self.cur_survivor_num)
 
 
     def SetReviver2Surivor(self):

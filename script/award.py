@@ -28,19 +28,28 @@ class AwardChecker(object):
             return self.race_award.final_id
 
 
-    def CheckRaceAward(self, qid, survivor_num):
-        exist = False
+    def checkFinal(self, qid):
+        if self.race_award and qid == self.race_award.final_id:
+            return self.section_remain
+        return []
+
+
+    def checkRaceAward(self, qid, survivor_num):
         ret = self.section_done.get(qid) or []
         if len(ret) > 0:
-            exist = True
-            return ret, exist
+            return ret
         for i, section in self.section_remain.items():
             if qid >= section_done.trigger_id and survivor_num <= section.survivor_num:
-                exist = True
                 ret.append(section)
                 self.section_done.setdefault(qid, section)
                 del self.section_remain[i]
-        return ret, exist
+        return ret
+
+
+    def Check(self, qid, survivor_num):
+        ret = self.checkFinal(qid)
+        if not ret:
+            return self.checkRaceAward(qid, survivor_num)
 
 
     def PrizeGiving(self, qid):

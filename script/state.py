@@ -85,9 +85,10 @@ class StatisticsState(object):
 
 
     def OnEnterState(self):
+        self.room.CheckCurAward()
         pb = L2CNotifyStatisticsStatus()
         pb.stati.extend(self.room.stati.GetDistribution())
-        pb.sections = self.room.CheckCurRaceAward()
+        pb.sections = self.room.cur_award
         self.room.Randomcast(pb)
 
 
@@ -121,15 +122,19 @@ class AnnounceState(object):
 
 
     def OnEnterState(self):
+        self.room.CalSurvivorNum()
         pb = L2CNotifyAnnounceStatus()
-        pb.win_user_amount = self.room.GetSurvivorNum()
+        pb.win_user_amount = self.room.cur_survivor_num
         pb.topn.extend(self.question.GetTopN())
         self.room.Randomcast(pb)
 
 
     def OnNextStep(self, ins):
-        _, exist = self.room.CheckCurRaceAward()
-        if exist:
+        if self.room.cur_survivor_num == 0:
+            self.room.SetState(self.room.ending_state)
+            return
+
+        if self.room.cur_award:
             self.room.SetState(self.room.award_state)
         else:
             self.room.EnterEndingOrTiming()

@@ -88,7 +88,7 @@ class StatisticsState(object):
         self.room.CheckCurAward()
         pb = L2CNotifyStatisticsStatus()
         pb.stati.extend(self.room.stati.GetDistribution())
-        pb.sections = self.room.cur_award
+        pb.sections = self.room.GetCurAward()
         self.room.Randomcast(pb)
 
 
@@ -134,7 +134,7 @@ class AnnounceState(object):
             self.room.SetState(self.room.ending_state)
             return
 
-        if self.room.cur_award:
+        if self.room.GetCurAward():
             self.room.SetState(self.room.award_state)
         else:
             self.room.EnterEndingOrTiming()

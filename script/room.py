@@ -47,7 +47,6 @@ class Room(Sender):
         self.cur_qid = 0
         self.cur_q_start_time = 0
         self.cur_survivor_num = 0
-        self.cur_award = None
         self.final_qid = 0
 
 
@@ -88,7 +87,7 @@ class Room(Sender):
 
 
     def IsOver(self):
-        return self.cur_qid >= self.final_qid
+        return self.cur_qid >= self.final_qid or self.cur_survivor_num == 0
 
 
     def GenNextQuestion(self, qid):
@@ -156,7 +155,11 @@ class Room(Sender):
 
 
     def CheckCurAward(self):
-        self.cur_award = self.achecker.Check(self.cur_qid, self.cur_survivor_num)
+        return self.achecker.Check(self.cur_qid, self.cur_survivor_num)
+
+
+    def GetCurAward(self):
+        return self.achecker.GetAward(self.cur_qid)
 
 
     def SetReviver2Surivor(self):
@@ -165,7 +168,11 @@ class Room(Sender):
 
 
     def PrizeGiving(self):
-        return self.achecker.PrizeGiving(self.cur_qid)
+        winners = []
+        for uid, player in self.uid2player.iteritems():
+            if player.role  == Survivor:
+                winners.append(uid)
+        return self.achecker.PrizeGiving(self.cur_qid, winners)
 
 
     def EnterEndingOrTiming(self):

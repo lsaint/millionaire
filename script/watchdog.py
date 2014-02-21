@@ -42,7 +42,10 @@ class WatchDog(object):
     def checkInRoom(self, ins):
         try:
             uid = ins.user.uid
-        except:
+            if uid == 0:
+                return ins.subsid
+        except Exception as err:
+            print "checkInRoom err", err
             return None
         if ins.DESCRIPTOR.name == "C2LLogin":
             if self.uid2ssid.get(uid) != ins.subsid:

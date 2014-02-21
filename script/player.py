@@ -11,6 +11,7 @@ class Player(object):
         self.name = user.name
         self.role = Survivor
         self.answers = {}
+        self.ping = 0
 
 
     def DoAnswer(self, qid, answer):

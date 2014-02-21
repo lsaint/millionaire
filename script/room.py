@@ -113,20 +113,56 @@ class Room(Sender):
 
 
     def OnTimeSync(self, ins):
-        pass
+        pb = L2CTimeSyncRep()
+        pb.user = ins.user
+        pb.sn = ins.sn
+        pb.cur_time = int(time.time())
+        self.Randomcast(pb)
 
 
     def OnPing(self, ins):
-        pass
+        if self.presenter and ins.user.uid == self.presenter.uid:
+            pb = L2CPingRep()
+            pb.user = ins.user
+            pb.sn = ins.sn
+            self.Randomcast(pb)
+            self.presenter.ping = time.time()
+
+
+    def NegatePresenter(self, player):
+        player.role = Loser
+        player.ping = 0
+        self.presenter = None
+        pb = L2CNotifyPresenterChange()
+        self.Randomcast(pb)
+
+
+    def SetPresenter(self, player):
+        player.role = Presenter
+        player.ping = time.time()
+        self.presenter = player
+        pb = L2CNotifyPresenterChange()
+        pb.user.uid = player.uid
+        pb.user.name = player.name
+        self.Randomcast(pb)
 
 
     def OnNotifyMic1(self, ins):
-        if ins.action == Up:
-            player = self.GetPlayer(ins.user.uid)
-            self.presenter = player
-            self.SetState(self.ready_state)
-        else:
-            pass
+        if self.presenter and self.presenter.uid == ins.user.uid:
+            return
+        # down
+        uid = ins.user.uid
+        if uid == 0 and self.presenter:
+            self.NegatePresenter(self.presenter)
+            return
+        # up
+        if uid != 0: 
+            if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
+                player = self.GetPlayer(uid)
+                if self.presenter:
+                    self.presenter.NegatePresenter(self.presenter)
+                self.SetPresenter(player)
+                self.SetState(self.ready_state)
 
 
     def OnNotifyRevive(self, ins):
@@ -182,4 +218,4 @@ class Room(Sender):
             self.SetState(self.ending_state, cli_status)
         else:
             self.SetState(self.timing_state, cli_status)
-
+iwq /

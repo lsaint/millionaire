@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from logic_pb2 import *
 
 class IdleState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Idle
 
 
     def OnEnterState(self):
@@ -12,7 +14,7 @@ class IdleState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.ready_state)
+        self.room.SetState(self.room.ready_state, ins.status)
 
 
 #
@@ -20,6 +22,7 @@ class ReadyState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Ready
 
 
     def OnEnterState(self):
@@ -27,7 +30,7 @@ class ReadyState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.timing_state)
+        self.room.SetState(self.room.timing_state, ins.status)
 
 
 #
@@ -35,6 +38,7 @@ class TimingState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Timing
 
 
     def OnEnterState(self):
@@ -58,7 +62,7 @@ class TimingState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.timeup_state)
+        self.room.SetState(self.room.timeup_state, ins.status)
 
 
 #
@@ -66,6 +70,7 @@ class TimeupState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Timeup
 
 
     def OnEnterState(self):
@@ -74,7 +79,7 @@ class TimeupState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.statistics_state)
+        self.room.SetState(self.room.statistics_state, ins.status)
 
 
 #
@@ -82,6 +87,7 @@ class StatisticsState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Statistics
 
 
     def OnEnterState(self):
@@ -93,7 +99,7 @@ class StatisticsState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.answer_state)
+        self.room.SetState(self.room.answer_state, ins.status)
 
 
 #
@@ -101,6 +107,7 @@ class AnswerState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Answer
 
 
     def OnEnterState(self):
@@ -111,7 +118,7 @@ class AnswerState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.announce_state)
+        self.room.SetState(self.room.announce_state, ins.status)
 
 
 #
@@ -119,6 +126,7 @@ class AnnounceState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Announce
 
 
     def OnEnterState(self):
@@ -131,13 +139,13 @@ class AnnounceState(object):
 
     def OnNextStep(self, ins):
         if self.room.cur_survivor_num == 0:
-            self.room.SetState(self.room.ending_state)
+            self.room.SetState(self.room.ending_state, ins.status)
             return
 
         if self.room.GetCurAward():
-            self.room.SetState(self.room.award_state)
+            self.room.SetState(self.room.award_state, ins.status)
         else:
-            self.room.EnterEndingOrTiming()
+            self.room.EnterEndingOrTiming(ins.status)
 
 
 
@@ -146,6 +154,7 @@ class AwardState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Award
 
 
     def OnEnterState(self):
@@ -153,7 +162,7 @@ class AwardState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.EnterEndingOrTiming()
+        self.room.EnterEndingOrTiming(ins.status)
 
 
 #
@@ -161,6 +170,7 @@ class EndingState(object):
 
     def __init__(self, room):
         self.room = room
+        self.status = Ending
 
 
     def OnEnterState(self):
@@ -169,7 +179,7 @@ class EndingState(object):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.idle_state)
+        self.room.SetState(self.room.idle_state, ins.status)
         # set timer to idle
 
 

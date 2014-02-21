@@ -31,7 +31,9 @@ class Room(Sender):
         self.reset()
 
 
-    def SetState(self, state):
+    def SetState(self, state, cli_status):
+        if cli_status and cli_status != self.state.status:
+            return
         self.state = state
         self.state.OnEnterState()
 
@@ -106,7 +108,7 @@ class Room(Sender):
         rep = L2CLoginRep()
         rep.user = ins.user
         rep.ret = OK
-        rep.status = self.status
+        rep.status = self.state.status
         self.Randomcast(rep)
 
 
@@ -175,9 +177,9 @@ class Room(Sender):
         return self.achecker.PrizeGiving(self.cur_qid, winners)
 
 
-    def EnterEndingOrTiming(self):
+    def EnterEndingOrTiming(self, cli_status):
         if self.IsOver():
-            self.SetState(self.ending_state)
+            self.SetState(self.ending_state, cli_status)
         else:
-            self.SetState(self.timing_state)
+            self.SetState(self.timing_state, cli_status)
 

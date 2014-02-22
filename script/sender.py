@@ -21,10 +21,15 @@ class Sender(object):
 
     def Broadcast(self, ins):
         uri, bin = self.parse(ins)
-        go.SendMsg(selftsid, self.ssid, uri, bin, server_pb2.Broadcast)
+        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Broadcast, 0)
 
 
     def Randomcast(self, ins):
         uri, bin = self.parse(ins)
-        go.SendMsg(selftsid, self.ssid, uri, bin, server_pb2.Randomcast)
+        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Randomcast, 0)
+
+
+    def SpecifySend(self, ins, uid):
+        uri, bin = self.parse(ins)
+        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Specify, uid)
 

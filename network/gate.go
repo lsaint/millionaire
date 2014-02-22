@@ -21,6 +21,7 @@ const (
 type Gate struct {
     buffChan            chan *ConnBuff
     fid2frontend        map[uint32]*ClientConnection         
+    uid2fid             map[uint32]uint32
     fids                []uint32
     GateInChan          chan *proto.GateInPack
     GateOutChan         chan *proto.GateOutPack
@@ -29,6 +30,7 @@ type Gate struct {
 func NewGate(entry chan *proto.GateInPack,  exit chan *proto.GateOutPack) *Gate {
     gs := &Gate{buffChan: make(chan *ConnBuff),
                     fid2frontend:  make(map[uint32]*ClientConnection),
+                    uid2fid: make(map[uint32]uint32),
                     fids: make([]uint32, 0),
                     GateInChan: entry,
                     GateOutChan:  exit}
@@ -102,7 +104,10 @@ func (this *Gate) parse() {
 func (this *Gate) unpack(b []byte) (msg *proto.GateInPack, err error) {
     fp := &proto.FrontendPack{}
     if err = pb.Unmarshal(b, fp); err == nil {
-        fmt.Println("FrontendPack String()", fp.String())
+        // register uid2fid
+        if fp.GetUid() != 0 {
+            this.uid2fid[fp.GetUid()] = fp.GetFid()
+        }
         lp := &proto.LogicPack{}
         if err = pb.Unmarshal(fp.Bin, lp); err == nil {
             msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid, Uri: lp.Uri, Bin: lp.Bin}
@@ -130,17 +135,32 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
     l := len(this.fids)
     if l == 0 { return }
     p := this.doPack(pack)
-    if pack.GetAction() == proto.Action_Broadcast {
-        // broadcast
-        for _, conn := range this.fid2frontend {
-            fmt.Println("broadcast", pack)
-            conn.Send(p)
-        }
-    } else {
-        // randomcast
-        fmt.Println("randomcast", pack)
-        cc := this.fid2frontend[this.randomFid()]
-        cc.Send(p)
+
+    switch pack.GetAction() {
+        case proto.Action_Broadcast:
+            for _, conn := range this.fid2frontend {
+                fmt.Println("broadcast", pack)
+                conn.Send(p)
+            }
+        case proto.Action_Randomcast:
+            fmt.Println("randomcast", pack)
+            rfid := this.randomFid()
+            if cc := this.fid2frontend[rfid]; cc != nil {
+                cc.Send(p)
+            } else {
+                fmt.Println("random not find fid2frontend", rfid)
+            }
+        case proto.Action_Specify:
+            fmt.Println("specify", pack)
+            if fid := this.uid2fid[pack.GetUid()]; fid != 0 {
+                if cc := this.fid2frontend[fid]; cc != nil {
+                    cc.Send(p)
+                } else {
+                    fmt.Println("not find fid2frontend", fid)
+                }
+            } else {
+                fmt.Println("not find uid2fid", pack.GetUid())
+            }
     }
 }
 

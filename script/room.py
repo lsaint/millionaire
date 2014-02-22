@@ -218,4 +218,11 @@ class Room(Sender):
             self.SetState(self.ending_state, cli_status)
         else:
             self.SetState(self.timing_state, cli_status)
-iwq /
+
+
+    def OnNotifyRevive(self, ins): 
+        player = self.GetPlayer(ins.user.uid)
+        if player and self.cur_qid == ins.id:
+            player.DoRevive()
+        #else:
+        #    L2FNotifyRevieRep()

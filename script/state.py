@@ -42,7 +42,7 @@ class TimingState(object):
 
 
     def OnEnterState(self):
-        self.room.SetReviver2Surivor()
+        self.room.TransformReviver2Surivor()
         pb = L2CNotifyTimingStatus()
         pb.question = self.room.GenNextQuestion()
         pb.start_time = self.room.cur_q_start_time

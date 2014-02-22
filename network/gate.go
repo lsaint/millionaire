@@ -168,8 +168,11 @@ func (this *Gate) doPack(pack *proto.GateOutPack) (ret []byte) {
     lp := &proto.LogicPack{Uri: pack.Uri, Bin: pack.Bin}
     if data, err := pb.Marshal(lp); err == nil {
         fp := &proto.FrontendPack{Tsid: pack.Tsid, Ssid: pack.Ssid, Bin: data}
-        if pack.GetAction() == proto.Action_Broadcast {
-            fp.Fid = pb.Uint32(this.randomFid())
+        switch pack.GetAction() {
+            case proto.Action_Broadcast:
+                fp.Fid = pb.Uint32(this.randomFid())
+            case proto.Action_Specify:
+                fp.Uid = pack.Uid
         }
         if data, err = pb.Marshal(fp); err == nil {
             uri_field := make([]byte, LEN_URI)

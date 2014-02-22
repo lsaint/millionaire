@@ -30,7 +30,7 @@ class Player(object):
         return True
 
 
-    def TurnSurvivor(self):
+    def TransformSurvivor(self):
         if self.role == Reviver:
             self.role = Survivor
 

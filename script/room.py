@@ -109,23 +109,21 @@ class Room(Sender):
         rep.user = ins.user
         rep.ret = OK
         rep.status = self.state.status
-        self.Randomcast(rep)
+        self.SpecifySend(rep, player.uid)
 
 
     def OnTimeSync(self, ins):
         pb = L2CTimeSyncRep()
-        pb.user = ins.user
         pb.sn = ins.sn
         pb.cur_time = int(time.time())
-        self.Randomcast(pb)
+        self.SpecifySend(pb, ins.user.uid)
 
 
     def OnPing(self, ins):
         if self.presenter and ins.user.uid == self.presenter.uid:
             pb = L2CPingRep()
-            pb.user = ins.user
             pb.sn = ins.sn
-            self.Randomcast(pb)
+            self.SpecifySend(pb, ins.user.uid)
             self.presenter.ping = time.time()
 
 
@@ -200,7 +198,7 @@ class Room(Sender):
         return self.achecker.GetAward(self.cur_qid)
 
 
-    def SetReviver2Surivor(self):
+    def TransformReviver2Surivor(self):
         for uid, player in self.uid2player.iteritems():
             player.TurnSurvivor()
 
@@ -220,9 +218,13 @@ class Room(Sender):
             self.SetState(self.timing_state, cli_status)
 
 
-    def OnNotifyRevive(self, ins): 
+    def OnNotifyRevive(self, ins):
         player = self.GetPlayer(ins.user.uid)
         if player and self.cur_qid == ins.id:
             player.DoRevive()
-        #else:
-        #    L2FNotifyRevieRep()
+        else:
+            pb = L2FNotifyRevieRep()
+            pb.ret = FL
+            self.SpecifySend(pb, ins.user.uid)
+
+

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# json
-# [start, refuse_revive, final, [[alive1, bounty1]...], [start, end, times, bountry]]
 
-
+from post import PostAsync
 
 
 class AwardChecker(object):
@@ -57,8 +55,12 @@ class AwardChecker(object):
 
 
     def PrizeGiving(self, qid, winners):
-        if self.section_done.get(qid) is None:
+        sections =  self.section_done.get(qid)
+        if sections is None:
             return
-        print "section giving"
-
+        bounty = 0
+        for qid, section in sections:
+            bounty += section.bounty
+        # post to vm
+        return bounty
 

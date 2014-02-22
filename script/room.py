@@ -208,7 +208,13 @@ class Room(Sender):
         for uid, player in self.uid2player.iteritems():
             if player.role  == Survivor:
                 winners.append(uid)
-        return self.achecker.PrizeGiving(self.cur_qid, winners)
+        bounty = self.achecker.PrizeGiving(self.cur_qid, winners)
+        pb = L2CNotifyAwardStatus()
+        for uid in winners:
+            pb.users.add().uid = uid
+        pb.bounty = bounty
+        self.Broadcast(pb)
+
 
 
     def EnterEndingOrTiming(self, cli_status):

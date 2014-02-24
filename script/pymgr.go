@@ -3,6 +3,7 @@ package script
 import (
     "fmt"
     "time"
+    "encoding/base64"
     
     "github.com/qiniu/py"
     "millionaire/proto"
@@ -72,7 +73,8 @@ func (this *PyMgr) onProto(pack *proto.GateInPack) {
     tsid := py.NewInt64(int64(pack.GetTsid())); defer tsid.Decref()
     ssid := py.NewInt64(int64(pack.GetSsid())); defer ssid.Decref()
     uri := py.NewInt(int(pack.GetUri())); defer uri.Decref()
-    data := py.NewString(string(pack.Bin)); defer data.Decref()
+    b := base64.StdEncoding.EncodeToString(pack.Bin)
+    data := py.NewString(string(b)); defer data.Decref()
     _, err := this.pymod.CallMethodObjArgs("OnProto", tsid.Obj(), ssid.Obj(), uri.Obj(), data.Obj())
     if err != nil {
         fmt.Println("OnProto err:", err)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import base64
 from uri import *
 from room import Room
 
@@ -24,7 +25,7 @@ class WatchDog(object):
             print "not exist uri", uri
             return
         ins = cls()
-        ins.ParseFromString(data)
+        ins.ParseFromString(base64.b64decode(data))
         ssid = self.checkInRoom(ins)
         if not ssid:
             print "not exist ssid"

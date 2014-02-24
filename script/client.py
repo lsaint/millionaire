@@ -69,6 +69,14 @@ def getMatch(s):
     s.send(doPack(pb))
 
 
+def startMatch(s):
+    gevent.sleep(3)
+    pb = C2LStartMatch()
+    pb.user.uid = MY_UID
+    pb.is_warmup = False
+    pb.match_id = 1
+    s.send(doPack(pb))
+
 
 def doPrint(body):
     fp = FrontendPack()
@@ -115,6 +123,7 @@ jobs = [gevent.spawn(register, s),
         gevent.spawn(login, s),
         gevent.spawn(NotifyMic1, s),
         gevent.spawn(getMatch, s),
+        gevent.spawn(startMatch, s),
         gevent.spawn(get, s)]
 
 gevent.joinall(jobs)

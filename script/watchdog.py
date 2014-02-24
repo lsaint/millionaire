@@ -14,6 +14,7 @@ class WatchDog(object):
         room = self.ssid2room.get(ssid)
         if not room:
             room = Room(tsid, ssid)
+            self.ssid2room[ssid] = room
         return room
 
 

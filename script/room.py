@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 from timer import Timer
 from sender import Sender
 from state import *
@@ -54,7 +55,6 @@ class Room(Sender):
 
 
     def OnMatchInfo(self, ins):
-        print "OnMatchInfo"
         ms = g_match_mgr.GetMatchList()
         rep = L2CMatchInfoRep()
         rep.matchs.extend(ms)
@@ -107,6 +107,7 @@ class Room(Sender):
         player = self.GetPlayer(ins.user.uid)
         if not player:
             player = Player(ins.user)
+            self.uid2player[player.uid] = player
         rep = L2CLoginRep()
         rep.user.role = player.role
         rep.ret = OK
@@ -142,8 +143,8 @@ class Room(Sender):
         player.ping = time.time()
         self.presenter = player
         pb = L2CNotifyPresenterChange()
-        pb.user.uid = player.uid
-        pb.user.name = player.name
+        pb.presenter.uid = player.uid
+        pb.presenter.name = player.name
         self.Randomcast(pb)
 
 
@@ -156,11 +157,11 @@ class Room(Sender):
             self.NegatePresenter(self.presenter)
             return
         # up
-        if uid != 0: 
+        if uid != 0:
             if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
                 player = self.GetPlayer(uid)
                 if self.presenter:
-                    self.presenter.NegatePresenter(self.presenter)
+                    self.NegatePresenter(self.presenter)
                 self.SetPresenter(player)
                 self.SetState(self.ready_state)
 

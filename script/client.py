@@ -47,13 +47,23 @@ def register(s):
 def login(s):
     pb = C2LLogin()
     pb.user.uid = MY_UID
+    pb.user.name = "lSaint"
     pb.topsid = TSID
     pb.subsid = SSID
     s.send(doPack(pb, MY_UID, FID))
 
 
-def getMatch(s):
+def NotifyMic1(s):
     gevent.sleep(1)
+    pb = F2LNotifyMic1() 
+    pb.user.uid = MY_UID
+    topsid = TSID
+    subsid = SSID
+    s.send(doPack(pb))
+    
+
+def getMatch(s):
+    gevent.sleep(2)
     pb = C2LMatchInfo()
     pb.user.uid = MY_UID
     s.send(doPack(pb))
@@ -103,6 +113,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(("127.0.0.1", 40214))
 jobs = [gevent.spawn(register, s),
         gevent.spawn(login, s),
+        gevent.spawn(NotifyMic1, s),
         gevent.spawn(getMatch, s),
         gevent.spawn(get, s)]
 

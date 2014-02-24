@@ -56,7 +56,7 @@ class Room(Sender):
     def OnMatchInfo(self, ins):
         print "OnMatchInfo"
         ms = g_match_mgr.GetMatchList()
-        rep = C2LMatchInfo()
+        rep = L2CMatchInfoRep()
         rep.matchs.extend(ms)
         self.Randomcast(rep)
 

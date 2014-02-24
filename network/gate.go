@@ -108,12 +108,7 @@ func (this *Gate) unpack(b []byte) (msg *proto.GateInPack, err error) {
         if fp.GetUid() != 0 {
             this.uid2fid[fp.GetUid()] = fp.GetFid()
         }
-        lp := &proto.LogicPack{}
-        if err = pb.Unmarshal(fp.Bin, lp); err == nil {
-            msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid, Uri: lp.Uri, Bin: lp.Bin}
-        } else {
-            fmt.Println("pb Unmarshal LogicPack", err)
-        }
+        msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid, Uri: fp.Uri, Bin: fp.Bin}
     } else {
         fmt.Println("pb Unmarshal FrontendPack", err)
     }
@@ -165,33 +160,28 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
 }
 
 func (this *Gate) doPack(pack *proto.GateOutPack) (ret []byte) {
-    lp := &proto.LogicPack{Uri: pack.Uri, Bin: pack.Bin}
-    if data, err := pb.Marshal(lp); err == nil {
-        fp := &proto.FrontendPack{Tsid: pack.Tsid, Ssid: pack.Ssid, Bin: data}
-        switch pack.GetAction() {
-            case proto.Action_Broadcast:
-                fp.Fid = pb.Uint32(this.randomFid())
-            case proto.Action_Specify:
-                fp.Uid = pack.Uid
-        }
-        if data, err = pb.Marshal(fp); err == nil {
-            uri_field := make([]byte, LEN_URI)
-            binary.LittleEndian.PutUint32(uri_field, uint32(URI_TRANSPORT))
-            ret = append(uri_field, data...)
-        } else {
-            fmt.Println("pack FrontendPack err", err)
-        }
+    fp := &proto.FrontendPack{Uri: pack.Uri, Tsid: pack.Tsid, Ssid: pack.Ssid, Bin: pack.Bin}
+    switch pack.GetAction() {
+        case proto.Action_Broadcast:
+            fp.Fid = pb.Uint32(this.randomFid())
+        case proto.Action_Specify:
+            fp.Uid = pack.Uid
+    }
+    if data, err := pb.Marshal(fp); err == nil {
+        uri_field := make([]byte, LEN_URI)
+        binary.LittleEndian.PutUint32(uri_field, uint32(URI_TRANSPORT))
+        ret = append(uri_field, data...)
     } else {
-        fmt.Println("pack LogicPack err", err)
+        fmt.Println("pack FrontendPack err", err)
     }
     return
 }
 
 func (this *Gate) register(b []byte, cc *ClientConnection) {
-    lp := &proto.FrontendRegister{}
+    fp := &proto.FrontendRegister{}
     //fmt.Println("unpacking ->", len(b), b, string(b))
-    if err := pb.Unmarshal(b, lp); err == nil {
-        fid := uint32(lp.GetFid())
+    if err := pb.Unmarshal(b, fp); err == nil {
+        fid := uint32(fp.GetFid())
         if fid == 0 {
             fmt.Println("fid 0 err")
             return

@@ -19,19 +19,16 @@ TSID = 1
 SSID = 2
 
 
-def doPack(ins, uid, fid):
+def doPack(ins, uid=0, fid=0):
     cls = ins.__class__
     uri = CLASS2URI.get(cls)
     bin = ins.SerializeToString()
 
-    lp = LogicPack()
-    lp.uri = uri
-    lp.bin = bin
-
     fp = FrontendPack()
+    fp.uri = uri
     fp.tsid = 1
     fp.ssid = 2
-    fp.bin = lp.SerializeToString()
+    fp.bin = bin
 
     if uid:
         fp.uid = uid
@@ -55,18 +52,22 @@ def login(s):
     s.send(doPack(pb, MY_UID, FID))
 
 
+def getMatch(s):
+    gevent.sleep(1)
+    pb = C2LMatchInfo()
+    pb.user.uid = MY_UID
+    s.send(doPack(pb))
+
+
+
 def doPrint(body):
     fp = FrontendPack()
     fp.ParseFromString(body[LEN:])
     print "FrontendPack", fp.tsid, fp.ssid, fp.fid, fp.uid
-
-    lp = LogicPack()
-    lp.ParseFromString(fp.bin)
-
-    cls = URI2CLASS[lp.uri]
+    cls = URI2CLASS[fp.uri]
     ins = cls()
-    ins.ParseFromString(lp.bin)
-    print "LogicPack", lp.uri, ins.DESCRIPTOR.name, ins
+    ins.ParseFromString(fp.bin)
+    print "->", fp.uri, ins.DESCRIPTOR.name, ins
 
 
 def parse(data):
@@ -100,7 +101,10 @@ def get(s):
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(("127.0.0.1", 40214))
-jobs = [gevent.spawn(register, s), gevent.spawn(login, s), gevent.spawn(get, s)]
+jobs = [gevent.spawn(register, s),
+        gevent.spawn(login, s),
+        gevent.spawn(getMatch, s),
+        gevent.spawn(get, s)]
 
 gevent.joinall(jobs)
 

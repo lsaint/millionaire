@@ -17,7 +17,7 @@ class MatchMgr(object):
 
 
     def startLoad(self):
-        self.timer.SetTimer(LOAD_MATCH_INTERVAL, self.load, self)
+        self.timer.SetTimer(LOAD_MATCH_INTERVAL, self.load)
 
 
     def load(self):

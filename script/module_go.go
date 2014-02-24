@@ -2,6 +2,7 @@ package script
 
 import (
     "fmt"
+    "encoding/base64"
     "github.com/qiniu/py"
 
     pb "code.google.com/p/goprotobuf/proto"
@@ -28,12 +29,18 @@ func (this *GoModule) Py_SendMsg(args *py.Tuple) (ret *py.Base, err error) {
         fmt.Println("SendMsg err", err)
         return
     }
+    
+    b, err := base64.StdEncoding.DecodeString(sbin)
+    if err != nil {
+        fmt.Println("Base64 decode err", err)
+        return   
+    }
     this.sendChan <- &proto.GateOutPack{Tsid: pb.Uint32(uint32(tsid)), 
                                         Ssid: pb.Uint32(uint32(ssid)), 
                                         Uri: pb.Uint32(uint32(uri)), 
                                         Action: proto.Action(action).Enum(),
                                         Uid : pb.Uint32(uint32(uid)),
-                                        Bin: []byte(sbin)}
+                                        Bin: b}
     return py.IncNone(), nil
 }
 

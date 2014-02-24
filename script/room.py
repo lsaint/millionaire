@@ -6,6 +6,7 @@ from state import *
 from player import Player
 from award import AwardChecker
 from match import g_match_mgr
+from question import QuesionPackage
 from stati import StatiMgr
 from logic_pb2 import *
 
@@ -14,7 +15,7 @@ from logic_pb2 import *
 class Room(Sender):
 
     def __init__(self, tsid, ssid):
-        sender.__init__(self, tsid, ssid)
+        Sender.__init__(self, tsid, ssid)
         self.timer = Timer()
         self.uid2player = {}
 
@@ -31,7 +32,7 @@ class Room(Sender):
         self.reset()
 
 
-    def SetState(self, state, cli_status):
+    def SetState(self, state, cli_status=None):
         if cli_status and cli_status != self.state.status:
             return
         self.state = state
@@ -103,10 +104,11 @@ class Room(Sender):
 
 
     def OnLogin(self, ins):
-        player = Player(ins.user)
         player = self.GetPlayer(ins.user.uid)
+        if not player:
+            player = Player(ins.user)
         rep = L2CLoginRep()
-        rep.user = ins.user
+        rep.user.role = player.role
         rep.ret = OK
         rep.status = self.state.status
         self.SpecifySend(rep, player.uid)

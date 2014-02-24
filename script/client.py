@@ -12,15 +12,16 @@ import gevent
 from gevent import socket
 
 
-LEN_URI = 4
+LEN = 4
 MY_UID = 10593000
+FID = 7
 TSID = 1
 SSID = 2
 
 
-def doPack(pb, uid, fid):
+def doPack(ins, uid, fid):
     cls = ins.__class__
-    uri = uri.CLASS2URI.get(cls)
+    uri = CLASS2URI.get(cls)
     bin = ins.SerializeToString()
 
     lp = LogicPack()
@@ -41,7 +42,7 @@ def doPack(pb, uid, fid):
 
 def register(s):
     fr = FrontendRegister()
-    fr.fid = 7
+    fr.fid = FID
     msg = "%s%s" % (struct.pack("II", fr.ByteSize() + 8, 1),  fr.SerializeToString())
     s.send(msg)
 
@@ -51,12 +52,12 @@ def login(s):
     pb.user.uid = MY_UID
     pb.topsid = TSID
     pb.subsid = SSID
-    s.send(doPack(pb, MY_UID))
+    s.send(doPack(pb, MY_UID, FID))
 
 
 def doPrint(body):
     fp = FrontendPack()
-    fp.ParseFromString(body[LEN_URI:])
+    fp.ParseFromString(body[LEN:])
     print "FrontendPack", fp.tsid, fp.ssid, fp.fid, fp.uid
 
     lp = LogicPack()
@@ -69,13 +70,13 @@ def doPrint(body):
 
 
 def parse(data):
-    if len(data) < LEN_URI:
+    if len(data) < LEN:
         return data
-    (length,) = struct.unpack('I', data[:LEN_URI])
+    (length,) = struct.unpack('I', data[:LEN])
 
     if len(data) >= length:
         more = data[length:]
-        body = data[LEN_URI:]
+        body = data[LEN:]   #
         doPrint(body)
         return more
     return data

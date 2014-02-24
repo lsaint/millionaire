@@ -79,14 +79,14 @@ func (this *Gate) parse() {
                 this.unregister(conn)
                 continue
             }
-            fmt.Println("len=", len(msg), "msg=", string(msg), "byte=", msg)
+            //fmt.Println("len=", len(msg), "msg=", string(msg), "byte=", msg)
             len_msg := len(msg)
             if len_msg < LEN_URI {
                 continue
             } 
 
             f_uri := binary.LittleEndian.Uint32(msg[:LEN_URI])
-            fmt.Println("f_uri=", f_uri)
+            //fmt.Println("f_uri=", f_uri)
             switch f_uri {
                 case URI_REGISTER:
                     this.register(msg[LEN_URI:], conn)
@@ -131,7 +131,7 @@ func (this *Gate) randomFid() uint32 {
 }
 
 func (this *Gate) comeout(pack *proto.GateOutPack) {
-    fmt.Println("coming out", pack, "fid2frontend", this.fid2frontend)
+    //fmt.Println("coming out", pack, "fid2frontend", this.fid2frontend)
     l := len(this.fids)
     if l == 0 { return }
     p := this.doPack(pack)

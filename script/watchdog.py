@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import uri
+from uri import *
 from room import Room
 
 class WatchDog(object):
@@ -18,7 +18,7 @@ class WatchDog(object):
 
 
     def dispatch(self, tsid, ssid, uri, data):
-        cls = uri.URI2NAME[uri]
+        cls = URI2CLASS[uri]
         if cls is None:
             print "not exist uri", uri
             return
@@ -30,13 +30,17 @@ class WatchDog(object):
             return
         room = self.gainRoom(tsid, ssid)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
-        method = getattr(room.state, method_name)
-        if not method:
-            method = getattr(room, method_name)
-            if not method:
+        print "py dispatch:", tsid, ssid, method_name
+        print ins
+        try:
+            method = getattr(room.state, method_name)
+        except:
+            try:
+                method = getattr(room, method_name)
+            except:
                 print "not exist method", method_name
-                return
-        method(ins)
+            else:
+                method(ins)
 
 
     def checkInRoom(self, ins):
@@ -45,15 +49,14 @@ class WatchDog(object):
             if uid == 0:
                 return ins.subsid
         except Exception as err:
-            print "checkInRoom err", err
+            print "check in Room err", err
             return None
-        if ins.DESCRIPTOR.name == "C2LLogin":
-            if self.uid2ssid.get(uid) != ins.subsid:
-                self.uid2ssid[uid] = ins.subsid
-                return ins.subsid
         else:
+            if ins.DESCRIPTOR.name == "C2LLogin":
+                if self.uid2ssid.get(uid) != ins.subsid:
+                    self.uid2ssid[uid] = ins.subsid
+                    return ins.subsid
             return self.uid2ssid.get(uid)
-
 
 
 

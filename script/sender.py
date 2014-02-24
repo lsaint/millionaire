@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import go
-import uri
+from uri import CLASS2URI
 import server_pb2
+import base64
 
 class Sender(object):
 
@@ -14,9 +15,9 @@ class Sender(object):
 
     def parse(self, ins):
         cls = ins.__class__
-        uri = uri.CLASS2URI.get(cls)
+        uri = CLASS2URI.get(cls)
         bin = ins.SerializeToString()
-        return uri, bin
+        return uri, base64.b64encode(bin)
 
 
     def Broadcast(self, ins):

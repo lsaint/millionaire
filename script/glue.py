@@ -11,7 +11,7 @@ from watchdog import watchdog
 
 
 def OnProto(tsid, ssid, uri, data):
-    print "python onProto", tsid, ssid, uri, len(data)
+    print "python OnProto:", tsid, ssid, uri, len(data)
     watchdog.dispatch(tsid, ssid, uri, data)
 
 
@@ -25,8 +25,8 @@ def OnPostDone(sn, ret):
 
 def test():
     print "testtestbanbang"
-    t = Timer()
-    t.SetTimer(3, foo)
+    #t = Timer()
+    #t.SetTimer(3, foo)
 
 
 def foo():

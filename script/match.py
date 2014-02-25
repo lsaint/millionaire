@@ -2,16 +2,21 @@
 #
 
 
-import go, json
+import go, json, time
+from datetime import datetime
+
 from logic_pb2 import *
 from timer import Timer
 
 WARMUP_MATCH_ID = 1
 LOAD_MATCH_INTERVAL = 60
+LOAD_PREVIEW_INTERVAL = 60
+TIME_FORMAT =  "%Y-%m-%d %H:%M:%S"
 
 class MatchMgr(object):
 
     def __init__(self):
+        self.preview = None
         self.matchs = {}    # GameMatch
         self.timer = Timer()
 
@@ -27,6 +32,24 @@ class MatchMgr(object):
         for m in lt:
             self.matchs[m["id"]] = self.loadMatch(m)
         print "load match sucess.."
+        self.loadPreview()
+
+
+    def loadPreview(self):
+        from jn import jn_preview
+        pv = json.loads(jn_preview)
+        start_s = time.strptime(pv["start"], TIME_FORMAT)
+        end_s = time.strptime(pv["end"], TIME_FORMAT)
+        start = datetime.fromtimestamp(time.mktime(start_s))
+        end = datetime.fromtimestamp(time.mktime(end_s))
+        now = datetime.now()
+        if start < now and now < end:
+            pb = L2CNotifyPreview()
+            pb.desc = pv["desc"]
+            pb.start = pv["start"]
+            pb.end = pv["end"]
+            self.preview = pb
+        print "load preview sucess.."
 
 
     def loadMatch(self, m):
@@ -77,7 +100,8 @@ class MatchMgr(object):
         return self.matchs.get(mid)
 
 
-
+    def GetPreview(self):
+        return self.preview
 
 
 g_match_mgr = MatchMgr()

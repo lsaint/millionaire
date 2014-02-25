@@ -28,6 +28,7 @@ class Room(Sender):
         self.announce_state = AnnounceState(self)
         self.award_state = AwardState(self)
         self.ending_state = EndingState(self)
+        self.state = self.idle_state
 
         self.reset()
 
@@ -35,8 +36,9 @@ class Room(Sender):
     def SetState(self, state, cli_status=None):
         if cli_status and cli_status != self.state.status:
             return
+        self.state.OnLeaveState()
         self.state = state
-        print "Enter State ===", str(state)
+        print "Enter State =>", str(state)
         self.state.OnEnterState()
 
 

@@ -1,19 +1,54 @@
 # -*- coding: utf-8 -*-
 
 import time
-from logic_pb2 import *
-from stati import StatiMgr
 
-class IdleState(object):
+from logic_pb2 import *
+from timer import Timer
+from stati import StatiMgr
+from match import g_match_mgr, LOAD_PREVIEW_INTERVAL
+
+
+
+class State(object):
+
+    def OnEnterState(self):
+        pass
+
+    def OnLeaveState(self):
+        pass
+
+    def OnNextStep(self, ins):
+        pass
+
+
+#
+
+
+class IdleState(State):
 
     def __init__(self, room):
         self.room = room
         self.status = Idle
+        self.timer = Timer()
 
 
     def OnEnterState(self):
         pb = L2CNotifyIdleStatus()
         self.room.Randomcast(pb)
+        self.timer.SetTimer(LOAD_PREVIEW_INTERVAL, self.checkShowPreview)
+
+
+    def checkShowPreview(self):
+        print "checkShowPreview"
+        pv = g_match_mgr.GetPreview()
+        if pv:
+            pb = L2CNotifyPreview()
+            pb.MergeFrom(pv)
+            self.room.Randomcast(pb)
+
+
+    def OnLeaveState(self):
+        self.timer.ReleaseTimer()
 
 
     def OnNextStep(self, ins):
@@ -21,7 +56,7 @@ class IdleState(object):
 
 
 #
-class ReadyState(object):
+class ReadyState(State):
 
     def __init__(self, room):
         self.room = room
@@ -30,7 +65,7 @@ class ReadyState(object):
 
     def OnEnterState(self):
         pb = L2CNotifyReadyStatus() 
-        pb.desc = "即将开始"
+        pb.desc = "ready"
         self.room.Randomcast(pb)
 
 
@@ -39,7 +74,7 @@ class ReadyState(object):
 
 
 #
-class TimingState(object):
+class TimingState(State):
 
     def __init__(self, room):
         self.room = room
@@ -71,7 +106,7 @@ class TimingState(object):
 
 
 #
-class TimeupState(object):
+class TimeupState(State):
 
     def __init__(self, room):
         self.room = room
@@ -88,7 +123,7 @@ class TimeupState(object):
 
 
 #
-class StatisticsState(object):
+class StatisticsState(State):
 
     def __init__(self, room):
         self.room = room
@@ -110,7 +145,7 @@ class StatisticsState(object):
 
 
 #
-class AnswerState(object):
+class AnswerState(State):
 
     def __init__(self, room):
         self.room = room
@@ -129,7 +164,7 @@ class AnswerState(object):
 
 
 #
-class AnnounceState(object):
+class AnnounceState(State):
 
     def __init__(self, room):
         self.room = room
@@ -157,7 +192,7 @@ class AnnounceState(object):
 
 
 #
-class AwardState(object):
+class AwardState(State):
 
     def __init__(self, room):
         self.room = room
@@ -173,7 +208,7 @@ class AwardState(object):
 
 
 #
-class EndingState(object):
+class EndingState(State):
 
     def __init__(self, room):
         self.room = room

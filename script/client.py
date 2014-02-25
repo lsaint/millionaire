@@ -78,6 +78,16 @@ def startMatch(s):
     s.send(doPack(pb))
 
 
+def answerQuestion(s):
+    gevent.sleep(4)
+    pb = C2LAnswerQuestion() 
+    pb.user.uid = MY_UID
+    pb.answer.user.uid = MY_UID
+    pb.answer.answer = A
+    s.send(doPack(pb))
+
+
+
 def doPrint(body):
     fp = FrontendPack()
     fp.ParseFromString(body[LEN:])
@@ -88,17 +98,20 @@ def doPrint(body):
     print "->", fp.uri, ins.DESCRIPTOR.name, ins
 
 
-def parse(data):
-    if len(data) < LEN:
-        return data
-    (length,) = struct.unpack('I', data[:LEN])
+def parse(buf):
+    if len(buf) < LEN:
+        return buf, False
+    (length,) = struct.unpack('I', buf[:LEN])
 
-    if len(data) >= length:
-        more = data[length:]
-        body = data[LEN:]   #
-        doPrint(body)
-        return more
-    return data
+    if len(buf) >= length:
+        more = buf[length:]
+        body = buf[LEN:]   #
+        try:
+            doPrint(body)
+        except:
+            print "parse err"
+        return more, True
+    return buf, False
 
 
 
@@ -111,9 +124,10 @@ def get(s):
             print "close by peer"
             break
 
-        #print "recv len", len(data)
         buf = "%s%s" % (buf, data)
-        buf = parse(buf)
+        go_on = True
+        while go_on:
+            buf, go_on = parse(buf)
 
 
 
@@ -124,6 +138,7 @@ jobs = [gevent.spawn(register, s),
         gevent.spawn(NotifyMic1, s),
         gevent.spawn(getMatch, s),
         gevent.spawn(startMatch, s),
+        gevent.spawn(answerQuestion, s),
         gevent.spawn(get, s)]
 
 gevent.joinall(jobs)

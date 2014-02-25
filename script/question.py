@@ -20,17 +20,24 @@ class QuesionPackage(object):
         self.id2rightanswer = {}
 
 
-    def Load(self, qid, func):
+    def Load(self, pid, func):
         def done(sn, ret):
             self.parseJson(ret)
             func()
-        PostAsync(URL_QUESTION, qid, done)
+        # test
+        from jn import jn_question
+        done(0, jn_question)
+        print "id2question: "
+        for k, v in self.id2question.items():
+            print str(v)
+        print "id2rightanswer: ", self.id2rightanswer
+        #PostAsync(URL_QUESTION, pid, done)
 
 
     def parseJson(self, jn):
         global OP_HEAD
-        lt = json.loads(ret)
-        for i, q in lt:
+        lt = json.loads(jn)
+        for q in lt:
             op = q[2]                           # options
             right_answer = op[0]
             random.shuffle(op)

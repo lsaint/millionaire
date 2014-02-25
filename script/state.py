@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from logic_pb2 import *
+from stati import StatiMgr
 
 class IdleState(object):
 
@@ -44,9 +45,9 @@ class TimingState(object):
     def OnEnterState(self):
         self.room.TransformReviver2Surivor()
         pb = L2CNotifyTimingStatus()
-        pb.question = self.room.GenNextQuestion()
+        pb.question.MergeFrom(self.room.GenNextQuestion())
         pb.start_time = self.room.cur_q_start_time
-        self.room.Randomcast(pb)
+        self.room.Broadcast(pb)
         self.stati = StatiMgr(self.room.GetCurRightAnswer())
 
 

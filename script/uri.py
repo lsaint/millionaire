@@ -23,7 +23,7 @@ URI2CLASS = {
         114     :   L2CNotifyReadyStatus,
         115     :   L2CNotifyTimingStatus,
         116     :   L2CNotifyTimeupStatus,
-        117     :   C2LAnswerQuesion,
+        117     :   C2LAnswerQuestion,
         118     :   L2CNotifyStatisticsStatus,
         119     :   L2CNotifyAnswerStatus,
         120     :   L2CNotifyAnnounceStatus,

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys; sys.path.extend(["./proto/", "./script/"])
+import traceback
 import server_pb2, logic_pb2
 import go
 import post
@@ -12,7 +13,11 @@ from watchdog import watchdog
 
 def OnProto(tsid, ssid, uri, data):
     print "python OnProto:", tsid, ssid, uri, len(data)
-    watchdog.dispatch(tsid, ssid, uri, data)
+    try:
+        watchdog.dispatch(tsid, ssid, uri, data)
+    except Exception as err:
+        print "--------err----------"
+        print traceback.format_exc()
 
 
 def OnTicker():

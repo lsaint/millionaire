@@ -8,7 +8,6 @@ from player import Player
 from award import AwardChecker
 from match import g_match_mgr
 from question import QuesionPackage
-from stati import StatiMgr
 from logic_pb2 import *
 
 
@@ -37,6 +36,7 @@ class Room(Sender):
         if cli_status and cli_status != self.state.status:
             return
         self.state = state
+        print "Enter State ===", str(state)
         self.state.OnEnterState()
 
 
@@ -71,15 +71,20 @@ class Room(Sender):
         if not self.match:
             print "[WARNING]", "start non-exist mid", ins.match_id
             return
+        self.notifyMatchInfo(ins.is_warmup)
         self.achecker = AwardChecker(self.match.race_award, self.match.personal_award)
         def doneLoad():
-            self.state.OnNextStep()
+            self.SetState(self.timing_state)
             self.SetFinalQid()
-            pb = L2CNotifyMatchInfo()
-            pb.is_warmup = ins.is_warmup
-            pb.match = self.match
-            self.Randomcast(pb)
-        self.qpackage.Load(qid, doneLoad)
+        self.qpackage.Load(self.match.pid, doneLoad)
+
+
+    def notifyMatchInfo(self, is_warmup):
+        pb = L2CNotifyMatchInfo()
+        pb.is_warmup = is_warmup
+        pb.match.MergeFrom(self.match)
+        pb.match.ClearField("pid")
+        self.Randomcast(pb)
 
 
     def SetFinalQid(self):
@@ -93,10 +98,10 @@ class Room(Sender):
         return self.cur_qid >= self.final_qid or self.cur_survivor_num == 0
 
 
-    def GenNextQuestion(self, qid):
+    def GenNextQuestion(self):
         self.cur_qid += 1
         self.cur_q_start_time = int(time.time())
-        return self.qpackage.GetQuestion(qid)
+        return self.qpackage.GetQuestion(self.cur_qid)
 
 
     def GetPlayer(self, uid):
@@ -203,7 +208,7 @@ class Room(Sender):
 
     def TransformReviver2Surivor(self):
         for uid, player in self.uid2player.iteritems():
-            player.TurnSurvivor()
+            player.TransformSurvivor()
 
 
     def PrizeGiving(self):

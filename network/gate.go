@@ -134,22 +134,22 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
     switch pack.GetAction() {
         case proto.Action_Broadcast:
             for _, conn := range this.fid2frontend {
-                //fmt.Println("broadcast", pack)
                 conn.Send(p)
+                fmt.Println("broadcast", len(p))
             }
         case proto.Action_Randomcast:
-            //fmt.Println("randomcast", pack)
             rfid := this.randomFid()
             if cc := this.fid2frontend[rfid]; cc != nil {
                 cc.Send(p)
+                fmt.Println("randomcast", len(p))
             } else {
                 fmt.Println("random not find fid2frontend", rfid)
             }
         case proto.Action_Specify:
-            //fmt.Println("specify", pack)
             if fid := this.uid2fid[pack.GetUid()]; fid != 0 {
                 if cc := this.fid2frontend[fid]; cc != nil {
                     cc.Send(p)
+                    fmt.Println("specify", len(p))
                 } else {
                     fmt.Println("not find fid2frontend", fid)
                 }

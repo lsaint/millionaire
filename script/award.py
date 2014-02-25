@@ -9,15 +9,15 @@ class AwardChecker(object):
     def __init__(self, race_award, personal_award):
         self.race_award = race_award
         self.personal_award = personal_award
-        self.loadSection(race_award)
         self.section_done = {}
         self.section_remain = {}
+        self.loadSection(race_award)
 
 
     def loadSection(self, race_award):
-        if not race_award:
+        if not race_award or not race_award.sections:
             return
-        for i, section in race_award:
+        for section in race_award.sections:
             self.section_remain[section.id] = section
 
 

@@ -26,11 +26,11 @@ class MatchMgr(object):
         lt = json.loads(jn_match)
         for m in lt:
             self.matchs[m["id"]] = self.loadMatch(m)
-        print "load match sucess..", self.matchs
+        print "load match sucess.."
 
 
     def loadMatch(self, m):
-        print "m", m
+        #print "m", m
         match = GameMatch()
         match.id = m["id"]
         match.name = m["name"]

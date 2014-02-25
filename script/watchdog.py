@@ -41,8 +41,8 @@ class WatchDog(object):
                 method = getattr(room, method_name)
             except:
                 print "not exist method", method_name
-            else:
-                method(ins)
+                return
+        method(ins)
 
 
     def checkInRoom(self, ins):

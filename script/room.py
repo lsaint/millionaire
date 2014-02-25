@@ -48,6 +48,7 @@ class Room(Sender):
         self.match = None
         self.achecker = None
         self.qpackage = QuesionPackage()
+        self.stati = None
         self.cur_qid = 0
         self.cur_q_start_time = 0
         self.cur_survivor_num = 0
@@ -230,6 +231,10 @@ class Room(Sender):
             self.SetState(self.ending_state, cli_status)
         else:
             self.SetState(self.timing_state, cli_status)
+
+
+    def CountTime(self, t):
+        self.timer.SetTimer(t, self.SetState, self.timeup_state)
 
 
     def OnNotifyRevive(self, ins):

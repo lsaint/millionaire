@@ -37,7 +37,7 @@ class AwardChecker(object):
         if len(ret) > 0:
             return ret
         for i, section in self.section_remain.items():
-            if qid >= section_done.trigger_id and survivor_num <= section.survivor_num:
+            if qid >= section.trigger_id and survivor_num <= section.survivor_num:
                 ret.append(section)
                 self.section_done.setdefault(qid, section)
                 del self.section_remain[i]

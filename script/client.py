@@ -78,14 +78,22 @@ def startMatch(s):
     s.send(doPack(pb))
 
 
-def answerQuestion(s):
+def answerQuestion(s, qid):
     gevent.sleep(4)
     pb = C2LAnswerQuestion() 
     pb.user.uid = MY_UID
     pb.answer.user.uid = MY_UID
-    pb.answer.answer = A
+    pb.answer.answer.id = qid
+    pb.answer.answer.answer = A
     s.send(doPack(pb))
 
+
+def nextStep(s, status, t):
+    gevent.sleep(t)
+    pb = C2LNextStep()
+    pb.user.uid = MY_UID
+    pb.status = status
+    s.send(doPack(pb))
 
 
 def doPrint(body):
@@ -138,7 +146,8 @@ jobs = [gevent.spawn(register, s),
         gevent.spawn(NotifyMic1, s),
         gevent.spawn(getMatch, s),
         gevent.spawn(startMatch, s),
-        gevent.spawn(answerQuestion, s),
+        gevent.spawn(answerQuestion, s, 1),
+        gevent.spawn(nextStep, s, Timeup, 20),
         gevent.spawn(get, s)]
 
 gevent.joinall(jobs)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 from logic_pb2 import *
 from stati import StatiMgr
 
@@ -60,7 +61,7 @@ class TimingState(object):
             return
         if not player.DoAnswer(ins.answer.answer.id, ins.answer.answer.answer):
             return
-        self.room.stati.OnAnswer(player, ins.answer.answer, int(time.time()) - self.cur_q_start_time)
+        self.room.StatiAnswer(player, ins.answer.answer.answer)
 
 
     def OnNextStep(self, ins):
@@ -116,7 +117,7 @@ class AnswerState(object):
 
     def OnEnterState(self):
         pb = L2CNotifyAnswerStatus()
-        pb.right_answer = self.room.GetRightAnswer()
+        pb.right_answer.MergeFrom(self.room.GetCurRightAnswer())
         self.room.Randomcast(pb)
         self.room.Settle(pb.right_answer)
 

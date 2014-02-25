@@ -148,6 +148,7 @@ jobs = [gevent.spawn(register, s),
         gevent.spawn(startMatch, s),
         gevent.spawn(answerQuestion, s, 1),
         gevent.spawn(nextStep, s, Timeup, 20),
+        gevent.spawn(nextStep, s, Statistics, 21),
         gevent.spawn(get, s)]
 
 gevent.joinall(jobs)

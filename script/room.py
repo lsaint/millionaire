@@ -184,13 +184,16 @@ class Room(Sender):
 
 
     def Settle(self, right_answer):
-        for player, uid in self.uid2player.iteritems():
+        for uid, player in self.uid2player.iteritems():
             if right_answer != player.GetAnswer(self.cur_qid) and player.role != Presenter:
                 player.role = Loser
 
 
     def GetCurRightAnswer(self):
-        return self.qpackage.GetRightAnswer(self.cur_qid)
+        gq = GameQuestion()
+        gq.id = self.cur_qid
+        gq.answer = self.qpackage.GetRightAnswer(self.cur_qid)
+        return gq
 
 
     def CalSurvivorNum(self):
@@ -224,6 +227,9 @@ class Room(Sender):
         pb.bounty = bounty
         self.Broadcast(pb)
 
+
+    def StatiAnswer(self, player, answer):
+        self.stati.OnAnswer(player, answer, int(time.time()) - self.cur_q_start_time)
 
 
     def EnterEndingOrTiming(self, cli_status):

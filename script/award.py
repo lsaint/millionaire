@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 #
 
-from post import PostAsync
+import md5, json
+from post import PostAsync, GetPostSn
 
+VM_KEY = "vm_key"
+VM_URL = "http://www.google.com/"
 
 class AwardChecker(object):
 
@@ -63,4 +66,32 @@ class AwardChecker(object):
             bounty += section.bounty
         # post to vm
         return bounty
+
+
+    def post2Vm(self, winners, bounty):
+        product = "0001"
+        count = len(winners)
+        total_money = count * bounty
+        sn = GetPostSn()
+        add_time = time.strftime("%Y%m%d%H%M%S")
+        desc = ""
+        to_uid_list = []
+        for uid in winners:
+            to_uid_list.append({"uid": uid, "money": bounty})
+        sign = md5.new("%s%d%d%d%s%s%s%s" % (product,
+                        count, total_money, sn, add_time, desc, KEY)).hexdigest()
+        dt = {"product": product,
+              "count": count,
+              "total_money": total_money,
+              "sn": sn,
+              "to_uid_list": to_uid_list,
+              "add_time": add_time,
+              "desc": desc,
+              "sign": sn}
+        jn = json.dumps(dt)
+        def done(sn, ret):
+            print "post2vm ret:", ret
+        PostAsync(VM_URL, jn, done, sn)
+
+
 

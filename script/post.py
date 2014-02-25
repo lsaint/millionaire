@@ -2,8 +2,14 @@
 
 import go
 
-g_post_sn = 1
+g_post_sn = 0
 g_post_callback = {}
+
+
+def GetPostSn():
+    global g_post_sn
+    g_post_sn += 1
+    return g_post_sn
 
 
 def OnPostDone(sn, ret):
@@ -16,11 +22,9 @@ def OnPostDone(sn, ret):
         print "not exist post sn", sn
 
 
-def PostAsync(url, s, func):
-    global g_post_sn, g_post_callback
-    sn = g_post_sn
-    g_post_sn = g_post_sn + 1
-    go.PostAsync(url, s, sn)
+def PostAsync(url, s, func=None, sn=None):
+    global g_post_callback
+    go.PostAsync(url, s, sn or GetPostSn())
     if func:
         g_post_callback[sn] = func
 

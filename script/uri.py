@@ -33,6 +33,7 @@ URI2CLASS = {
         124     :   F2CReviveRep,
         125     :   F2LNotifyRevive,
         126     :   L2FNotifyRevieRep,
+        127     :   L2CNotifyIdleStatus,
 }
 
 CLASS2URI = {}

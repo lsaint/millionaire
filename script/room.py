@@ -100,7 +100,6 @@ class Room(Sender):
 
 
     def GenNextQuestion(self):
-        self.cur_qid += 1
         self.cur_q_start_time = int(time.time())
         return self.qpackage.GetQuestion(self.cur_qid)
 
@@ -210,7 +209,10 @@ class Room(Sender):
         return self.achecker.GetAward(self.cur_qid)
 
 
-    def TransformReviver2Surivor(self):
+    def ResetQuestion(self):
+        self.cur_qid += 1
+        self.stati = StatiMgr(self.GetCurRightAnswer())
+        self.cur_survivor_num = 0
         for uid, player in self.uid2player.iteritems():
             player.TransformSurvivor()
 

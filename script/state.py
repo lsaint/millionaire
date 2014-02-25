@@ -12,7 +12,8 @@ class IdleState(object):
 
 
     def OnEnterState(self):
-        pass
+        pb = L2CNotifyIdleStatus()
+        self.room.Randomcast(pb)
 
 
     def OnNextStep(self, ins):
@@ -28,7 +29,9 @@ class ReadyState(object):
 
 
     def OnEnterState(self):
-        pass
+        pb = L2CNotifyReadyStatus() 
+        pb.desc = "即将开始"
+        self.room.Randomcast(pb)
 
 
     def OnNextStep(self, ins):
@@ -44,12 +47,11 @@ class TimingState(object):
 
 
     def OnEnterState(self):
-        self.room.TransformReviver2Surivor()
+        self.room.ResetQuestion()
         pb = L2CNotifyTimingStatus()
         pb.question.MergeFrom(self.room.GenNextQuestion())
         pb.start_time = self.room.cur_q_start_time
         self.room.Broadcast(pb)
-        self.room.stati = StatiMgr(self.room.GetCurRightAnswer())
         self.room.CountTime(pb.question.count_time)
 
 
@@ -119,7 +121,7 @@ class AnswerState(object):
         pb = L2CNotifyAnswerStatus()
         pb.right_answer.MergeFrom(self.room.GetCurRightAnswer())
         self.room.Randomcast(pb)
-        self.room.Settle(pb.right_answer)
+        self.room.Settle(pb.right_answer.answer)
 
 
     def OnNextStep(self, ins):
@@ -138,7 +140,7 @@ class AnnounceState(object):
         self.room.CalSurvivorNum()
         pb = L2CNotifyAnnounceStatus()
         pb.win_user_amount = self.room.cur_survivor_num
-        pb.topn.extend(self.question.GetTopN())
+        pb.topn.extend(self.room.stati.GetTopN())
         self.room.Randomcast(pb)
 
 

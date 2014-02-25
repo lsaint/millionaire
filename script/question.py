@@ -40,7 +40,8 @@ class QuesionPackage(object):
         for q in lt:
             op = q[2]                           # options
             right_answer = op[0]
-            random.shuffle(op)
+            #test
+            #random.shuffle(op)
             gq = GameQuestion()
             gq.id = q[0]                        # id
             gq.question = q[1]                  # question desc

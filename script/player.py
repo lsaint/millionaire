@@ -15,10 +15,10 @@ class Player(object):
 
 
     def DoAnswer(self, qid, answer):
-        #test
-        #if self.role != Survivor:
-        #    return False
+        if self.role != Survivor:
+            return False
         if self.answers.get(qid) is not None:
+            # multi answer
             return False
         self.answers[qid] = answer
         return True

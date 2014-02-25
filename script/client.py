@@ -14,6 +14,7 @@ from gevent import socket
 
 LEN = 4
 MY_UID = 10593000
+MY_UID2 = 50001906
 FID = 7
 TSID = 1
 SSID = 2
@@ -52,6 +53,13 @@ def login(s):
     pb.subsid = SSID
     s.send(doPack(pb, MY_UID, FID))
 
+    pb = C2LLogin()
+    pb.user.uid = MY_UID2
+    pb.user.name = "Ashley"
+    pb.topsid = TSID
+    pb.subsid = SSID
+    s.send(doPack(pb, MY_UID2, FID))
+
 
 def NotifyMic1(s):
     gevent.sleep(1)
@@ -78,11 +86,11 @@ def startMatch(s):
     s.send(doPack(pb))
 
 
-def answerQuestion(s, qid):
+def answerQuestion(s, uid, qid):
     gevent.sleep(4)
     pb = C2LAnswerQuestion() 
-    pb.user.uid = MY_UID
-    pb.answer.user.uid = MY_UID
+    pb.user.uid = uid
+    pb.answer.user.uid = uid
     pb.answer.answer.id = qid
     pb.answer.answer.answer = A
     s.send(doPack(pb))
@@ -146,9 +154,16 @@ jobs = [gevent.spawn(register, s),
         gevent.spawn(NotifyMic1, s),
         gevent.spawn(getMatch, s),
         gevent.spawn(startMatch, s),
-        gevent.spawn(answerQuestion, s, 1),
+        gevent.spawn(answerQuestion, s, MY_UID2, 1),
+        gevent.spawn(nextStep, s, Timeup, 10),
+        gevent.spawn(nextStep, s, Statistics, 11),
+        gevent.spawn(nextStep, s, Answer, 12),
+        gevent.spawn(nextStep, s, Announce, 13),
         gevent.spawn(nextStep, s, Timeup, 20),
         gevent.spawn(nextStep, s, Statistics, 21),
+        gevent.spawn(nextStep, s, Answer, 22),
+        gevent.spawn(nextStep, s, Announce, 23),
+        gevent.spawn(nextStep, s, Ending, 24),
         gevent.spawn(get, s)]
 
 gevent.joinall(jobs)

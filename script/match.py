@@ -7,11 +7,8 @@ from datetime import datetime
 
 from logic_pb2 import *
 from timer import Timer
+from config import *
 
-WARMUP_MATCH_ID = 1
-LOAD_MATCH_INTERVAL = 60
-LOAD_PREVIEW_INTERVAL = 60
-TIME_FORMAT =  "%Y-%m-%d %H:%M:%S"
 
 class MatchMgr(object):
 

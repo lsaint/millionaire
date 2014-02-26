@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from logic_pb2 import A, B, C, D, UserAnswer
-
-TOPN = 8
+from config import TOPN
 
 class StatiMgr(object):
 

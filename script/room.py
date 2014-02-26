@@ -204,7 +204,7 @@ class Room(Sender):
 
 
     def CheckCurAward(self):
-        return self.achecker.Check(self.cur_qid, self.cur_survivor_num)
+        self.achecker.Check(self.cur_qid, self.cur_survivor_num)
 
 
     def GetCurAward(self):

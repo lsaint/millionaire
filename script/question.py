@@ -8,9 +8,8 @@
 import json, random
 from post import PostAsync
 from logic_pb2 import GameQuestion, A, B, C, D
+from config import URL_QUESTION
 
-
-URL_QUESTION = "http://www.google.com"
 OP_HEAD = [A, B, C, D]
 
 class QuesionPackage(object):

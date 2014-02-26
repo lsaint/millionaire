@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import sys; sys.path.extend(["./proto/", "./script/"])
+import sys; sys.path.extend(["./conf/", "./proto/", "./script/"])
 import traceback
 import server_pb2, logic_pb2
 import go
@@ -16,16 +16,21 @@ def OnProto(tsid, ssid, uri, data):
     try:
         watchdog.dispatch(tsid, ssid, uri, data)
     except Exception as err:
-        print "--------err----------"
         print traceback.format_exc()
 
 
 def OnTicker():
-    Timer.Update()
+    try:
+        Timer.Update()
+    except Exception as err:
+        print traceback.format_exc()
 
 
 def OnPostDone(sn, ret):
-    post.OnPostDone(sn, ret)
+    try:
+        post.OnPostDone(sn, ret)
+    except Exception as err:
+        print traceback.format_exc()
 
 
 def test():

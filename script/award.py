@@ -3,9 +3,8 @@
 
 import md5, json, time
 from post import PostAsync, GetPostSn
+from config import *
 
-VM_KEY = "vm_key"
-VM_URL = "http://111.178.146.46:28891/vm_batch_add_gold"
 
 class AwardChecker(object):
 
@@ -38,19 +37,17 @@ class AwardChecker(object):
     def checkRaceAward(self, qid, survivor_num):
         ret = self.section_done.get(qid) or []
         if len(ret) > 0:
-            return ret
+            return
         for i, section in self.section_remain.items():
             if qid >= section.trigger_id and survivor_num <= section.survivor_num:
-                ret.append(section)
-                self.section_done.setdefault(qid, section)
+                self.section_done.setdefault(qid, []).append(section)
                 del self.section_remain[i]
-        return ret
 
 
     def Check(self, qid, survivor_num):
         ret = self.checkFinalAward(qid)
         if not ret:
-            return self.checkRaceAward(qid, survivor_num)
+            self.checkRaceAward(qid, survivor_num)
 
 
     def GetAward(self, qid):
@@ -62,9 +59,9 @@ class AwardChecker(object):
         if sections is None:
             return
         bounty = 0
-        for qid, section in sections:
+        for section in sections:
             bounty += section.bounty
-        # post to vm
+        self.post2Vm(winners, bounty)
         return bounty
 
 

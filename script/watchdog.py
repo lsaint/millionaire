@@ -20,7 +20,7 @@ class WatchDog(object):
 
 
     def dispatch(self, tsid, ssid, uri, data):
-        cls = URI2CLASS[uri]
+        cls = URI2CLASS.get(uri)
         if cls is None:
             print "not exist uri", uri
             return

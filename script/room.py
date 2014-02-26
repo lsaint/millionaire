@@ -156,7 +156,7 @@ class Room(Sender):
 
 
     def OnNotifyMic1(self, ins):
-        if self.presenter and self.presenter.uid == ins.user.uid:
+        if not self.presenter or self.presenter.uid != ins.user.uid:
             return
         # down
         uid = ins.user.uid

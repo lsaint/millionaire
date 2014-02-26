@@ -16,7 +16,7 @@ def OnPostDone(sn, ret):
     global g_post_callback
     cb = g_post_callback.get(sn)
     if cb:
-        cb(ret)
+        cb(sn, ret)
         del g_post_callback[sn]
     else:
         print "not exist post sn", sn

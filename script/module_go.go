@@ -47,7 +47,7 @@ func (this *GoModule) Py_SendMsg(args *py.Tuple) (ret *py.Base, err error) {
 func (this *GoModule) Py_PostAsync(args *py.Tuple) (ret *py.Base, err error) {
     var url, content string
     var sn int
-    err = py.Parse(args, url, content, sn)
+    err = py.Parse(args, &url, &content, &sn)
     this.pm.PostAsync(url, content, int64(sn))
     return py.IncNone(), nil
 }

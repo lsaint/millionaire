@@ -1,0 +1,282 @@
+package proto;
+
+//协议路由涉及角色:
+
+// em
+
+enum PayType {
+    YB = 0;
+    SILVER = 1;
+}
+
+enum Result {
+    OK = 0;         //成功
+    FL = 1;         //失败
+    NSF = 2;    	//余额不足
+    TimeOut = 3;
+}
+
+//游戏状态
+enum GameStatus {
+    Idle = 1;             //空闲状态
+    Ready = 2;            //准备状态
+    Timing = 3;           //答题状态
+    Timeup = 4;           //答题截止
+    Statistics = 5;       //答题统计
+    Answer = 6;           //公布答案
+    Announce = 7;         //答对用户
+    Award = 8;            //发奖状态
+    Ending = 9;           //结束状态
+}
+
+//游戏角色
+enum GameRole {
+    Presenter = 1;         //主持者
+    Survivor = 2;          //还活着的用户
+    Loser = 3;             //挂了的用户
+    Reviver = 4;           //当题复活用户
+}
+
+//游戏答案选择项
+enum GameAnswer {
+    A = 1;
+    B = 2;
+    C = 3;
+    D = 4;
+}
+
+//用户结构，不同协议里只会发部分信息
+message User {
+    optional uint32 uid = 1;
+    optional string name = 2;
+    optional uint32 privilege = 3;
+    optional GameRole role = 4;
+}
+
+//一个题目
+message GameQuestion {
+    required uint32 id = 1;            //题号
+    optional string question = 2;
+    repeated string options = 3;
+    optional GameAnswer answer = 4;
+    optional uint32 count_time = 5;    //倒计时时间 
+}
+
+//用户提交答案
+message UserAnswer {
+    required User user = 1;
+    required GameQuestion answer = 2;
+    optional uint32 elapse = 3;        //用户答复所用时间
+}
+
+// 竞技奖励
+message RaceAward {
+    required uint32 refuse_revive_id = 1;           // 拒绝复活题号
+    required uint32 final_id = 2;                   // 强制结束题号
+    repeated RaceAwardSection sections = 3;         // 区间奖励s
+}
+
+message RaceAwardSection {
+    required uint32 id = 1;                     // 区间奖励号
+    optional uint32 trigger_id = 2;             // 最低要求题号
+    optional uint32 survivor_num = 3;           // 存活数
+    optional uint32 bounty = 4;                 // 奖金
+}
+
+// 个人奖励
+message PersonalAward {
+    required uint32 start_id = 1;           // 开始计数题号
+    required uint32 end_id = 2;             // 结束计数题号
+    required uint32 bingo_time = 3;         // 答对次数
+    required uint32 bounty = 4;             // 奖金
+}
+
+// 赛事信息
+message GameMatch {
+    required uint32 id = 1;                 // 赛事编号
+    required string name = 2;               // 赛事名字
+    optional uint32 pid = 3;                // 题包号(服务端使用)
+    optional RaceAward race_award = 4;
+    optional PersonalAward personal_award = 5;
+}
+
+//
+
+// 100
+message C2LMatchInfo {
+    required User user = 1;
+}
+
+// 101
+message L2CMatchInfoRep {
+    repeated GameMatch matchs = 1;
+}
+
+// 102
+message C2LStartMatch {
+    required User user = 1;
+    required bool is_warmup = 2;
+    optional uint32 match_id = 3;
+}
+
+// 103
+message L2CNotifyMatchInfo {
+    required bool is_warmup = 1;
+    required GameMatch match = 2;
+}
+
+// 104
+message C2LLogin {
+    required User user = 1;
+    required uint32 topsid = 2;
+    required uint32 subsid = 3;
+}
+
+//除了这个登陆响应，某些状态还要发额外的协议，提供客户端所需资料
+// 105
+message L2CLoginRep {
+    required User user = 1;
+    required Result ret = 2;
+    optional GameStatus status = 3;
+}
+
+//客户端发起的时间校对
+// 106
+message C2LTimeSync {
+    required User user = 1;
+    required uint32 sn = 2;
+}
+
+// 107
+message L2CTimeSyncRep {
+    required uint32 sn = 1;
+    required uint32 cur_time = 2;
+}
+
+//暂时只要主持人保持心跳即可
+// 108
+message C2LPing {
+    required User user = 1;
+    optional uint32 sn = 2;       //流水号，区别不同心跳包
+}
+
+// 109
+message L2CPingRep {
+    optional uint32 sn = 1;
+}
+
+//麦序变化通知，客户端不需要涉及这个协议，只需要关注主持人变化
+// 110
+message F2LNotifyMic1 {
+    optional User user = 1;
+    optional uint32 topsid = 3;
+    optional uint32 subsid = 4;
+}
+
+//主持人点“下一步”操作
+// 111
+message C2LNextStep {
+    required User user = 1;
+    required GameStatus status = 2;    //主持人操作的时候当前游戏状态
+}
+
+// 112
+message L2CNextStepRep {
+    required GameStatus status = 1;    //主持人操作的时候当前游戏状态
+    required Result ret = 2;
+}
+
+//主持人变化通知，参数为当前的主持人，如果为空，表示当前没主持
+// 113
+message L2CNotifyPresenterChange {
+    optional User presenter = 1;
+}
+
+// 114
+message L2CNotifyReadyStatus {
+    required string desc = 1;
+}
+
+// 115
+message L2CNotifyTimingStatus {
+    required GameQuestion question = 1;
+    required uint32 start_time = 2;
+}
+
+// 116
+message L2CNotifyTimeupStatus {
+}
+
+// 117
+message C2LAnswerQuestion {
+    required User user = 1;
+    required UserAnswer answer = 2;
+}
+
+// 118
+message L2CNotifyStatisticsStatus {
+    repeated uint32 stati = 1;
+    repeated RaceAwardSection sections = 2;
+}
+
+// 119
+message L2CNotifyAnswerStatus {
+    required GameQuestion right_answer = 2;
+}
+
+// 120
+message L2CNotifyAnnounceStatus {
+    required uint32 win_user_amount = 1; //本轮次答对用户数量
+    repeated UserAnswer topn = 2;        //仅包含前8位
+}
+
+// 121
+message L2CNotifyAwardStatus {
+    repeated User users = 1;             //所有中奖用户
+    required uint32 bounty = 2;          //虚拟币奖励
+}
+
+// 122
+message L2CNotifyEndingStatus {
+}
+
+//用户选择复活操作
+// 123
+message C2FRevive {
+    required User user = 1;
+    required uint32 id = 2;              //题号，对应不同复活费用
+}
+
+//复活操作结果，如果用Y币支付的话，需要用户完成了弹窗确认才返回
+// 124
+message F2CReviveRep {
+    required User user = 1;
+    required Result ret = 2;
+    optional PayType pay_type = 3;        //支付类型，白银还是Y币
+    required uint32 money = 4;            //支付金额，需要根据 pay_type 确认是什么单位；Y币单位为0.01Y币，白银单位为1白银
+}
+
+//不涉及客户端
+// 125
+message F2LNotifyRevive {
+    required User user = 1;
+    required uint32 id = 2;        //题号，对应不同复活费用
+}
+
+// 仅在logic端的题号和复活题号不同时回复
+// 126
+message L2FNotifyRevieRep {
+    required Result ret = 1;
+}
+
+// 127
+message L2CNotifyIdleStatus {
+}
+
+// 128
+message L2CNotifyPreview {
+    required string desc = 1;
+    required string start = 2;
+    required string end = 3;
+}
+

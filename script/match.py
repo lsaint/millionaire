@@ -16,6 +16,7 @@ class MatchMgr(object):
         self.preview = None
         self.matchs = {}    # GameMatch
         self.timer = Timer()
+        self.valid_presenters = []
 
 
     def startLoad(self):
@@ -30,6 +31,12 @@ class MatchMgr(object):
             self.matchs[m["id"]] = self.loadMatch(m)
         print "load match sucess.."
         self.loadPreview()
+
+
+    def loadPresenterWhiteList(self):
+        from jn import jn_presenter_wl
+        self.valid_presenters = json.loads(jn_presenter_wl)
+        print "load presenter whitelist sucess.."
 
 
     def loadPreview(self):
@@ -99,6 +106,10 @@ class MatchMgr(object):
 
     def GetPreview(self):
         return self.preview
+
+
+    def IsValidPresenter(self, uid):
+        return uid in self.valid_presenters
 
 
 g_match_mgr = MatchMgr()

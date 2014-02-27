@@ -135,13 +135,13 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
         case proto.Action_Broadcast:
             for _, conn := range this.fid2frontend {
                 conn.Send(p)
-                fmt.Println("broadcast", len(p))
+                //fmt.Println("broadcast", len(p))
             }
         case proto.Action_Randomcast:
             rfid := this.randomFid()
             if cc := this.fid2frontend[rfid]; cc != nil {
                 cc.Send(p)
-                fmt.Println("randomcast", len(p))
+                //fmt.Println("randomcast", len(p))
             } else {
                 fmt.Println("random not find fid2frontend", rfid)
             }
@@ -149,7 +149,7 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
             if fid := this.uid2fid[pack.GetUid()]; fid != 0 {
                 if cc := this.fid2frontend[fid]; cc != nil {
                     cc.Send(p)
-                    fmt.Println("specify", len(p))
+                    //fmt.Println("specify", len(p))
                 } else {
                     fmt.Println("not find fid2frontend", fid)
                 }

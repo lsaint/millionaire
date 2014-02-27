@@ -66,7 +66,7 @@ class AwardChecker(object):
 
 
     def post2Vm(self, winners, bounty):
-        product = "0001"
+        product = VM_PRODUCT
         count = len(winners)
         total_money = count * bounty
         sn = GetPostSn()

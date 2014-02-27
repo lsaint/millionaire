@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time
+import time, logging
 from timer import Timer
 from sender import Sender
 from state import *
@@ -38,7 +38,7 @@ class Room(Sender):
             return
         self.state.OnLeaveState()
         self.state = state
-        print "Enter State =>", str(state)
+        logging.info("Enter State => %s" % state.__class__.__name__)
         self.state.OnEnterState()
 
 
@@ -72,7 +72,7 @@ class Room(Sender):
         else:
             self.match = g_match_mgr.GetMatch(ins.match_id)
         if not self.match:
-            print "[WARNING]", "start non-exist mid", ins.match_id
+            logging.warning("start non-exist mid %d"%ins.match_id)
             return
         self.notifyMatchInfo(ins.is_warmup)
         self.achecker = AwardChecker(self.match.race_award, self.match.personal_award)

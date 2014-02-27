@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time
+import time, logging
 
 from logic_pb2 import *
 from timer import Timer
@@ -39,7 +39,6 @@ class IdleState(State):
 
 
     def checkShowPreview(self):
-        print "checkShowPreview"
         pv = g_match_mgr.GetPreview()
         if pv:
             pb = L2CNotifyPreview()
@@ -102,7 +101,7 @@ class TimingState(State):
 
 
     def OnNextStep(self, ins):
-        print "invalid next step in timing state"
+        logging.warning("invalid next step in timing state")
 
 
 #

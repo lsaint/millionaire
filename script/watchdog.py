@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import base64
+import base64, logging
 from uri import *
 from room import Room
 
@@ -22,25 +22,25 @@ class WatchDog(object):
     def dispatch(self, tsid, ssid, uri, data):
         cls = URI2CLASS.get(uri)
         if cls is None:
-            print "not exist uri", uri
+            logging.warning("not exist uri %d" % uri)
             return
         ins = cls()
         ins.ParseFromString(base64.b64decode(data))
         ssid = self.checkInRoom(ins)
         if not ssid:
-            print "not exist ssid"
+            logging.warning("not exist ssid %s" % ssid)
             return
         room = self.gainRoom(tsid, ssid)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
-        print "py dispatch:", tsid, ssid, method_name
-        print ins
+        logging.debug("dispatch %d: %d: %s:" % (tsid, ssid, method_name))
+        logging.debug(str(ins))
         try:
             method = getattr(room.state, method_name)
         except:
             try:
                 method = getattr(room, method_name)
             except:
-                print "not exist method", method_name
+                logging.warning("not exist method: %s" % method_name)
                 return
         method(ins)
 
@@ -51,7 +51,7 @@ class WatchDog(object):
             if uid == 0:
                 return ins.subsid
         except Exception as err:
-            print "check in Room err", err
+            logging.error("checkInRoom %s" % err)
             return None
         else:
             if ins.DESCRIPTOR.name == "C2LLogin":

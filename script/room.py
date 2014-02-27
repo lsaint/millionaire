@@ -48,12 +48,12 @@ class Room(Sender):
         self.presenter = None
         self.match = None
         self.achecker = None
-        self.qpackage = QuesionPackage()
         self.stati = None
         self.cur_qid = 0
         self.cur_q_start_time = 0
         self.cur_survivor_num = 0
         self.final_qid = 0
+        self.qpackage = QuesionPackage()
 
 
     def OnMatchInfo(self, ins):

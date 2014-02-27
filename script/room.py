@@ -65,7 +65,7 @@ class Room(Sender):
 
 
     def OnStartMatch(self, ins):
-        if not self.isPresenter(ins.user):
+        if not self.isPresenter(ins.user.uid):
             return
         if ins.is_warmup:
             self.match = g_match_mgr.GetWarmupMatch()
@@ -179,8 +179,8 @@ class Room(Sender):
         player.DoRevive()
 
 
-    def isPresenter(self, user):
-        return user.uid == self.presenter.uid
+    def isPresenter(self, uid):
+        return self.presenter and uid == self.presenter.uid
 
 
     def Settle(self, right_answer):

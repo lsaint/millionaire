@@ -104,6 +104,15 @@ def nextStep(s, status, t):
     s.send(doPack(pb))
 
 
+def timeSync(s):
+    gevent.sleep(4)
+    pb = C2LTimeSync()
+    pb.user.uid = MY_UID
+    pb.sn = 981
+    s.send(doPack(pb))
+
+
+
 def doPrint(body):
     fp = FrontendPack()
     fp.ParseFromString(body[LEN:])
@@ -151,6 +160,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(("127.0.0.1", 40214))
 jobs = [gevent.spawn(register, s),
         gevent.spawn(login, s),
+        #gevent.spawn(timeSync, s),
         gevent.spawn(NotifyMic1, s),
         gevent.spawn(getMatch, s),
         gevent.spawn(startMatch, s),

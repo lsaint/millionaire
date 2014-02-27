@@ -61,7 +61,7 @@ class Room(Sender):
         ms = g_match_mgr.GetMatchList()
         rep = L2CMatchInfoRep()
         rep.matchs.extend(ms)
-        self.Randomcast(rep)
+        self.SpecifySend(rep, ins.user.uid)
 
 
     def OnStartMatch(self, ins):
@@ -156,7 +156,7 @@ class Room(Sender):
 
 
     def OnNotifyMic1(self, ins):
-        # check presenter white list
+        # TODO check presenter white list
         # down
         uid = ins.user.uid
         if uid == 0 and self.presenter:

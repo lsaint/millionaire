@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 
-import md5, json, time
+import md5, json, time, logging
 from post import PostAsync, GetPostSn
 from config import *
 
@@ -66,6 +66,7 @@ class AwardChecker(object):
 
 
     def post2Vm(self, winners, bounty):
+        logging.info("WIN uids: %s, bounty: %d" % (str(winners), bounty))
         product = VM_PRODUCT
         count = len(winners)
         total_money = count * bounty
@@ -87,7 +88,7 @@ class AwardChecker(object):
               "sign": sign}
         jn = json.dumps(dt)
         def done(sn, ret):
-            print "post2vm ret:", ret
+            logging.debug("post2vm ret: %s" % ret)
         PostAsync(VM_URL, jn, done, sn)
 
 

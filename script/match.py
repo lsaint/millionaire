@@ -2,7 +2,7 @@
 #
 
 
-import go, json, time
+import go, json, time, logging
 from datetime import datetime
 
 from logic_pb2 import *
@@ -29,14 +29,14 @@ class MatchMgr(object):
         lt = json.loads(jn_match)
         for m in lt:
             self.matchs[m["id"]] = self.loadMatch(m)
-        print "load match sucess.."
+        logging.debug( "load match sucess..")
         self.loadPreview()
 
 
     def loadPresenterWhiteList(self):
         from jn import jn_presenter_wl
         self.valid_presenters = json.loads(jn_presenter_wl)
-        print "load presenter whitelist sucess.."
+        logging.debug("load presenter whitelist sucess..")
 
 
     def loadPreview(self):
@@ -53,11 +53,10 @@ class MatchMgr(object):
             pb.start = pv["start"]
             pb.end = pv["end"]
             self.preview = pb
-        print "load preview sucess.."
+        logging.debug("load preview sucess..")
 
 
     def loadMatch(self, m):
-        #print "m", m
         match = GameMatch()
         match.id = m["id"]
         match.name = m["name"]

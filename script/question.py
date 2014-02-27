@@ -5,7 +5,7 @@
 # json
 # [[id, desc, [right, wrong1, wrong2, wrong3], time]...]
 
-import json, random
+import json, random, logging
 from post import PostAsync
 from logic_pb2 import GameQuestion, A, B, C, D
 from config import URL_QUESTION
@@ -26,10 +26,10 @@ class QuesionPackage(object):
         # test
         from jn import jn_question
         done(0, jn_question)
-        print "id2question: "
+        logging.debug("qid2question:")
         for k, v in self.id2question.items():
-            print str(v)
-        print "id2rightanswer: ", self.id2rightanswer
+            logging.debug(str(v))
+        logging.debug("id2rightanswer: %s" % self.id2rightanswer)
         #PostAsync(URL_QUESTION, pid, done)
 
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sys; sys.path.extend(["./conf/", "./proto/", "./script/"])
-import logging, traceback
+import logging
+import traceback
 import server_pb2, logic_pb2
 import go
 import post
@@ -11,7 +12,6 @@ from watchdog import watchdog
 from config import *
 
 
-logging.basicConfig(level=LOG_LEVEL, format=LOG_FORMAT, datefmt=LOG_DATE)
 
 
 def OnProto(tsid, ssid, uri, data):
@@ -38,4 +38,3 @@ def OnPostDone(sn, ret):
 
 def test():
     logging.debug("testtestbanbang")
-    logging.info("info")

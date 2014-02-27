@@ -30,7 +30,7 @@ class Room(Sender):
         self.ending_state = EndingState(self)
         self.state = self.idle_state
 
-        self.reset()
+        self.SetState(self.idle_state)
 
 
     def SetState(self, state, cli_status=None):
@@ -43,7 +43,6 @@ class Room(Sender):
 
 
     def reset(self):
-        self.SetState(self.idle_state)
         self.timer.ReleaseTimer()
         self.timer = Timer()
         self.presenter = None

@@ -33,6 +33,8 @@ class IdleState(State):
 
 
     def OnEnterState(self):
+        self.room.reset()
+
         pb = L2CNotifyIdleStatus()
         self.room.Randomcast(pb)
         self.timer.SetTimer(LOAD_PREVIEW_INTERVAL, self.checkShowPreview)

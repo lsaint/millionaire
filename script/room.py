@@ -47,6 +47,7 @@ class Room(Sender):
         self.timer = Timer()
         self.presenter = None
         self.match = None
+        self.is_warmup = True
         self.achecker = None
         self.stati = None
         self.cur_qid = 0
@@ -70,10 +71,11 @@ class Room(Sender):
             self.match = g_match_mgr.GetWarmupMatch()
         else:
             self.match = g_match_mgr.GetMatch(ins.match_id)
+            self.is_warmup = False
         if not self.match:
             logging.warning("start non-exist mid %d"%ins.match_id)
             return
-        self.notifyMatchInfo(ins.is_warmup)
+        self.notifyMatchInfo()
         self.achecker = AwardChecker(self.match.race_award, self.match.personal_award)
         def doneLoad():
             self.SetState(self.timing_state)
@@ -81,12 +83,45 @@ class Room(Sender):
         self.qpackage.Load(self.match.pid, doneLoad)
 
 
-    def notifyMatchInfo(self, is_warmup):
+
+    def notifyMatchInfo(self, uid=None):
+        if not self.match:
+            return
         pb = L2CNotifyMatchInfo()
-        pb.is_warmup = is_warmup
+        pb.is_warmup = self.is_warmup
         pb.match.MergeFrom(self.match)
         pb.match.ClearField("pid")
-        self.Randomcast(pb)
+        self.SendOrBroadcast(pb, uid)
+
+
+    def NotifyQuestion(self, uid=None):
+        pb = L2CNotifyTimingStatus()
+        pb.question.MergeFrom(self.GetCurQuestion())
+        pb.start_time = self.cur_q_start_time
+        self.SendOrBroadcast(pb, uid)
+
+
+    def NotifyStati(self, uid=None):
+        pb = L2CNotifyStatisticsStatus()
+        pb.stati.extend(self.stati.GetDistribution())
+        awards = self.GetCurAward()
+        if awards:
+            pb.sections.extend(awards)
+        self.SendOrRandomcast(pb, uid)
+
+
+    def NotifyAnswer(self, uid=None):
+        pb = L2CNotifyAnswerStatus()
+        pb.right_answer.MergeFrom(self.GetCurRightAnswer())
+        self.SendOrRandomcast(pb, uid)
+
+
+    def NotifyAnnounce(self, uid=None):
+        pb = L2CNotifyAnnounceStatus()
+        pb.win_user_amount = self.cur_survivor_num
+        pb.topn.extend(self.stati.GetTopN())
+        self.SendOrRandomcast(pb, uid)
+
 
 
     def SetFinalQid(self):
@@ -100,8 +135,7 @@ class Room(Sender):
         return self.cur_qid >= self.final_qid or self.cur_survivor_num == 0
 
 
-    def GenNextQuestion(self):
-        self.cur_q_start_time = int(time.time())
+    def GetCurQuestion(self):
         return self.qpackage.GetQuestion(self.cur_qid)
 
 
@@ -119,6 +153,15 @@ class Room(Sender):
         rep.ret = OK
         rep.status = self.state.status
         self.SpecifySend(rep, player.uid)
+
+        pb = L2CNotifyPresenterChange()
+        if self.presenter:
+            pb.presenter.uid = self.presenter.uid
+        self.SpecifySend(pb, player.uid)
+
+        self.notifyMatchInfo(player.uid)
+
+        self.state.OnLogin(ins)
 
 
     def OnTimeSync(self, ins):
@@ -182,7 +225,8 @@ class Room(Sender):
         return self.presenter and uid == self.presenter.uid
 
 
-    def Settle(self, right_answer):
+    def Settle(self):
+        right_answer = self.qpackage.GetRightAnswer(self.cur_qid)
         for uid, player in self.uid2player.iteritems():
             if right_answer != player.GetAnswer(self.cur_qid) and player.role != Presenter:
                 player.role = Loser
@@ -211,6 +255,7 @@ class Room(Sender):
 
     def ResetQuestion(self):
         self.cur_qid += 1
+        self.cur_q_start_time = int(time.time())
         self.stati = StatiMgr(self.GetCurRightAnswer())
         self.cur_survivor_num = 0
         for uid, player in self.uid2player.iteritems():
@@ -241,7 +286,8 @@ class Room(Sender):
             self.SetState(self.timing_state, cli_status)
 
 
-    def CountTime(self, t):
+    def CountTime(self):
+        t = self.GetCurQuestion().count_time
         self.timer.SetTimer(t, self.SetState, self.timeup_state)
 
 

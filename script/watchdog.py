@@ -35,10 +35,10 @@ class WatchDog(object):
         logging.debug("dispatch %s:" % method_name)
         logging.debug(str(ins))
         try:
-            method = getattr(room.state, method_name)
+            method = getattr(room, method_name)
         except:
             try:
-                method = getattr(room, method_name)
+                method = getattr(room.state, method_name)
             except:
                 logging.warning("not exist method: %s" % method_name)
                 return

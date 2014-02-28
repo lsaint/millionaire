@@ -37,3 +37,17 @@ class Sender(object):
         go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Specify, uid)
         logging.debug("<--SpecifySend %d %s: %s" % (uid, ins.DESCRIPTOR.name, ins))
 
+
+    def SendOrRandomcast(self, ins, uid):
+        if uid:
+            self.SpecifySend(ins, uid)
+        else:
+            self.Randomcast(ins)
+
+
+    def SendOrBroadcast(self, ins, uid):
+        if uid:
+            self.SpecifySend(ins, uid)
+        else:
+            self.Broadcast(ins)
+

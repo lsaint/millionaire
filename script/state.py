@@ -20,6 +20,8 @@ class State(object):
     def OnNextStep(self, ins):
         pass
 
+    def OnLogin(self, ins):
+        pass
 
 #
 
@@ -56,6 +58,7 @@ class IdleState(State):
         self.room.SetState(self.room.ready_state, ins.status)
 
 
+
 #
 class ReadyState(State):
 
@@ -84,11 +87,8 @@ class TimingState(State):
 
     def OnEnterState(self):
         self.room.ResetQuestion()
-        pb = L2CNotifyTimingStatus()
-        pb.question.MergeFrom(self.room.GenNextQuestion())
-        pb.start_time = self.room.cur_q_start_time
-        self.room.Broadcast(pb)
-        self.room.CountTime(pb.question.count_time)
+        self.room.NotifyQuestion()
+        self.room.CountTime()
 
 
     def OnAnswerQuestion(self, ins):
@@ -104,6 +104,10 @@ class TimingState(State):
 
     def OnNextStep(self, ins):
         logging.warning("invalid next step in timing state")
+
+
+    def OnLogin(self, ins):
+        self.room.NotifyQuestion(ins.user.uid)
 
 
 #
@@ -133,16 +137,15 @@ class StatisticsState(State):
 
     def OnEnterState(self):
         self.room.CheckCurAward()
-        pb = L2CNotifyStatisticsStatus()
-        pb.stati.extend(self.room.stati.GetDistribution())
-        awards = self.room.GetCurAward()
-        if awards:
-            pb.sections.extend(awards)
-        self.room.Randomcast(pb)
+        self.room.NotifyStati()
 
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.answer_state, ins.status)
+
+
+    def OnLogin(self, ins):
+        self.room.NotifyStati(ins.user.uid)
 
 
 #
@@ -154,14 +157,16 @@ class AnswerState(State):
 
 
     def OnEnterState(self):
-        pb = L2CNotifyAnswerStatus()
-        pb.right_answer.MergeFrom(self.room.GetCurRightAnswer())
-        self.room.Randomcast(pb)
-        self.room.Settle(pb.right_answer.answer)
+        self.room.NotifyAnswer()
+        self.room.Settle()
 
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.announce_state, ins.status)
+
+
+    def OnLogin(self, ins):
+        self.room.NotifyAnswer(ins.user.uid)
 
 
 #
@@ -174,10 +179,7 @@ class AnnounceState(State):
 
     def OnEnterState(self):
         self.room.CalSurvivorNum()
-        pb = L2CNotifyAnnounceStatus()
-        pb.win_user_amount = self.room.cur_survivor_num
-        pb.topn.extend(self.room.stati.GetTopN())
-        self.room.Randomcast(pb)
+        self.room.NotifyAnnounce()
 
 
     def OnNextStep(self, ins):
@@ -190,6 +192,9 @@ class AnnounceState(State):
         else:
             self.room.EnterEndingOrTiming(ins.status)
 
+
+    def OnLogin(self, ins):
+        self.room.NotifyAnnounce(ins.user.uid)
 
 
 #

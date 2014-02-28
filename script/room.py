@@ -18,6 +18,7 @@ class Room(Sender):
         Sender.__init__(self, tsid, ssid)
         self.timer = Timer()
         self.uid2player = {}
+        self.presenter = None
 
         self.idle_state = IdleState(self)
         self.ready_state = ReadyState(self)
@@ -45,7 +46,6 @@ class Room(Sender):
     def reset(self):
         self.timer.ReleaseTimer()
         self.timer = Timer()
-        self.presenter = None
         self.match = None
         self.is_warmup = True
         self.achecker = None
@@ -206,6 +206,8 @@ class Room(Sender):
         uid = ins.user.uid
         if uid == 0 and self.presenter:
             self.NegatePresenter(self.presenter)
+            if self.state == self.ready_state:
+                self.SetState(self.idle_state)
             return
         # up
         if uid != 0:

@@ -227,7 +227,8 @@ class EndingState(State):
 
 
     def OnNextStep(self, ins):
-        self.room.SetState(self.room.idle_state, ins.status)
+        if ins.status == self.status and self.room.presenter:
+            self.room.SetState(self.room.ready_state)
         # set timer to idle
 
 

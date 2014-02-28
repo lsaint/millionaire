@@ -214,7 +214,8 @@ class Room(Sender):
                 if self.presenter:
                     self.NegatePresenter(self.presenter)
                 self.SetPresenter(player)
-                self.SetState(self.ready_state)
+                if self.state == self.idle_state:
+                    self.SetState(self.ready_state)
 
 
     def OnNotifyRevive(self, ins):

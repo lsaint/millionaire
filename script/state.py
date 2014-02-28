@@ -23,6 +23,12 @@ class State(object):
     def OnLogin(self, ins):
         pass
 
+    def OnPresenterUp(self):
+        pass
+
+    def OnPresenterDown(self):
+        pass
+
 #
 
 
@@ -58,6 +64,10 @@ class IdleState(State):
         self.room.SetState(self.room.ready_state, ins.status)
 
 
+    def OnPresenterUp(self):
+        self.room.SetState(self.room.ready_state)
+
+
 
 #
 class ReadyState(State):
@@ -75,6 +85,10 @@ class ReadyState(State):
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.timing_state, ins.status)
+
+
+    def OnPresenterDown(self):
+        self.room.SetState(self.room.idle_state)
 
 
 #

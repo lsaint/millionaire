@@ -206,8 +206,7 @@ class Room(Sender):
         uid = ins.user.uid
         if uid == 0 and self.presenter:
             self.NegatePresenter(self.presenter)
-            if self.state == self.ready_state:
-                self.SetState(self.idle_state)
+            self.state.OnPresenterDown()
             return
         # up
         if uid != 0:
@@ -216,8 +215,7 @@ class Room(Sender):
                 if self.presenter:
                     self.NegatePresenter(self.presenter)
                 self.SetPresenter(player)
-                if self.state == self.idle_state:
-                    self.SetState(self.ready_state)
+                self.state.OnPresenterUp()
 
 
     def OnNotifyRevive(self, ins):

@@ -101,7 +101,7 @@ class TimingState(State):
 
     def OnEnterState(self):
         self.room.ResetQuestion()
-        self.room.NotifyQuestion()
+        self.room.NotifyTiming()
         self.room.CountTime()
 
 
@@ -121,7 +121,7 @@ class TimingState(State):
 
 
     def OnLogin(self, ins):
-        self.room.NotifyQuestion(ins.user.uid)
+        self.room.NotifyTiming(ins.user.uid)
 
 
 #
@@ -139,6 +139,10 @@ class TimeupState(State):
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.statistics_state, ins.status)
+
+
+    def OnLogin(self, ins):
+        self.room.NotifyQuestion(ins.user.uid)
 
 
 #
@@ -162,6 +166,10 @@ class StatisticsState(State):
         self.room.NotifyStati(ins.user.uid)
 
 
+    def OnLogin(self, ins):
+        self.room.NotifyQuestion(ins.user.uid)
+
+
 #
 class AnswerState(State):
 
@@ -180,6 +188,7 @@ class AnswerState(State):
 
 
     def OnLogin(self, ins):
+        self.room.NotifyQuestion(ins.user.uid)
         self.room.NotifyAnswer(ins.user.uid)
 
 

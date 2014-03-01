@@ -97,11 +97,17 @@ class Room(Sender):
         self.SendOrBroadcast(pb, uid)
 
 
-    def NotifyQuestion(self, uid=None):
+    def NotifyTiming(self, uid=None):
         pb = L2CNotifyTimingStatus()
         pb.question.MergeFrom(self.GetCurQuestion())
         pb.start_time = self.cur_q_start_time
         self.SendOrBroadcast(pb, uid)
+
+
+    def NotifyQuestion(self, uid):
+        pb = L2CNotifyGameQuestion()
+        pb.gq.MergeFrom(self.GetCurQuestion())
+        self.SpecifySend(pb, uid)
 
 
     def NotifyStati(self, uid=None):

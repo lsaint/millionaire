@@ -280,3 +280,7 @@ message L2CNotifyPreview {
     required string end = 3;
 }
 
+// 129
+message L2CNotifyGameQuestion {
+    required GameQuestion gq = 1;
+}

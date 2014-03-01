@@ -35,6 +35,7 @@ URI2CLASS = {
         126     :   L2FNotifyRevieRep,
         127     :   L2CNotifyIdleStatus,
         128     :   L2CNotifyPreview,
+        129     :   L2CNotifyGameQuestion,
 }
 
 CLASS2URI = {}

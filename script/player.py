@@ -15,6 +15,12 @@ class Player(object):
         self.ping = 0
 
 
+    def Reset(self):
+        self.answers = {}
+        if self.role != Presenter:
+            self.role = Survivor
+
+
     def DoAnswer(self, qid, answer):
         if self.role != Survivor:
             logging.debug("DoAnswer wrong role")
@@ -41,4 +47,5 @@ class Player(object):
 
     def GetAnswer(self, qid):
         return self.answers.get(qid)
+
 

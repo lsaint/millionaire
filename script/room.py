@@ -55,13 +55,12 @@ class Room(Sender):
         self.cur_survivor_num = 0
         self.final_qid = 0
         self.qpackage = QuesionPackage()
-        self.resetRole()
+        self.resetPlayers()
 
     
-    def resetRole(self):
+    def resetPlayers(self):
         for uid, player in self.uid2player.iteritems():
-            if not self.isPresenter(uid):
-                player.role = Survivor
+            player.Reset()
 
 
     def OnMatchInfo(self, ins):

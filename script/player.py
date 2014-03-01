@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from logic_pb2 import *
 
 
@@ -16,9 +17,11 @@ class Player(object):
 
     def DoAnswer(self, qid, answer):
         if self.role != Survivor:
+            logging.DoAnswer("DoAnswer wrong role")
             return False
         if self.answers.get(qid) is not None:
             # multi answer
+            logging.DoAnswer("DoAnswer multi answer")
             return False
         self.answers[qid] = answer
         return True

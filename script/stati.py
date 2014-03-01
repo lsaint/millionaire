@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from logic_pb2 import A, B, C, D, UserAnswer
 from config import TOPN
 
@@ -13,6 +14,7 @@ class StatiMgr(object):
 
 
     def OnAnswer(self, player, abcd, elapse):
+        logging.debug("Stati %d - %d" % (player.uid, abcd))
         self.abcd2count[abcd] += 1
         self.time2player[elapse] = player
         if len(self.topn) < TOPN and self.right_answer == abcd:

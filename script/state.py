@@ -107,11 +107,14 @@ class TimingState(State):
 
     def OnAnswerQuestion(self, ins):
         if ins.answer.answer.id != self.room.cur_qid:
+            logging.debug("OnAnswerQuestion id != cur_qid")
             return
         player = self.room.GetPlayer(ins.answer.user.uid)
         if not player:
+            logging.debug("OnAnswerQuestion no player")
             return
         if not player.DoAnswer(ins.answer.answer.id, ins.answer.answer.answer):
+            logging.debug("OnAnswerQuestion DoAnswer false")
             return
         self.room.StatiAnswer(player, ins.answer.answer.answer)
 

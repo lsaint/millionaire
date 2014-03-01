@@ -43,7 +43,7 @@ class Room(Sender):
         self.state.OnEnterState()
 
 
-    def reset(self):
+    def Reset(self):
         self.timer.ReleaseTimer()
         self.timer = Timer()
         self.match = None

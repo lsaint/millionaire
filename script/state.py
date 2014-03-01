@@ -41,7 +41,7 @@ class IdleState(State):
 
 
     def OnEnterState(self):
-        self.room.reset()
+        self.room.Reset()
 
         pb = L2CNotifyIdleStatus()
         self.room.Randomcast(pb)
@@ -251,6 +251,7 @@ class EndingState(State):
 
     def OnNextStep(self, ins):
         if ins.status == self.status and self.room.presenter:
+            self.room.Reset()
             self.room.SetState(self.room.ready_state)
         # set timer to idle
 

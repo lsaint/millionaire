@@ -6,7 +6,8 @@ from config import TOPN
 
 class StatiMgr(object):
 
-    def __init__(self, right_answer):
+    def __init__(self, qid, right_answer):
+        self.qid = qid
         self.abcd2count = {A:0, B:0, C:0, D:0}
         self.time2player = {}
         self.right_answer = right_answer
@@ -14,12 +15,12 @@ class StatiMgr(object):
 
 
     def OnAnswer(self, player, abcd, elapse):
-        logging.debug("Stati %d - %d" % (player.uid, abcd))
         self.abcd2count[abcd] += 1
         self.time2player[elapse] = player
         if len(self.topn) < TOPN and self.right_answer == abcd:
             ua = UserAnswer()
             ua.user.name = player.name
+            ua.answer.id = self.qid
             ua.elapse = elapse
             self.topn.append(ua)
 

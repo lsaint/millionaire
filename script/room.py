@@ -272,7 +272,7 @@ class Room(Sender):
     def ResetQuestion(self):
         self.cur_qid += 1
         self.cur_q_start_time = int(time.time())
-        self.stati = StatiMgr(self.GetCurRightAnswer())
+        self.stati = StatiMgr(self.cur_qid, self.qpackage.GetRightAnswer(self.cur_qid))
         self.cur_survivor_num = 0
         for uid, player in self.uid2player.iteritems():
             player.TransformSurvivor()

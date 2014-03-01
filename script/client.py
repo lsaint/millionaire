@@ -53,6 +53,7 @@ def login(s):
     pb.subsid = SSID
     s.send(doPack(pb, MY_UID, FID))
 
+    #gevent.sleep(5)
     pb = C2LLogin()
     pb.user.uid = MY_UID2
     pb.user.name = "Ashley"
@@ -116,7 +117,7 @@ def timeSync(s):
 def doPrint(body):
     fp = FrontendPack()
     fp.ParseFromString(body[LEN:])
-    print "FrontendPack", fp.tsid, fp.ssid, fp.fid, fp.uid
+    #print "FrontendPack", fp.tsid, fp.ssid, fp.fid, fp.uid
     cls = URI2CLASS[fp.uri]
     ins = cls()
     ins.ParseFromString(fp.bin)
@@ -130,11 +131,11 @@ def parse(buf):
 
     if len(buf) >= length:
         more = buf[length:]
-        body = buf[LEN:]   #
+        body = buf[LEN:length]   #
         try:
             doPrint(body)
-        except:
-            print "parse err"
+        except Exception as err:
+            print err
         return more, True
     return buf, False
 
@@ -144,7 +145,7 @@ def get(s):
     buf = ""
     while True:
         data = s.recv(512)
-        print "recv", len(data)
+        #print "recv", len(data)
         if data == "":
             print "close by peer"
             break

@@ -5,7 +5,8 @@ import time, logging
 from logic_pb2 import *
 from timer import Timer
 from stati import StatiMgr
-from match import g_match_mgr, LOAD_PREVIEW_INTERVAL
+from match import g_match_mgr
+from config import *
 
 
 
@@ -179,11 +180,17 @@ class AnswerState(State):
     def __init__(self, room):
         self.room = room
         self.status = Answer
+        self.timer = Timer()
 
 
     def OnEnterState(self):
         self.room.NotifyAnswer()
         self.room.Settle()
+        self.timer.SetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
+
+
+    def OnLeaveState(self):
+        self.timer.ReleaseTimer()
 
 
     def OnNextStep(self, ins):
@@ -201,11 +208,16 @@ class AnnounceState(State):
     def __init__(self, room):
         self.room = room
         self.status = Announce
+        self.timer = Timer()
 
 
     def OnEnterState(self):
-        self.room.CalSurvivorNum()
         self.room.NotifyAnnounce()
+        self.timer.SetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
+
+
+    def OnLeaveState(self):
+        self.timer.ReleaseTimer()
 
 
     def OnNextStep(self, ins):
@@ -229,10 +241,16 @@ class AwardState(State):
     def __init__(self, room):
         self.room = room
         self.status = Award
+        self.timer = Timer()
 
 
     def OnEnterState(self):
         self.room.PrizeGiving()
+        self.timer.SetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
+
+
+    def OnLeaveState(self):
+        self.timer.ReleaseTimer()
 
 
     def OnNextStep(self, ins):

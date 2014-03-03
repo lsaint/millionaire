@@ -29,13 +29,15 @@ URI2CLASS = {
         120     :   L2CNotifyAnnounceStatus,
         121     :   L2CNotifyAwardStatus,
         122     :   L2CNotifyEndingStatus,
-        123     :   C2FRevive,
+        123     :   C2LRevive,
         124     :   F2CReviveRep,
         125     :   F2LNotifyRevive,
         126     :   L2FNotifyRevieRep,
         127     :   L2CNotifyIdleStatus,
         128     :   L2CNotifyPreview,
         129     :   L2CNotifyGameQuestion,
+        130     :   L2CNotifySituation,
+        131     :   L2FReviveRep,
 }
 
 CLASS2URI = {}

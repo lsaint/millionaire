@@ -11,12 +11,14 @@ class Player(object):
         self.uid = user.uid
         self.name = user.name
         self.role = Survivor
+        self.first_lose_id = None
         self.answers = {}
         self.ping = 0
 
 
     def Reset(self):
         self.answers = {}
+        self.first_lose_id = None
         if self.role != Presenter:
             self.role = Survivor
 

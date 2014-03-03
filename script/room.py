@@ -53,6 +53,7 @@ class Room(Sender):
         self.cur_qid = 0
         self.cur_q_start_time = 0
         self.cur_survivor_num = 0
+        self.cur_reviver_num = 0
         self.final_qid = 0
         self.qpackage = QuesionPackage()
         self.resetPlayers()
@@ -138,6 +139,13 @@ class Room(Sender):
         self.SendOrRandomcast(pb, uid)
 
 
+    def NotifySituation(self, uid=None):
+        self.CalReviverNum()
+        pb = L2CNotifySituation()
+        pb.survivor_num = self.cur_survivor_num
+        pb.reviver_num = self.cur_reviver_num
+        self.SendOrBroadcast(pb, uid)
+
 
     def SetFinalQid(self):
         self.final_qid = self.qpackage.GetQuestionCount()
@@ -163,6 +171,7 @@ class Room(Sender):
         if not player:
             player = Player(ins.user)
             self.uid2player[player.uid] = player
+        self.checkFirstLose(player)
         rep = L2CLoginRep()
         rep.user.role = player.role
         rep.ret = OK
@@ -177,6 +186,11 @@ class Room(Sender):
         self.notifyMatchInfo(player.uid)
 
         self.state.OnLogin(ins)
+
+
+    def checkFirstLose(self, player):
+        if not player.first_lose_id:
+            player.first_lose_id = self.cur_qid
 
 
     def OnTimeSync(self, ins):
@@ -230,6 +244,15 @@ class Room(Sender):
                 self.state.OnPresenterUp()
 
 
+    def OnRevive(self, ins):
+        player = self.GetPlayer(ins.user.uid)
+        if player:
+            pb = L2FReviveRep()
+            pb.user.uid = player.uid
+            pb.first_lose_id = player.first_lose_id
+            self.SpecifySend(pb, player.uid)
+
+
     def OnNotifyRevive(self, ins):
         player = self.GetPlayer(ins.user.uid)
         if not player:
@@ -242,10 +265,14 @@ class Room(Sender):
 
 
     def Settle(self):
+        self.cur_survivor_num = 0
         right_answer = self.qpackage.GetRightAnswer(self.cur_qid)
         for uid, player in self.uid2player.iteritems():
             if right_answer != player.GetAnswer(self.cur_qid) and player.role != Presenter:
                 player.role = Loser
+                self.checkFirstLose(player)
+            if player.role == Survivor:
+                self.cur_survivor_num += 1
 
 
     def GetCurRightAnswer(self):
@@ -261,6 +288,12 @@ class Room(Sender):
                 self.cur_survivor_num += 1
 
 
+    def CalReviverNum(self):
+        for uid, player in self.uid2player.iteritems():
+            if player.role == Reviver:
+                self.cur_reviver_num += 1
+
+
     def CheckCurAward(self):
         self.achecker.Check(self.cur_qid, self.cur_survivor_num)
 
@@ -273,7 +306,6 @@ class Room(Sender):
         self.cur_qid += 1
         self.cur_q_start_time = int(time.time())
         self.stati = StatiMgr(self.cur_qid, self.qpackage.GetRightAnswer(self.cur_qid))
-        self.cur_survivor_num = 0
         for uid, player in self.uid2player.iteritems():
             player.TransformSurvivor()
 
@@ -304,7 +336,7 @@ class Room(Sender):
 
     def CountTime(self):
         t = self.GetCurQuestion().count_time
-        self.timer.SetTimer(t, self.SetState, self.timeup_state)
+        self.timer.SetTimer1(t, self.SetState, self.timeup_state)
 
 
     def OnNotifyRevive(self, ins):

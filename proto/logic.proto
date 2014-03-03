@@ -284,3 +284,10 @@ message L2CNotifyPreview {
 message L2CNotifyGameQuestion {
     required GameQuestion gq = 1;
 }
+
+// 130
+message L2CNotifySituation {
+    optional uint32 survivor_num = 1;
+    optioaal
+}
+

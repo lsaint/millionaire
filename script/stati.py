@@ -19,6 +19,7 @@ class StatiMgr(object):
         self.time2player[elapse] = player
         if len(self.topn) < TOPN and self.right_answer == abcd:
             ua = UserAnswer()
+            ua.user.uid = player.uid
             ua.user.name = player.name
             ua.answer.id = self.qid
             ua.elapse = elapse

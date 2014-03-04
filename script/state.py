@@ -46,7 +46,7 @@ class IdleState(State):
 
         pb = L2CNotifyIdleStatus()
         self.room.Randomcast(pb)
-        self.timer.SetTimer(LOAD_PREVIEW_INTERVAL, self.checkShowPreview)
+        self.timer.DoSetTimer(LOAD_PREVIEW_INTERVAL, self.checkShowPreview)
 
 
     def checkShowPreview(self):
@@ -186,7 +186,7 @@ class AnswerState(State):
     def OnEnterState(self):
         self.room.NotifyAnswer()
         self.room.Settle()
-        self.timer.SetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
+        self.timer.DoSetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
 
 
     def OnLeaveState(self):
@@ -213,7 +213,7 @@ class AnnounceState(State):
 
     def OnEnterState(self):
         self.room.NotifyAnnounce()
-        self.timer.SetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
+        self.timer.DoSetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
 
 
     def OnLeaveState(self):
@@ -246,7 +246,7 @@ class AwardState(State):
 
     def OnEnterState(self):
         self.room.PrizeGiving()
-        self.timer.SetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
+        self.timer.DoSetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
 
 
     def OnLeaveState(self):

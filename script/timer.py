@@ -47,6 +47,11 @@ class Timer(object):
         self.setTimer(sec, True, cb, *args)
 
 
+    def DoSetTimer(self, sec, cb, *args):
+        cb(*args)
+        self.setTimer(sec, True, cb, *args)
+
+
     @classmethod
     def KillTimer(cls, tid):
         if Timer.TimerDict.has_key(tid):

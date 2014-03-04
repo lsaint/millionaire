@@ -299,7 +299,8 @@ class Room(Sender):
 
 
     def GetCurAward(self):
-        return self.achecker.GetAward(self.cur_qid)
+        if not self.is_warmup:
+            return self.achecker.GetAward(self.cur_qid)
 
 
     def ResetQuestion(self):

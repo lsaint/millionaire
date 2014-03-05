@@ -76,7 +76,7 @@ class AwardChecker(object):
         to_uid_list = []
         for uid in winners:
             to_uid_list.append({"uid": uid, "money": bounty})
-        sign = md5.new("%s%d%%dd%d%s%s%s" % (product, count, total_money,
+        sign = md5.new("%s%d%d%d%d%s%s%s" % (product, count, total_money,
                                 VM_APPID, sn, add_time, desc, VM_KEY)).hexdigest()
         dt = {"product": product,
               "appid": VM_APPID,

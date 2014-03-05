@@ -84,6 +84,10 @@ class ReadyState(State):
         self.room.Randomcast(pb)
 
 
+    def OnLeaveState(self):
+        self.room.NotifySituation()
+
+
     def OnNextStep(self, ins):
         self.room.SetState(self.room.timing_state, ins.status)
 

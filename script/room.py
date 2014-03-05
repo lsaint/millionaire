@@ -172,7 +172,7 @@ class Room(Sender):
         if not player:
             player = Player(ins.user)
             self.uid2player[player.uid] = player
-        self.checkFirstLose(player)
+        player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer)
         rep = L2CLoginRep()
         rep.user.role = player.role
         rep.ret = OK
@@ -187,11 +187,6 @@ class Room(Sender):
         self.notifyMatchInfo(player.uid)
 
         self.state.OnLogin(ins)
-
-
-    def checkFirstLose(self, player):
-        if not player.first_lose_id:
-            player.first_lose_id = self.cur_qid
 
 
     def OnTimeSync(self, ins):
@@ -250,7 +245,7 @@ class Room(Sender):
         if player:
             pb = L2FReviveRep()
             pb.user.uid = player.uid
-            pb.first_lose_id = player.first_lose_id
+            pb.coef_k = player.coef_k
             self.SpecifySend(pb, player.uid)
 
 
@@ -271,7 +266,7 @@ class Room(Sender):
         for uid, player in self.uid2player.iteritems():
             if right_answer != player.GetAnswer(self.cur_qid) and player.role != Presenter:
                 player.role = Loser
-                self.checkFirstLose(player)
+                player.coef_k += 1
             if player.role == Survivor:
                 self.cur_survivor_num += 1
 
@@ -310,6 +305,7 @@ class Room(Sender):
         self.stati = StatiMgr(self.cur_qid, self.qpackage.GetRightAnswer(self.cur_qid))
         for uid, player in self.uid2player.iteritems():
             player.TransformSurvivor()
+            player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer)
 
 
     def PrizeGiving(self):

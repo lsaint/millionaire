@@ -251,7 +251,7 @@ message C2LRevive {
 // 131
 message L2FReviveRep {
     required User user = 1;
-    required uint32 first_lose_id = 2;    //用户首次挂点的题号
+    required uint32 coef_k = 2;         //计算复活费用的系数k
 }
 
 //复活操作结果，如果用Y币支付的话，需要用户完成了弹窗确认才返回

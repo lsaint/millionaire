@@ -11,14 +11,14 @@ class Player(object):
         self.uid = user.uid
         self.name = user.name
         self.role = Survivor
-        self.first_lose_id = None
+        self.coef_k = 1
         self.answers = {}
         self.ping = 0
 
 
     def Reset(self):
         self.answers = {}
-        self.first_lose_id = None
+        self.coef_k = 1
         if self.role != Presenter:
             self.role = Survivor
 
@@ -48,5 +48,18 @@ class Player(object):
 
     def GetAnswer(self, qid):
         return self.answers.get(qid)
+
+
+    # cal on login
+    def CalCoefK(self, cur_qid, right_answers):
+        if len(self.answers) == 0:
+            self.coef_k = cur_qid
+            return
+
+        k = 0
+        for i in range(1, cur_qid):
+            if self.answers.get(i) != right_answers.get(i):
+                k += 1
+        self.coef_k = k
 
 

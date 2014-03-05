@@ -294,7 +294,8 @@ message L2CNotifyGameQuestion {
 
 // 130
 message L2CNotifySituation {
-    required uint32 survivor_num = 1;
-    required uint32 reviver_num = 2;
+    required uint32 id = 1;         
+    required uint32 survivor_num = 2;
+    required uint32 reviver_num = 3;
 }
 

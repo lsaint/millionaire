@@ -142,6 +142,7 @@ class Room(Sender):
     def NotifySituation(self, uid=None):
         self.CalReviverNum()
         pb = L2CNotifySituation()
+        pb.id = self.cur_qid
         pb.survivor_num = self.cur_survivor_num
         pb.reviver_num = self.cur_reviver_num
         self.SendOrBroadcast(pb, uid)

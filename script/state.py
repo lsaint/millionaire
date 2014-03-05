@@ -274,6 +274,5 @@ class EndingState(State):
         if ins.status == self.status and self.room.presenter:
             self.room.Reset()
             self.room.SetState(self.room.ready_state)
-        # set timer to idle
 
 

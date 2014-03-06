@@ -164,7 +164,6 @@ class StatisticsState(State):
 
 
     def OnEnterState(self):
-        self.room.CheckCurAward()
         self.room.NotifyStati()
 
 
@@ -218,6 +217,7 @@ class AnnounceState(State):
 
 
     def OnEnterState(self):
+        self.room.CheckCurAward()
         self.room.NotifyAnnounce()
         self.timer.DoSetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
 

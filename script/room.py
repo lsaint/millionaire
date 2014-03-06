@@ -120,9 +120,6 @@ class Room(Sender):
     def NotifyStati(self, uid=None):
         pb = L2CNotifyStatisticsStatus()
         pb.stati.extend(self.stati.GetDistribution())
-        awards = self.GetCurAward()
-        if awards:
-            pb.sections.extend(awards)
         self.SendOrRandomcast(pb, uid)
 
 
@@ -136,6 +133,9 @@ class Room(Sender):
         pb = L2CNotifyAnnounceStatus()
         pb.win_user_amount = self.cur_survivor_num
         pb.topn.extend(self.stati.GetTopN())
+        awards = self.GetCurAward()
+        if awards:
+            pb.sections.extend(awards)
         self.SendOrRandomcast(pb, uid)
 
 

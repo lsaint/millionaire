@@ -217,18 +217,18 @@ message C2LAnswerQuestion {
 // 118
 message L2CNotifyStatisticsStatus {
     repeated uint32 stati = 1;
-    repeated RaceAwardSection sections = 2;
 }
 
 // 119
 message L2CNotifyAnswerStatus {
-    required GameQuestion right_answer = 2;
+    required GameQuestion right_answer = 1;
 }
 
 // 120
 message L2CNotifyAnnounceStatus {
     required uint32 win_user_amount = 1; //本轮次答对用户数量
     repeated UserAnswer topn = 2;        //仅包含前8位
+    repeated RaceAwardSection sections = 3;
 }
 
 // 121

@@ -32,8 +32,7 @@ class WatchDog(object):
             return
         room = self.gainRoom(tsid, ssid)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
-        logging.debug("dispatch %s:" % method_name)
-        logging.debug(str(ins))
+        logging.debug("dispatch %s: %s" % (method_name, str(ins)))
         try:
             method = getattr(room, method_name)
         except:

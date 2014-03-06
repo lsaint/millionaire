@@ -139,8 +139,9 @@ class Room(Sender):
         self.SendOrRandomcast(pb, uid)
 
 
-    def NotifySituation(self, uid=None):
-        self.CalReviverNum()
+    def NotifySituation(self, cal_revive=True, uid=None):
+        if cal_revive:
+            self.CalReviverNum()
         pb = L2CNotifySituation()
         pb.id = self.cur_qid
         pb.survivor_num = self.cur_survivor_num
@@ -251,6 +252,7 @@ class Room(Sender):
             pb.user.uid = player.uid
             pb.coef_k = player.coef_k
             self.SpecifySend(pb, player.uid)
+            self.NotifySituation(False, player.uid)
 
 
     def OnNotifyRevive(self, ins):
@@ -349,5 +351,18 @@ class Room(Sender):
             pb = L2FNotifyRevieRep()
             pb.ret = FL
             self.SpecifySend(pb, ins.user.uid)
+
+
+    def SettleNoAnswerPlayers(self):
+        for uid, player in self.uid2player.iteritems():
+            if player.GetAnswer(self.cur_qid) is None:
+                player.role = Loser
+
+
+    def InitCurSurivorNum(self):
+        if self.presenter:
+            self.cur_survivor_num = len(self.uid2player) - 1
+        else:
+            self.cur_survivor_num = len(self.uid2player)
 
 

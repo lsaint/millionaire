@@ -85,7 +85,7 @@ class ReadyState(State):
 
 
     def OnLeaveState(self):
-        self.room.NotifySituation()
+        self.room.InitCurSurivorNum()
 
 
     def OnNextStep(self, ins):
@@ -106,6 +106,7 @@ class TimingState(State):
 
     def OnEnterState(self):
         self.room.ResetQuestion()
+        self.room.NotifySituation(False)
         self.room.NotifyTiming()
         self.room.CountTime()
 
@@ -141,6 +142,7 @@ class TimeupState(State):
 
 
     def OnEnterState(self):
+        self.room.SettleNoAnswerPlayers()
         pb = L2CNotifyTimeupStatus()
         self.room.Randomcast(pb)
 

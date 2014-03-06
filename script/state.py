@@ -79,7 +79,7 @@ class ReadyState(State):
 
 
     def OnEnterState(self):
-        pb = L2CNotifyReadyStatus() 
+        pb = L2CNotifyReadyStatus()
         pb.desc = "ready"
         self.room.Randomcast(pb)
 

@@ -88,7 +88,6 @@ class MatchMgr(object):
         return match
 
 
-
     def GetMatchList(self):
         ret = []
         for k, v in self.matchs.items():

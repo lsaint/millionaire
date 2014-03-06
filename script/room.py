@@ -205,12 +205,13 @@ class Room(Sender):
             self.presenter.ping = time.time()
 
 
-    def NegatePresenter(self, player):
+    def NegatePresenter(self, player, silence=False):
         player.role = Loser
         player.ping = 0
         self.presenter = None
-        pb = L2CNotifyPresenterChange()
-        self.Randomcast(pb)
+        if not silence:
+            pb = L2CNotifyPresenterChange()
+            self.Randomcast(pb)
 
 
     def SetPresenter(self, player):
@@ -224,9 +225,11 @@ class Room(Sender):
 
 
     def OnNotifyMic1(self, ins):
-        # TODO check presenter white list
-        # down
         uid = ins.user.uid
+        #if not g_match_mgr.IsValidPresenter(uid):
+        #    return
+
+        # down
         if uid == 0 and self.presenter:
             self.NegatePresenter(self.presenter)
             self.state.OnPresenterDown()
@@ -236,7 +239,7 @@ class Room(Sender):
             if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
                 player = self.GetPlayer(uid)
                 if self.presenter:
-                    self.NegatePresenter(self.presenter)
+                    self.NegatePresenter(self.presenter, True)
                 self.SetPresenter(player)
                 self.state.OnPresenterUp()
 

@@ -36,7 +36,7 @@ class AwardChecker(object):
 
     def checkRaceAward(self, qid, survivor_num):
         ret = self.section_done.get(qid) or []
-        if len(ret) > 0:
+        if len(ret) > 0 or survivor_num == 0:
             return
         for i, section in self.section_remain.items():
             if qid >= section.trigger_id and survivor_num <= section.survivor_num:

@@ -386,8 +386,11 @@ class Room(Sender):
 
     def CheckPing(self):
         now = time.time()
+        lost = []
         for uid, player in self.uid2player.iteritems():
             if now - player.ping > PING_LOST:
-                del self.uid2player[uid]
+                lost.append(uid)
                 logging.debug("CheckPing Lost %d" % uid)
+        for uid in lost:
+            del self.uid2player[uid]
 

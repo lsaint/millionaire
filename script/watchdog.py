@@ -50,15 +50,15 @@ class WatchDog(object):
         try:
             uid = ins.user.uid
             if uid == 0:
-                return ins.subsid
+                return ins.subsid, uid
         except Exception as err:
             logging.error("checkInRoom %s" % err)
-            return None
+            return None, None
         else:
             if ins.DESCRIPTOR.name == "C2LLogin":
                 if self.uid2ssid.get(uid) != ins.subsid:
                     self.uid2ssid[uid] = ins.subsid
-                    return ins.subsid
+                    return ins.subsid, uid
             return self.uid2ssid.get(uid), uid
 
 

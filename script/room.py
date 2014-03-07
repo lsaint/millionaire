@@ -301,6 +301,7 @@ class Room(Sender):
 
 
     def CalReviverNum(self):
+        self.cur_reviver_num = 0
         for uid, player in self.uid2player.iteritems():
             if player.role == Reviver:
                 self.cur_reviver_num += 1

@@ -180,6 +180,7 @@ class Room(Sender):
         rep.user.role = player.role
         rep.ret = OK
         rep.status = self.state.status
+        rep.cur_time = int(time.time())
         self.SpecifySend(rep, player.uid)
 
         pb = L2CNotifyPresenterChange()
@@ -213,7 +214,7 @@ class Room(Sender):
         player = self.GetPlayer(uid)
         if player:
             player.ping = time.time()
-            logging.debug("SetPing %d" % player.uid)
+            logging.debug("SetPing %d %d" % (player.uid, player.ping))
 
 
     def NegatePresenter(self, player, silence=False):
@@ -391,7 +392,7 @@ class Room(Sender):
         for uid, player in self.uid2player.iteritems():
             if now - player.ping > PING_LOST:
                 lost.append(uid)
-                logging.debug("CheckPing Lost %d" % uid)
+                logging.debug("CheckPing Lost %d %d %d" % (uid, now, player.ping))
         for uid in lost:
             del self.uid2player[uid]
 

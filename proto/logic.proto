@@ -138,7 +138,8 @@ message C2LLogin {
 message L2CLoginRep {
     required User user = 1;
     required Result ret = 2;
-    optional GameStatus status = 3;
+    required GameStatus status = 3;
+    required uint32 cur_time = 4;
 }
 
 //客户端发起的时间校对

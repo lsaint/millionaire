@@ -9,6 +9,7 @@ from award import AwardChecker
 from match import g_match_mgr
 from question import QuesionPackage
 from logic_pb2 import *
+from config import *
 
 
 
@@ -205,9 +206,14 @@ class Room(Sender):
             self.SpecifySend(pb, ins.user.uid)
             self.presenter.ping = time.time()
         else:
-            player = self.GetPlayer(ins.user.uid)
-            if player:
-                player.ping = time.time()
+            self.SetPing(ins.user.uid)
+
+
+    def SetPing(self, uid):
+        player = self.GetPlayer(uid)
+        if player:
+            player.ping = time.time()
+            logging.debug("SetPing %d" % player.ping)
 
 
     def NegatePresenter(self, player, silence=False):
@@ -376,4 +382,12 @@ class Room(Sender):
         if player:
             del self.uid2player[player.uid]
         # OnNotifyMic1 will handle presenter logout
+
+
+    def CheckPing(self):
+        now = time.time()
+        for uid, player in self.uid2player.iteritems():
+            if now - player.ping > PING_LOST:
+                del self.uid2player[uid]
+                logging.debug("CheckPing Lost %d" % uid)
 

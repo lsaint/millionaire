@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import logging
+import logging, time
 from logic_pb2 import *
 
 
@@ -13,7 +13,7 @@ class Player(object):
         self.role = Survivor
         self.coef_k = 1
         self.answers = {}
-        self.ping = 0
+        self.ping = time.time()
 
 
     def Reset(self):

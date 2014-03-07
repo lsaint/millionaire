@@ -26,11 +26,13 @@ class WatchDog(object):
             return
         ins = cls()
         ins.ParseFromString(base64.b64decode(data))
-        ssid = self.checkInRoom(ins)
+        ssid, uid = self.checkInRoom(ins)
         if not ssid:
             logging.warning("not exist ssid %s" % ssid)
             return
         room = self.gainRoom(tsid, ssid)
+        if uid:
+            room.SetPing(uid)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
         logging.debug("dispatch %s: %s" % (method_name, str(ins)))
         try:
@@ -57,7 +59,7 @@ class WatchDog(object):
                 if self.uid2ssid.get(uid) != ins.subsid:
                     self.uid2ssid[uid] = ins.subsid
                     return ins.subsid
-            return self.uid2ssid.get(uid)
+            return self.uid2ssid.get(uid), uid
 
 
 

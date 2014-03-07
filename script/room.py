@@ -213,7 +213,7 @@ class Room(Sender):
         player = self.GetPlayer(uid)
         if player:
             player.ping = time.time()
-            logging.debug("SetPing %d" % player.ping)
+            logging.debug("SetPing %d" % player.uid)
 
 
     def NegatePresenter(self, player, silence=False):

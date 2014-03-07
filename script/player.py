@@ -57,7 +57,7 @@ class Player(object):
             return
 
         k = 0
-        for i in range(1, cur_qid):
+        for i in range(1, cur_qid+1):
             if self.answers.get(i) != right_answers.get(i):
                 k += 1
         self.coef_k = k

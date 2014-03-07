@@ -218,7 +218,7 @@ class Room(Sender):
 
     def NegatePresenter(self, player, silence=False):
         player.role = Loser
-        player.ping = 0
+        player.ping = time.time()
         self.presenter = None
         if not silence:
             pb = L2CNotifyPresenterChange()

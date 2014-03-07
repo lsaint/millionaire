@@ -105,8 +105,8 @@ class TimingState(State):
 
 
     def OnEnterState(self):
-        self.room.ResetQuestion()
-        self.room.NotifySituation(False)
+        if self.room.ResetQuestion() != 1:
+            self.room.NotifySituation(False)
         self.room.NotifyTiming()
         self.room.CountTime()
 

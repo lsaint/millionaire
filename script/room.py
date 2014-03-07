@@ -204,6 +204,10 @@ class Room(Sender):
             pb.sn = ins.sn
             self.SpecifySend(pb, ins.user.uid)
             self.presenter.ping = time.time()
+        else:
+            player = self.GetPlayer(ins.user.uid)
+            if player:
+                player.ping = time.time()
 
 
     def NegatePresenter(self, player, silence=False):
@@ -227,15 +231,15 @@ class Room(Sender):
 
     def OnNotifyMic1(self, ins):
         uid = ins.user.uid
-        #if not g_match_mgr.IsValidPresenter(uid):
-        #    return
-
         # down
         if uid == 0 and self.presenter:
             self.NegatePresenter(self.presenter)
             self.state.OnPresenterDown()
             return
+
         # up
+        #if not g_match_mgr.IsValidPresenter(uid):
+        #    return
         if uid != 0:
             if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
                 player = self.GetPlayer(uid)
@@ -312,6 +316,7 @@ class Room(Sender):
         for uid, player in self.uid2player.iteritems():
             player.TransformSurvivor()
             player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer)
+        return self.cur_qid
 
 
     def PrizeGiving(self):
@@ -365,4 +370,10 @@ class Room(Sender):
         else:
             self.cur_survivor_num = len(self.uid2player)
 
+
+    def OnLogout(self, ins):
+        player = self.GetPlayer(ins.user.uid)
+        if player:
+            del self.uid2player[player.uid]
+        # OnNotifyMic1 will handle presenter logout
 

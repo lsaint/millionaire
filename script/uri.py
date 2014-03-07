@@ -38,6 +38,7 @@ URI2CLASS = {
         129     :   L2CNotifyGameQuestion,
         130     :   L2CNotifySituation,
         131     :   L2FReviveRep,
+        132     :   C2LLogout,
 }
 
 CLASS2URI = {}

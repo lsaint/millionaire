@@ -299,3 +299,8 @@ message L2CNotifySituation {
     required uint32 reviver_num = 3;
 }
 
+// 132
+message C2LLogout {
+    required User user = 1;
+}
+

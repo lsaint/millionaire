@@ -274,7 +274,7 @@ class Room(Sender):
         self.cur_survivor_num = 0
         right_answer = self.qpackage.GetRightAnswer(self.cur_qid)
         for uid, player in self.uid2player.iteritems():
-            if right_answer != player.GetAnswer(self.cur_qid) and player.role != Presenter:
+            if right_answer != player.GetAnswer(self.cur_qid) and player.role == Survivor:
                 player.role = Loser
             if player.role == Survivor:
                 self.cur_survivor_num += 1
@@ -355,7 +355,7 @@ class Room(Sender):
 
     def SettleNoAnswerPlayers(self):
         for uid, player in self.uid2player.iteritems():
-            if player.GetAnswer(self.cur_qid) is None:
+            if player.GetAnswer(self.cur_qid) is None and player.role == Survivor:
                 player.role = Loser
 
 

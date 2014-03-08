@@ -9,14 +9,12 @@ class StatiMgr(object):
     def __init__(self, qid, right_answer):
         self.qid = qid
         self.abcd2count = {A:0, B:0, C:0, D:0}
-        self.time2player = {}
         self.right_answer = right_answer
         self.topn = []
 
 
     def OnAnswer(self, player, abcd, elapse):
         self.abcd2count[abcd] += 1
-        self.time2player[elapse] = player
         if len(self.topn) < TOPN and self.right_answer == abcd:
             ua = UserAnswer()
             ua.user.uid = player.uid

@@ -376,6 +376,7 @@ class Room(Sender):
         player = self.GetPlayer(ins.user.uid)
         if player:
             del self.uid2player[player.uid]
+            logging.debug("Logout %d" % player.uid)
         # OnNotifyMic1 will handle presenter logout
 
 

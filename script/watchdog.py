@@ -28,13 +28,13 @@ class WatchDog(object):
         ins.ParseFromString(base64.b64decode(data))
         ssid, uid = self.checkInRoom(ins)
         if not ssid:
-            logging.warning("not logined %s" % str(ins))
+            logging.warning("not logined %s" % str(ins).replace("\n", ""))
             return
         room = self.gainRoom(tsid, ssid)
         if uid:
             room.SetPing(uid)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
-        logging.debug("dispatch %s: %s" % (method_name, str(ins)))
+        logging.debug("dispatch %s: %s" % (method_name, str(ins).replace("\n", "")))
         try:
             method = getattr(room, method_name)
         except:

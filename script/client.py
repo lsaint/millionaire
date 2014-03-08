@@ -121,7 +121,7 @@ def doPrint(body):
     cls = URI2CLASS[fp.uri]
     ins = cls()
     ins.ParseFromString(fp.bin)
-    print "->", fp.uri, ins.DESCRIPTOR.name, ins
+    print "->", fp.uri, ins.DESCRIPTOR.name, str(ins).replace("\n", "")
 
 
 def parse(buf):

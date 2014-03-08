@@ -28,7 +28,7 @@ class QuesionPackage(object):
         done(0, jn_question)
         logging.debug("qid2question:")
         for k, v in self.id2question.items():
-            logging.debug(str(v))
+            logging.debug(str(v).replace("\n", ""))
         logging.debug("id2rightanswer: %s" % self.id2rightanswer)
         #PostAsync(URL_QUESTION, pid, done)
 

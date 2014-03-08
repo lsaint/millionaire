@@ -283,7 +283,6 @@ class Room(Sender):
         for uid, player in self.uid2player.iteritems():
             if right_answer != player.GetAnswer(self.cur_qid) and player.role != Presenter:
                 player.role = Loser
-                player.coef_k += 1
             if player.role == Survivor:
                 self.cur_survivor_num += 1
 
@@ -316,8 +315,8 @@ class Room(Sender):
         self.cur_q_start_time = int(time.time())
         self.stati = StatiMgr(self.cur_qid, self.qpackage.GetRightAnswer(self.cur_qid))
         for uid, player in self.uid2player.iteritems():
+            player.CheckIncCoefK()  # check before transform
             player.TransformSurvivor()
-            player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer)
         return self.cur_qid
 
 

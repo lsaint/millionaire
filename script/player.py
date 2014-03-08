@@ -63,3 +63,9 @@ class Player(object):
         self.coef_k = k
 
 
+    def CheckIncCoefK(self):
+        if self.role == Survivor:
+            return
+        # inc presenter's k too
+        self.coef_k += 1
+

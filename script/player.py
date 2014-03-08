@@ -7,13 +7,16 @@ from logic_pb2 import *
 
 class Player(object):
 
-    def __init__(self, user):
+    def __init__(self, user, status):
         self.uid = user.uid
         self.name = user.name
-        self.role = Survivor
         self.coef_k = 1
         self.answers = {}
         self.ping = time.time()
+        if status in (Idle, Ready):
+            self.role = Survivor
+        else:
+            self.role = Loser
 
 
     def Reset(self):

@@ -173,7 +173,7 @@ class Room(Sender):
     def OnLogin(self, ins):
         player = self.GetPlayer(ins.user.uid)
         if not player:
-            player = Player(ins.user)
+            player = Player(ins.user, self.state.status)
             self.uid2player[player.uid] = player
         player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer)
         rep = L2CLoginRep()

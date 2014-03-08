@@ -40,7 +40,7 @@ class Room(Sender):
             return
         self.state.OnLeaveState()
         self.state = state
-        logging.info("Enter State ===================> %s" % state.__class__.__name__)
+        logging.info("Enter======================================> %s" % state.__class__.__name__)
         self.state.OnEnterState()
 
 
@@ -292,7 +292,7 @@ class Room(Sender):
         for uid, player in self.uid2player.iteritems():
             if player.role == Reviver:
                 self.cur_reviver_num += 1
-        loging.debug("CalReviverNum %d %d" % (len(self.uid2player, self.cur_reviver_num)))
+        logging.debug("CalReviverNum %d %d" % (len(self.uid2player), self.cur_reviver_num))
 
 
     def CheckCurAward(self):

@@ -295,12 +295,6 @@ class Room(Sender):
         return gq
 
 
-    def CalSurvivorNum(self):
-        for uid, player in self.uid2player.iteritems():
-            if player.role == Survivor:
-                self.cur_survivor_num += 1
-
-
     def CalReviverNum(self):
         self.cur_reviver_num = 0
         for uid, player in self.uid2player.iteritems():

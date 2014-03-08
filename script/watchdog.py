@@ -28,7 +28,7 @@ class WatchDog(object):
         ins.ParseFromString(base64.b64decode(data))
         ssid, uid = self.checkInRoom(ins)
         if not ssid:
-            logging.warning("not exist ssid %s" % ssid)
+            logging.warning("not logined %s" % str(ins))
             return
         room = self.gainRoom(tsid, ssid)
         if uid:

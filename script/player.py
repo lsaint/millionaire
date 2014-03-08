@@ -37,11 +37,14 @@ class Player(object):
         return True
 
 
-    def DoRevive(self):
+    def DoRevive(self, status):
         if self.role != Loser:
             return False
-        self.role = Reviver
-        logging.info("DoRevive sucess %d" % self.uid)
+        if status == Timing:
+            self.role = Survivor
+        else:
+            self.role = Reviver
+        logging.info("DoRevive sucess uid:%d status:%d" % (self.uid, status))
         return True
 
 

@@ -346,7 +346,7 @@ class Room(Sender):
     def OnNotifyRevive(self, ins):
         player = self.GetPlayer(ins.user.uid)
         if player and self.cur_qid == ins.id:
-            player.DoRevive()
+            player.DoRevive(self.state.status)
         else:
             pb = L2FNotifyRevieRep()
             pb.ret = FL

@@ -24,8 +24,8 @@ class Player(object):
 
 
     def DoAnswer(self, qid, answer):
-        if self.role != Survivor or self.role != Reviver:
-            logging.debug("DoAnswer wrong role")
+        if self.role == Presenter or self.role == Loser:
+            logging.debug("DoAnswer wrong role %s" % self.role)
             return False
         if self.answers.get(qid) is not None:
             logging.debug("DoAnswer multi answer")

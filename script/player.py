@@ -38,6 +38,7 @@ class Player(object):
         if self.role != Loser:
             return False
         self.role = Reviver
+        logging.info("DoRevive sucess %d" % self.uid)
         return True
 
 

@@ -159,13 +159,10 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
 }
 
 func (this *Gate) doPack(pack *proto.GateOutPack) (ret []byte, fid uint32) {
-    fp := &proto.FrontendPack{Uri: pack.Uri, Tsid: pack.Tsid, Ssid: pack.Ssid, Bin: pack.Bin}
+    fp := &proto.FrontendPack{Uri: pack.Uri, Tsid: pack.Tsid, Ssid: pack.Ssid, 
+                                Bin: pack.Bin, Fid: pb.Uint32(this.randomFid())}
+    fid = fp.GetFid()
     switch pack.GetAction() {
-        case proto.Action_Broadcast:
-            fp.Fid = pb.Uint32(this.randomFid())
-        case proto.Action_Randomcast:
-            fid = this.randomFid()
-            fp.Fid = pb.Uint32(fid)
         case proto.Action_Specify:
             fp.Uid = pack.Uid
     }

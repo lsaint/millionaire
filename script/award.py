@@ -28,10 +28,8 @@ class AwardChecker(object):
             return self.race_award.final_id
 
 
-    def checkFinalAward(self, qid):
-        if self.race_award and qid == self.race_award.final_id:
-            return self.section_remain
-        return []
+    def checkPersonalAward(self, qid):
+        pass
 
 
     def checkRaceAward(self, qid, survivor_num):
@@ -45,9 +43,7 @@ class AwardChecker(object):
 
 
     def Check(self, qid, survivor_num):
-        ret = self.checkFinalAward(qid)
-        if not ret:
-            self.checkRaceAward(qid, survivor_num)
+        self.checkRaceAward(qid, survivor_num)
 
 
     def GetAward(self, qid):

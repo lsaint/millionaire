@@ -228,10 +228,6 @@ class AnnounceState(State):
 
 
     def OnNextStep(self, ins):
-        if self.room.cur_survivor_num == 0:
-            self.room.SetState(self.room.ending_state, ins.status)
-            return
-
         if self.room.GetCurAward():
             self.room.SetState(self.room.award_state, ins.status)
         else:

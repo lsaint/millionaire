@@ -129,7 +129,7 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
     //fmt.Println("coming out", pack, "fid2frontend", this.fid2frontend)
     l := len(this.fids)
     if l == 0 { return }
-    p := this.doPack(pack)
+    p, rfid := this.doPack(pack)
 
     switch pack.GetAction() {
         case proto.Action_Broadcast:
@@ -138,7 +138,6 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
                 //fmt.Println("broadcast", len(p))
             }
         case proto.Action_Randomcast:
-            rfid := this.randomFid()
             if cc := this.fid2frontend[rfid]; cc != nil {
                 cc.Send(p)
                 //fmt.Println("randomcast", len(p))
@@ -159,11 +158,14 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
     }
 }
 
-func (this *Gate) doPack(pack *proto.GateOutPack) (ret []byte) {
+func (this *Gate) doPack(pack *proto.GateOutPack) (ret []byte, fid uint32) {
     fp := &proto.FrontendPack{Uri: pack.Uri, Tsid: pack.Tsid, Ssid: pack.Ssid, Bin: pack.Bin}
     switch pack.GetAction() {
         case proto.Action_Broadcast:
             fp.Fid = pb.Uint32(this.randomFid())
+        case proto.Action_Randomcast:
+            fid = this.randomFid()
+            fp.Fid = pb.Uint32(fid)
         case proto.Action_Specify:
             fp.Uid = pack.Uid
     }

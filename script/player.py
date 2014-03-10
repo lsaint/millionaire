@@ -51,6 +51,8 @@ class Player(object):
     def TransformSurvivor(self):
         if self.role == Reviver:
             self.role = Survivor
+            return True
+        return False
 
 
     def GetAnswer(self, qid):

@@ -310,7 +310,8 @@ class Room(Sender):
         self.stati = StatiMgr(self.cur_qid, self.qpackage.GetRightAnswer(self.cur_qid))
         for uid, player in self.uid2player.iteritems():
             player.CheckIncCoefK()  # check before transform
-            player.TransformSurvivor()
+            if player.TransformSurvivor():
+                self.cur_survivor_num += 1
         return self.cur_qid
 
 

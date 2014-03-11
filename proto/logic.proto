@@ -140,6 +140,7 @@ message L2CLoginRep {
     required Result ret = 2;
     required GameStatus status = 3;
     required uint32 cur_time = 4;
+    required uint32 coef_k = 5;
 }
 
 //客户端发起的时间校对

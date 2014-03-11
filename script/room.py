@@ -181,6 +181,7 @@ class Room(Sender):
         rep.ret = OK
         rep.status = self.state.status
         rep.cur_time = int(time.time())
+        rep.coef_k = player.coef_k
         self.SpecifySend(rep, player.uid)
 
         pb = L2CNotifyPresenterChange()
@@ -245,8 +246,9 @@ class Room(Sender):
             return
 
         # up
-        #if not g_match_mgr.IsValidPresenter(uid):
-        #    return
+        if not g_match_mgr.IsValidPresenter(uid):
+            logging.debug("not Valid Presenter:%d" % uid)
+            return
         if uid != 0:
             if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
                 player = self.GetPlayer(uid)

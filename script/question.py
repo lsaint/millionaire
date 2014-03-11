@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# 题目 | 正确答案 | 错误答案1 | 2 | 3 | 答题时间
-#
 # json
 # [[id, desc, [right, wrong1, wrong2, wrong3], time]...]
 
 import json, random, logging
 from post import PostAsync
 from logic_pb2 import GameQuestion, A, B, C, D
-from config import URL_QUESTION
+from config import *
 
 OP_HEAD = [A, B, C, D]
 
@@ -23,24 +21,17 @@ class QuesionPackage(object):
         def done(sn, ret):
             self.parseJson(ret)
             func()
-        # test
-        from jn import jn_question
-        done(0, jn_question)
-        logging.debug("qid2question:")
-        for k, v in self.id2question.items():
-            logging.debug(str(v).replace("\n", ""))
-        logging.debug("id2rightanswer: %s" % self.id2rightanswer)
-        #PostAsync(URL_QUESTION, pid, done)
+        PostAsync("%s%s%s" % (URL_OP, SUF_QPACK, pid), "", done)
 
 
     def parseJson(self, jn):
+        logging.info("LoadQuestion: %s" % jn)
         global OP_HEAD
         lt = json.loads(jn)
         for q in lt:
             op = q[2]                           # options
             right_answer = op[0]
-            #test
-            #random.shuffle(op)
+            random.shuffle(op)
             gq = GameQuestion()
             gq.id = q[0]                        # id
             gq.question = q[1]                  # question desc

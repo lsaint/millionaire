@@ -8,6 +8,7 @@ from datetime import datetime
 from logic_pb2 import *
 from timer import Timer
 from config import *
+from post import PostAsync
 
 
 class MatchMgr(object):
@@ -25,22 +26,24 @@ class MatchMgr(object):
 
 
     def load(self):
-        from jn import jn_match     #test
-        lt = json.loads(jn_match)
-        for m in lt:
-            self.matchs[m["id"]] = self.loadMatch(m)
-        logging.debug( "load match sucess..")
-        self.loadPreview()
+        PostAsync(URL_OP+SUF_MATCH, "", self.doneLoadMatch)
+        PostAsync(URL_OP+SUF_WLIST, "", self.doneLoadWList)
+        PostAsync(URL_OP+SUF_PREVIEW, "", self.doneLoadPreview)
 
 
-    def loadPresenterWhiteList(self):
-        from jn import jn_presenter_wl
+    def doneLoadWList(self, sn, jn_presenter_wl):
         self.valid_presenters = json.loads(jn_presenter_wl)
         logging.debug("load presenter whitelist sucess..")
 
 
-    def loadPreview(self):
-        from jn import jn_preview
+    def doneLoadMatch(self, sn, jn_match):
+        lt = json.loads(jn_match)
+        for m in lt:
+            self.matchs[m["id"]] = self.loadMatch(m)
+        logging.debug( "load match sucess..")
+
+
+    def doneLoadPreview(self, sn, jn_preview):
         pv = json.loads(jn_preview)
         start_s = time.strptime(pv["start"], TIME_FORMAT)
         end_s = time.strptime(pv["end"], TIME_FORMAT)

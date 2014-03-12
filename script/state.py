@@ -228,6 +228,7 @@ class AnnounceState(State):
 
 
     def OnNextStep(self, ins):
+        self.room.NotifySituation(True) # cal reviver
         if self.room.GetCurAward():
             self.room.SetState(self.room.award_state, ins.status)
         else:

@@ -52,10 +52,12 @@ class MatchMgr(object):
         now = datetime.now()
         if start < now and now < end:
             pb = L2CNotifyPreview()
-            pb.desc = pv["desc"].decode('utf-8', 'ignore')
+            pb.desc = pv["desc"]
             pb.start = pv["start"]
             pb.end = pv["end"]
             self.preview = pb
+        else:
+            self.preview = None
         logging.debug("load preview sucess..")
 
 

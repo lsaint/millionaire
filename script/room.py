@@ -252,10 +252,16 @@ class Room(Sender):
         if uid != 0:
             if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
                 player = self.GetPlayer(uid)
+                silence = True
                 if self.presenter:
-                    self.NegatePresenter(self.presenter, True)
-                self.SetPresenter(player)
-                self.state.OnPresenterUp()
+                    if not player:
+                        silence = False
+                        logging.debug("Logout Presenter:%d" % uid)
+                    self.NegatePresenter(self.presenter, silence)
+
+                if player:
+                    self.SetPresenter(player)
+                    self.state.OnPresenterUp()
 
 
     def OnRevive(self, ins):

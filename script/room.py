@@ -55,6 +55,7 @@ class Room(Sender):
         self.cur_q_start_time = 0
         self.cur_survivor_num = 0
         self.cur_reviver_num = 0
+        self.winners = []
         self.final_qid = 0
         self.qpackage = QuesionPackage()
         self.resetPlayers()
@@ -303,6 +304,10 @@ class Room(Sender):
 
 
     def CheckCurAward(self):
+        self.winners = []
+        for uid, player in self.uid2player.iteritems():
+            if player.role  == Survivor:
+                self.winners.append(uid)
         self.achecker.Check(self.cur_qid, self.cur_survivor_num)
 
 
@@ -312,6 +317,7 @@ class Room(Sender):
 
 
     def ResetQuestion(self):
+        self.winners = []
         self.cur_qid += 1
         self.cur_q_start_time = int(time.time())
         self.stati = StatiMgr(self.cur_qid, self.qpackage.GetRightAnswer(self.cur_qid))
@@ -323,13 +329,9 @@ class Room(Sender):
 
 
     def PrizeGiving(self):
-        winners = []
-        for uid, player in self.uid2player.iteritems():
-            if player.role  == Survivor:
-                winners.append(uid)
-        bounty = self.achecker.PrizeGiving(self.cur_qid, winners)
+        bounty = self.achecker.PrizeGiving(self.cur_qid, self.winners)
         pb = L2CNotifyAwardStatus()
-        for uid in winners:
+        for uid in self.winners:
             pb.users.add().uid = uid
         pb.bounty = bounty
         self.Broadcast(pb)

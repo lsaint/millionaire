@@ -60,18 +60,20 @@ class Player(object):
 
 
     # cal on login
-    def CalCoefK(self, cur_qid, right_answers):
+    def CalCoefK(self, cur_qid, right_answers, status):
         if cur_qid == 0:
             self.coef_k = 1
             return
         if len(self.answers) == 0:
             self.coef_k = cur_qid
-            return
-        k = 0
-        for i in range(1, cur_qid+1):
-            if self.answers.get(i) != right_answers.get(i):
-                k += 1
-        self.coef_k = k
+        else:
+            k = 0
+            for i in range(1, cur_qid+1):
+                if self.answers.get(i) != right_answers.get(i):
+                    k += 1
+            self.coef_k = k
+        if status == Timing:
+            self.coef_k -= 1
 
 
     def CheckIncCoefK(self):

@@ -239,29 +239,27 @@ class Room(Sender):
 
     def OnNotifyMic1(self, ins):
         uid = ins.user.uid
-        # down
-        if uid == 0 and self.presenter:
+        if (uid == 0 and self.presenter) or (
+                uid != 0 and not g_match_mgr.IsValidPresenter(uid)):
             self.NegatePresenter(self.presenter)
             self.state.OnPresenterDown()
             return
 
-        # up
-        if not g_match_mgr.IsValidPresenter(uid):
-            logging.debug("not Valid Presenter:%d" % uid)
+        if uid == 0:
             return
-        if uid != 0:
-            if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
-                player = self.GetPlayer(uid)
-                silence = True
-                if self.presenter:
-                    if not player:
-                        silence = False
-                        logging.debug("Logout Presenter:%d" % uid)
-                    self.NegatePresenter(self.presenter, silence)
 
-                if player:
-                    self.SetPresenter(player)
-                    self.state.OnPresenterUp()
+        if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
+            player = self.GetPlayer(uid)
+            silence = True
+            if self.presenter:
+                if not player:
+                    silence = False
+                    logging.debug("Logout Presenter:%d" % uid)
+                self.NegatePresenter(self.presenter, silence)
+
+            if player:
+                self.SetPresenter(player)
+                self.state.OnPresenterUp()
 
 
     def OnRevive(self, ins):

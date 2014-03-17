@@ -241,7 +241,7 @@ class Room(Sender):
     def OnNotifyMic1(self, ins):
         uid = ins.user.uid
         if (uid == 0 and self.presenter) or (
-                uid != 0 and not g_match_mgr.IsValidPresenter(uid)):
+                uid != 0 and self.presenter and not g_match_mgr.IsValidPresenter(uid)):
             self.NegatePresenter(self.presenter)
             self.state.OnPresenterDown()
             return

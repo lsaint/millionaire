@@ -13,6 +13,7 @@ class AwardChecker(object):
         self.personal_award = personal_award
         self.section_done = {}
         self.section_remain = {}
+        self.personal_award_winners = []
         self.loadSection(race_award)
 
 
@@ -28,11 +29,20 @@ class AwardChecker(object):
             return self.race_award.final_id
 
 
-    def checkPersonalAward(self, qid):
-        pass
+    def GetPersonalAwardEndId(self):
+        if self.personal_award:
+            return self.personal_award.end_id
 
 
-    def checkRaceAward(self, qid, survivor_num):
+    # check on enter anounce state
+    def CheckPersonalAward(self, qid, player):
+        self.personal_award_winners = []
+        if player.GetRightCount() >= self.personal_award.bingo_time:
+            self.personal_award_winners.append(player.uid)
+
+
+    # check on enter anounce state
+    def CheckRaceAward(self, qid, survivor_num):
         ret = self.section_done.get(qid) or []
         if len(ret) > 0 or survivor_num == 0:
             return
@@ -43,16 +53,21 @@ class AwardChecker(object):
                 del self.section_remain[i]
 
 
-    # check on enter anounce state
-    def Check(self, qid, survivor_num):
-        self.checkRaceAward(qid, survivor_num)
-
-
     def GetAward(self, qid):
         return self.section_done.get(qid)
 
 
-    def PrizeGiving(self, qid, winners):
+    def IsGivingPersonalAward(self):
+        return self.personal_award_winners != []
+
+
+    # giving when leave announce state 
+    def PersonalPrizeGiving(self):
+        self.post2Vm(self.personal_award_winners, self.personal_award.bounty)
+        return self.personal_award_winners, self.personal_award.bounty
+
+
+    def RacePrizeGiving(self, qid, winners):
         sections =  self.section_done.get(qid)
         if sections is None:
             return

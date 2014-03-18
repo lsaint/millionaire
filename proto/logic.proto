@@ -306,3 +306,9 @@ message C2LLogout {
     required User user = 1;
 }
 
+// 133
+message L2CNotifyPersonalAward {
+    repeated User users = 1;             //所有中奖用户
+    required uint32 bounty = 2;          //虚拟币奖励
+}
+

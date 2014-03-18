@@ -288,6 +288,7 @@ class Room(Sender):
                 player.role = Loser
             if player.role == Survivor:
                 self.cur_survivor_num += 1
+                player.bingos[self.cur_qid] = True
 
 
     def GetCurRightAnswer(self):
@@ -307,10 +308,18 @@ class Room(Sender):
 
     def CheckCurAward(self):
         self.winners = []
+        is_check_personal = False
+        end_id = self.achecker.GetPersonalAwardEndId()
+        if end_id:
+            if endid == self.cur_qid:
+                is_check_personal = True
+
         for uid, player in self.uid2player.iteritems():
             if player.role  == Survivor:
                 self.winners.append(uid)
-        self.achecker.Check(self.cur_qid, self.cur_survivor_num)
+            if is_check_personal:
+                self.achecker.CheckPersonalAward(self.cur_qid, player)
+        self.achecker.CheckRaceAward(self.cur_qid, self.cur_survivor_num)
 
 
     def GetCurAward(self):
@@ -330,10 +339,23 @@ class Room(Sender):
         return self.cur_qid
 
 
-    def PrizeGiving(self):
-        bounty = self.achecker.PrizeGiving(self.cur_qid, self.winners)
+    # giving when enter award state
+    def RacePrizeGiving(self):
+        bounty = self.achecker.RacePrizeGiving(self.cur_qid, self.winners)
         pb = L2CNotifyAwardStatus()
         for uid in self.winners:
+            pb.users.add().uid = uid
+        pb.bounty = bounty
+        self.Broadcast(pb)
+
+
+    # giving when leave announce state
+    def PersonalPrizeGiving(self):
+        if not self.achecker.IsGivingPersonalAward():
+            return
+        uids, bounty = self.achecker.PersonalPrizeGiving()
+        pb = L2CNotifyPersonalAward()
+        for uid in uids:
             pb.users.add().uid = uid
         pb.bounty = bounty
         self.Broadcast(pb)

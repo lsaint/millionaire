@@ -232,6 +232,7 @@ class AnnounceState(State):
 
     def OnLeaveState(self):
         self.timer.ReleaseTimer()
+        self.room.PersonalPrizeGiving()
 
 
     def OnNextStep(self, ins):
@@ -256,7 +257,7 @@ class AwardState(State):
 
 
     def OnEnterState(self):
-        self.room.PrizeGiving()
+        self.room.RacePrizeGiving()
         self.timer.DoSetTimer(CHECK_REVIVER_INTERVAL, self.room.NotifySituation)
 
 

@@ -12,6 +12,7 @@ class Player(object):
         self.name = user.name
         self.coef_k = 1
         self.answers = {}
+        self.bingos = {}
         self.ping = time.time()
         if status in (Idle, Ready):
             self.role = Survivor
@@ -81,4 +82,12 @@ class Player(object):
             return
         # inc presenter's k too
         self.coef_k += 1
+
+
+    def GetRightCount(self, start, end):
+        count = 0
+        for i in range(start, end+1):
+            if self.bingos.get(i):
+                count += 1
+        return count
 

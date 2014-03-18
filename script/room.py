@@ -76,7 +76,7 @@ class Room(Sender):
     def OnStartMatch(self, ins):
         if not self.isPresenter(ins.user.uid):
             return
-        if self.match:
+        if self.state.status != Ready:
             logging.warn("match started")
             return
         if ins.is_warmup:

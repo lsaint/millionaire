@@ -60,7 +60,7 @@ class Room(Sender):
         self.qpackage = QuesionPackage()
         self.resetPlayers()
 
-    
+
     def resetPlayers(self):
         for uid, player in self.uid2player.iteritems():
             player.Reset()
@@ -160,7 +160,7 @@ class Room(Sender):
 
     def IsOver(self):
         return self.cur_qid >= self.final_qid or (
-                self.cur_survivor_num < 2 and self.cur_reviver_num == 0)
+                self.cur_survivor_num == 0 and self.cur_reviver_num == 0)
 
 
     def GetCurQuestion(self):

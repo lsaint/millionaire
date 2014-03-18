@@ -37,7 +37,8 @@ class AwardChecker(object):
         if len(ret) > 0 or survivor_num == 0:
             return
         for i, section in self.section_remain.items():
-            if qid >= section.trigger_id and survivor_num <= section.survivor_num:
+            if (qid >= section.trigger_id and survivor_num <= section.survivor_num) or (
+                    qid == self.GetFinalId()):
                 self.section_done.setdefault(qid, []).append(section)
                 del self.section_remain[i]
 
@@ -58,6 +59,10 @@ class AwardChecker(object):
         bounty = 0
         for section in sections:
             bounty += section.bounty
+        if qid == self.GetFinalId():
+            bounty = int(bounty / len(winners))
+            if bounty == 0:
+                bounty += 1
         self.post2Vm(winners, bounty)
         return bounty
 

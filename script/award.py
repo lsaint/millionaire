@@ -42,6 +42,7 @@ class AwardChecker(object):
                 del self.section_remain[i]
 
 
+    # check on enter anounce state
     def Check(self, qid, survivor_num):
         self.checkRaceAward(qid, survivor_num)
 

@@ -72,7 +72,7 @@ class Player(object):
                 if self.answers.get(i) != right_answers.get(i):
                     k += 1
             self.coef_k = k
-        if status == Timing:
+        if status == Timing and cur_qid != 1:
             self.coef_k -= 1
 
 

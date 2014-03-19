@@ -39,7 +39,6 @@ class IdleState(State):
         self.room = room
         self.status = Idle
         self.timer = Timer()
-        self.last_pv_desc = ""
 
 
     def OnEnterState(self):
@@ -53,9 +52,6 @@ class IdleState(State):
     def notifyPreview(self, uid=None):
         pv = g_match_mgr.GetPreview()
         if pv:
-            if pv.desc == self.last_pv_desc:
-                return
-            self.last_pv_desc = pv.desc
             pb = L2CNotifyPreview()
             pb.MergeFrom(pv)
             self.room.SendOrRandomcast(pb, uid)

@@ -56,9 +56,10 @@ class MatchMgr(object):
             pb.start = pv["start"]
             pb.end = pv["end"]
             self.preview = pb
+            logging.debug("load preview sucess..")
         else:
             self.preview = None
-        logging.debug("load preview sucess..")
+            logging.debug("load preview None")
 
 
     def loadMatch(self, m):

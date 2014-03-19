@@ -75,6 +75,7 @@ class Player(object):
             self.coef_k = k
         if status == Timing and cur_qid != 1:
             self.coef_k -= 1
+        return self.coef_k
 
 
     def CheckIncCoefK(self):

@@ -176,13 +176,13 @@ class Room(Sender):
         if not player:
             player = Player(ins.user, self.state.status)
             self.uid2player[player.uid] = player
-        player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer, self.state.status)
+        
         rep = L2CLoginRep()
         rep.user.role = player.role
         rep.ret = OK
         rep.status = self.state.status
         rep.cur_time = int(time.time())
-        rep.coef_k = player.coef_k
+        rep.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer, self.state.status)
         self.SpecifySend(rep, player.uid)
 
         pb = L2CNotifyPresenterChange()
@@ -269,7 +269,8 @@ class Room(Sender):
             pb = L2FReviveRep()
             pb.user.uid = player.uid
             pb.user.role = player.role
-            pb.coef_k = player.coef_k
+            rep.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer,
+                                            self.state.status)
             self.SpecifySend(pb, player.uid)
             self.NotifySituation(False, player.uid)
         else:
@@ -333,7 +334,7 @@ class Room(Sender):
         self.cur_q_start_time = int(time.time())
         self.stati = StatiMgr(self.cur_qid, self.qpackage.GetRightAnswer(self.cur_qid))
         for uid, player in self.uid2player.iteritems():
-            player.CheckIncCoefK()  # check before transform
+            #player.CheckIncCoefK()  # check before transform
             if player.TransformSurvivor():
                 self.cur_survivor_num += 1
         return self.cur_qid

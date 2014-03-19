@@ -37,7 +37,8 @@ class AwardChecker(object):
     # check on enter anounce state
     def CheckPersonalAward(self, qid, player):
         self.personal_award_winners = []
-        if player.GetRightCount() >= self.personal_award.bingo_time:
+        if player.GetRightCount(self.personal_award.start_id,
+                                self.personal_award.end_id) >= self.personal_award.bingo_time:
             self.personal_award_winners.append(player.uid)
 
 

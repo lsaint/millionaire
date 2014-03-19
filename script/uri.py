@@ -39,6 +39,7 @@ URI2CLASS = {
         130     :   L2CNotifySituation,
         131     :   L2FReviveRep,
         132     :   C2LLogout,
+        133     :   L2CNotifyPersonalAward,
 }
 
 CLASS2URI = {}

@@ -64,7 +64,7 @@ class Player(object):
     def CalCoefK(self, cur_qid, right_answers, status):
         if cur_qid == 0:
             self.coef_k = 1
-            return
+            return self.coef_k
         if len(self.answers) == 0:
             self.coef_k = cur_qid
         else:

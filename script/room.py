@@ -269,7 +269,7 @@ class Room(Sender):
             pb = L2FReviveRep()
             pb.user.uid = player.uid
             pb.user.role = player.role
-            rep.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer,
+            pb.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer,
                                             self.state.status)
             self.SpecifySend(pb, player.uid)
             self.NotifySituation(False, player.uid)

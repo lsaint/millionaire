@@ -311,7 +311,7 @@ class Room(Sender):
         is_check_personal = False
         end_id = self.achecker.GetPersonalAwardEndId()
         if end_id:
-            if endid == self.cur_qid:
+            if end_id == self.cur_qid:
                 is_check_personal = True
 
         for uid, player in self.uid2player.iteritems():

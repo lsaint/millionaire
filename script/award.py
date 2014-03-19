@@ -59,7 +59,7 @@ class AwardChecker(object):
 
 
     def IsGivingPersonalAward(self):
-        return self.personal_award_winners != []
+        return self.personal_award_winners != [] and self.personal_award.bounty > 0
 
 
     # giving when leave announce state 

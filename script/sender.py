@@ -32,22 +32,22 @@ class Sender(object):
         logging.debug("<--Randomcast %s: %s" % (ins.DESCRIPTOR.name, str(ins).replace("\n", " ")))
 
 
-    def SpecifySend(self, ins, uid):
+    def Unicast(self, ins, uid):
         uri, bin = self.parse(ins)
         go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Specify, uid)
         logging.debug("<--Send %d %s: %s" % (uid, ins.DESCRIPTOR.name, str(ins).replace("\n", " ")))
 
 
-    def SendOrRandomcast(self, ins, uid):
+    def UniOrRandomcast(self, ins, uid):
         if uid:
-            self.SpecifySend(ins, uid)
+            self.Unicast(ins, uid)
         else:
             self.Randomcast(ins)
 
 
-    def SendOrBroadcast(self, ins, uid):
+    def UniOrBroadcast(self, ins, uid):
         if uid:
-            self.SpecifySend(ins, uid)
+            self.Unicast(ins, uid)
         else:
             self.Broadcast(ins)
 

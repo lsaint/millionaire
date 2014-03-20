@@ -70,7 +70,7 @@ class Room(Sender):
         ms = g_match_mgr.GetMatchList()
         rep = L2CMatchInfoRep()
         rep.matchs.extend(ms)
-        self.SpecifySend(rep, ins.user.uid)
+        self.Unicast(rep, ins.user.uid)
 
 
     def OnStartMatch(self, ins):
@@ -103,32 +103,32 @@ class Room(Sender):
         pb.is_warmup = self.is_warmup
         pb.match.MergeFrom(self.match)
         pb.match.ClearField("pid")
-        self.SendOrBroadcast(pb, uid)
+        self.UniOrBroadcast(pb, uid)
 
 
     def NotifyTiming(self, uid=None):
         pb = L2CNotifyTimingStatus()
         pb.question.MergeFrom(self.GetCurQuestion())
         pb.start_time = self.cur_q_start_time
-        self.SendOrBroadcast(pb, uid)
+        self.UniOrBroadcast(pb, uid)
 
 
     def NotifyQuestion(self, uid):
         pb = L2CNotifyGameQuestion()
         pb.gq.MergeFrom(self.GetCurQuestion())
-        self.SpecifySend(pb, uid)
+        self.Unicast(pb, uid)
 
 
     def NotifyStati(self, uid=None):
         pb = L2CNotifyStatisticsStatus()
         pb.stati.extend(self.stati.GetDistribution())
-        self.SendOrRandomcast(pb, uid)
+        self.UniOrRandomcast(pb, uid)
 
 
     def NotifyAnswer(self, uid=None):
         pb = L2CNotifyAnswerStatus()
         pb.right_answer.MergeFrom(self.GetCurRightAnswer())
-        self.SendOrRandomcast(pb, uid)
+        self.UniOrRandomcast(pb, uid)
 
 
     def NotifyAnnounce(self, uid=None):
@@ -138,7 +138,7 @@ class Room(Sender):
         awards = self.GetCurAward()
         if awards:
             pb.sections.extend(awards)
-        self.SendOrRandomcast(pb, uid)
+        self.UniOrRandomcast(pb, uid)
 
 
     def NotifySituation(self, cal_revive=True, uid=None):
@@ -148,7 +148,7 @@ class Room(Sender):
         pb.id = self.cur_qid
         pb.survivor_num = self.cur_survivor_num
         pb.reviver_num = self.cur_reviver_num
-        self.SendOrBroadcast(pb, uid)
+        self.UniOrBroadcast(pb, uid)
 
 
     def SetFinalQid(self):
@@ -183,12 +183,12 @@ class Room(Sender):
         rep.status = self.state.status
         rep.cur_time = int(time.time())
         rep.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer, self.state.status)
-        self.SpecifySend(rep, player.uid)
+        self.Unicast(rep, player.uid)
 
         pb = L2CNotifyPresenterChange()
         if self.presenter:
             pb.presenter.uid = self.presenter.uid
-        self.SpecifySend(pb, player.uid)
+        self.Unicast(pb, player.uid)
 
         self.notifyMatchInfo(player.uid)
 
@@ -199,14 +199,14 @@ class Room(Sender):
         pb = L2CTimeSyncRep()
         pb.sn = ins.sn
         pb.cur_time = int(time.time())
-        self.SpecifySend(pb, ins.user.uid)
+        self.Unicast(pb, ins.user.uid)
 
 
     def OnPing(self, ins):
         if self.presenter and ins.user.uid == self.presenter.uid:
             pb = L2CPingRep()
             pb.sn = ins.sn
-            self.SpecifySend(pb, ins.user.uid)
+            self.Unicast(pb, ins.user.uid)
             self.presenter.ping = time.time()
         else:
             self.SetPing(ins.user.uid)
@@ -271,7 +271,7 @@ class Room(Sender):
             pb.user.role = player.role
             pb.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer,
                                             self.state.status)
-            self.SpecifySend(pb, player.uid)
+            self.Unicast(pb, player.uid)
             self.NotifySituation(False, player.uid)
         else:
             logging.debug("revive_logout player:%d" % ins.user.uid)
@@ -385,7 +385,7 @@ class Room(Sender):
         else:
             pb = L2FNotifyRevieRep()
             pb.ret = FL
-            self.SpecifySend(pb, ins.user.uid)
+            self.Unicast(pb, ins.user.uid)
 
 
     def SettleNoAnswerPlayers(self):

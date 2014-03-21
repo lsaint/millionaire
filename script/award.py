@@ -72,13 +72,12 @@ class AwardChecker(object):
         sections =  self.section_done.get(qid)
         if sections is None:
             return
-        bounty = 0
-        for section in sections:
-            bounty += section.bounty
-        if qid == self.GetFinalId():
-            bounty = int(bounty / len(winners))
-            if bounty == 0:
-                bounty += 1
+        if qid != self.GetFinalId():
+            bounty = reduce(lambda x, y: x.bounty + y.bounty, sections)
+        else:
+            bounty = int(reduce(
+                lambda x, y: (x.bounty * x.survivor_num) + (y.bounty * y.survivor_num),
+                sections) / len(winners))
         self.post2Vm(winners, bounty)
         return bounty
 

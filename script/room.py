@@ -62,8 +62,7 @@ class Room(Sender):
 
 
     def resetPlayers(self):
-        for uid, player in self.uid2player.iteritems():
-            player.Reset()
+        map(lambda (k,v): (k, v.Reset()), self.uid2player.iteritems())
 
 
     def OnMatchInfo(self, ins):
@@ -300,10 +299,12 @@ class Room(Sender):
 
 
     def CalReviverNum(self):
-        self.cur_reviver_num = 0
-        for uid, player in self.uid2player.iteritems():
-            if player.role == Reviver:
-                self.cur_reviver_num += 1
+        #self.cur_reviver_num = 0
+        #for uid, player in self.uid2player.iteritems():
+        #    if player.role == Reviver:
+        #        self.cur_reviver_num += 1
+        self.cur_reviver_num = len(
+                tuple(v for (k,v) in self.uid2player.iteritems() if v.role == Reviver))
         logging.debug("CalReviverNum %d %d" % (len(self.uid2player), self.cur_reviver_num))
 
 

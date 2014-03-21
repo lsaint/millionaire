@@ -35,7 +35,7 @@ class Sender(object):
     def Unicast(self, ins, uid):
         uri, bin = self.parse(ins)
         go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Specify, uid)
-        logging.debug("<--Send %d %s: %s" % (uid, ins.DESCRIPTOR.name, str(ins).replace("\n", " ")))
+        logging.debug("<--Unicast %d %s: %s" % (uid, ins.DESCRIPTOR.name, str(ins).replace("\n", " ")))
 
 
     def UniOrRandomcast(self, ins, uid):

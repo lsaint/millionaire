@@ -77,7 +77,7 @@ class AwardChecker(object):
         else:
             bounty = int(reduce(
                 lambda x, y: (x.bounty * x.survivor_num) + (y.bounty * y.survivor_num),
-                sections) / len(winners)) or 1
+                sections)) / len(winners) or 1
         self.post2Vm(winners, bounty)
         return bounty
 

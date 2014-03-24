@@ -125,6 +125,10 @@ func (this *Gate) randomFid() uint32 {
     return this.fids[rand.Intn(len(this.fids))]
 }
 
+func (this *Gate) broadcastFid() uint32 {
+    return this.fids[0]
+}
+
 func (this *Gate) comeout(pack *proto.GateOutPack) {
     //fmt.Println("coming out", pack, "fid2frontend", this.fid2frontend)
     l := len(this.fids)
@@ -132,7 +136,7 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
 
     switch pack.GetAction() {
         case proto.Action_Broadcast:
-            p := this.doPack(pack, this.randomFid())
+            p := this.doPack(pack, this.broadcastFid())
             for _, conn := range this.fid2frontend {
                 conn.Send(p)
             }

@@ -223,6 +223,7 @@ class Room(Sender):
         player.ping = time.time()
         self.presenter = None
         if not silence:
+            self.state.OnPresenterDown()
             pb = L2CNotifyPresenterChange()
             self.Randomcast(pb)
 
@@ -231,6 +232,7 @@ class Room(Sender):
         player.role = Presenter
         player.ping = time.time()
         self.presenter = player
+        self.state.OnPresenterUp()
         pb = L2CNotifyPresenterChange()
         pb.presenter.uid = player.uid
         pb.presenter.name = player.name
@@ -239,27 +241,30 @@ class Room(Sender):
 
     def OnNotifyMic1(self, ins):
         uid = ins.user.uid
-        if (uid == 0 and self.presenter) or (
-                uid != 0 and self.presenter and not g_match_mgr.IsValidPresenter(uid)):
-            self.NegatePresenter(self.presenter)
-            self.state.OnPresenterDown()
-            return
-
         if uid == 0:
-            return
+            return self.onMic1Down()
+        if self.presenter:
+            return self.onMic1Change(uid)
+        else:
+            return self.onMic1Up(uid)
 
-        if (self.presenter and self.presenter.uid != uid) or (not self.presenter):
-            player = self.GetPlayer(uid)
-            silence = True
-            if self.presenter:
-                if not player:
-                    silence = False
-                    logging.debug("Logout Presenter:%d" % uid)
-                self.NegatePresenter(self.presenter, silence)
 
-            if player:
-                self.SetPresenter(player)
-                self.state.OnPresenterUp()
+    def onMic1Down(self):
+        if self.presenter:
+            self.NegatePresenter(self.presenter)
+
+    def onMic1Up(self, uid):
+        player = self.GetPlayer(uid)
+        if player and g_match_mgr.IsValidPresenter(uid):
+            self.SetPresenter(player)
+
+    def onMic1Change(self, uid):
+        player = self.GetPlayer(uid)
+        if player and g_match_mgr.IsValidPresenter(uid):
+            self.NegatePresenter(self.presenter, False)
+            self.SetPresenter(player)
+        else:
+            self.NegatePresenter(self.presenter)
 
 
     def OnRevive(self, ins):
@@ -299,10 +304,6 @@ class Room(Sender):
 
 
     def CalReviverNum(self):
-        #self.cur_reviver_num = 0
-        #for uid, player in self.uid2player.iteritems():
-        #    if player.role == Reviver:
-        #        self.cur_reviver_num += 1
         self.cur_reviver_num = len(
                 tuple(v for (k,v) in self.uid2player.iteritems() if v.role == Reviver))
         logging.debug("CalReviverNum %d %d" % (len(self.uid2player), self.cur_reviver_num))

@@ -78,6 +78,7 @@ class AwardChecker(object):
             bounty = int(reduce(
                 lambda x, y: (x.bounty * x.survivor_num) + (y.bounty * y.survivor_num),
                 sections)) / len(winners) or 1
+        logging.debug("cal-----%s" % bounty)
         self.post2Vm(winners, bounty)
         return bounty
 

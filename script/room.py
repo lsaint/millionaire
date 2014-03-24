@@ -259,6 +259,8 @@ class Room(Sender):
             self.SetPresenter(player)
 
     def onMic1Change(self, uid):
+        if uid == self.presenter.uid:
+            return
         player = self.GetPlayer(uid)
         if player and g_match_mgr.IsValidPresenter(uid):
             self.NegatePresenter(self.presenter, False)

@@ -263,7 +263,7 @@ class Room(Sender):
             return
         player = self.GetPlayer(uid)
         if player and g_match_mgr.IsValidPresenter(uid):
-            self.NegatePresenter(self.presenter, False)
+            self.NegatePresenter(self.presenter, True)
             self.SetPresenter(player)
         else:
             self.NegatePresenter(self.presenter)

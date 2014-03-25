@@ -73,12 +73,10 @@ class AwardChecker(object):
         if sections is None:
             return
         if qid != self.GetFinalId():
-            bounty = reduce(lambda x, y: x.bounty + y.bounty, sections)
+            bounty = reduce(lambda x,y: x+y, map(lambda x: x.bounty, sections))
         else:
-            bounty = int(reduce(
-                lambda x, y: (x.bounty * x.survivor_num) + (y.bounty * y.survivor_num),
-                sections)) / len(winners) or 1
-        logging.debug("cal-----%s" % bounty)
+            bounty = int(reduce(lambda x,y: x+y,
+                            map(lambda x: x.bounty * x.survivor_num, sections))) / len(winners) or 1
         self.post2Vm(winners, bounty)
         return bounty
 

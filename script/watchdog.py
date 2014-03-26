@@ -34,7 +34,9 @@ class WatchDog(object):
         if uid:
             room.SetPing(uid)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
-        logging.debug("dispatch--> %s: %s" % (method_name, str(ins).replace("\n", " ")))
+        logging.debug("dispatch--> %d %d %s: %s" % (
+                        tsid, ssid, method_name,
+                        str(ins).replace("\n", " ")))
         try:
             method = getattr(room, method_name)
         except:

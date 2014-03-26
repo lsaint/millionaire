@@ -28,13 +28,13 @@ class WatchDog(object):
         ins.ParseFromString(base64.b64decode(data))
         ssid, uid = self.checkInRoom(ins)
         if not ssid:
-            logging.warning("not logined %s" % str(ins).replace("\n", ""))
+            logging.debug("not logined %s" % str(ins).replace("\n", ""))
             return
         room = self.gainRoom(tsid, ssid)
         if uid:
             room.SetPing(uid)
         method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
-        logging.debug("dispatch--> %d %d %s: %s" % (
+        logging.debug("--> %d %d %s: %s" % (
                         tsid, ssid, method_name,
                         str(ins).replace("\n", " ")))
         try:
@@ -58,11 +58,15 @@ class WatchDog(object):
             return None, None
         else:
             if ins.DESCRIPTOR.name == "C2LLogin":
-                if self.uid2ssid.get(uid) != ins.subsid:
-                    self.uid2ssid[uid] = ins.subsid
-                    return ins.subsid, uid
-            return self.uid2ssid.get(uid), uid
-
+                self.uid2ssid[uid] = ins.subsid
+                return ins.subsid, uid
+            ssid = self.uid2ssid.get(uid)
+            # user who change sid but did not login yet
+            if ins.DESCRIPTOR.name == "F2LNotifyMic1":
+                if ssid and ssid != ins.subsid:
+                    logging.warn("register ssid not match. uid:%d" % uid)
+                    return None, None
+            return ssid, uid
 
 
 watchdog = WatchDog()

@@ -66,8 +66,8 @@ def NotifyMic1(s):
     gevent.sleep(1)
     pb = F2LNotifyMic1() 
     pb.user.uid = MY_UID
-    topsid = TSID
-    subsid = SSID
+    pb.topsid = TSID
+    pb.subsid = SSID
     s.send(doPack(pb))
     
 

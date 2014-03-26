@@ -10,7 +10,7 @@ from match import g_match_mgr
 from question import QuesionPackage
 from logic_pb2 import *
 from config import *
-
+from give import give
 
 
 class Room(Sender):
@@ -192,6 +192,7 @@ class Room(Sender):
         self.notifyMatchInfo(player.uid)
 
         self.state.OnLogin(ins)
+        give(player.uid)
 
 
     def OnTimeSync(self, ins):

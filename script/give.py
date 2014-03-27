@@ -3,9 +3,10 @@
 import md5, json, time, logging
 from post import PostAsync, GetPostSn
 from config import *
+from local import *
 from datetime import datetime
 
-GIVE_URL = "http://113.106.100.103:28891/vm_add"
+GIVE_URL = VM_HEAD + "/vm_add"
 
 GIVED = {}
 

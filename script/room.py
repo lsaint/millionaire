@@ -428,7 +428,6 @@ class Room(Sender):
     def ReplyTimeOutAnswer(self, uid):
         rep = L2CAnswerQuestionRep()
         rep.id = self.cur_qid
-        rep.user.uid = uid
         rep.ret = TimeOut
         self.Unicast(pb, uid)
 

@@ -40,6 +40,7 @@ URI2CLASS = {
         131     :   L2FReviveRep,
         132     :   C2LLogout,
         133     :   L2CNotifyPersonalAward,
+        134     :   L2CAnswerQuestionRep,
 }
 
 CLASS2URI = {}

@@ -379,7 +379,7 @@ class Room(Sender):
 
 
     def CountTime(self):
-        t = self.GetCurQuestion().count_time
+        t = self.GetCurQuestion().count_time + TIME_COUNT_DELAY
         self.timer.SetTimer1(t, self.SetState, self.timeup_state)
 
 
@@ -423,4 +423,12 @@ class Room(Sender):
                 logging.debug("CheckPing Lost %d %d %d" % (uid, now, player.ping))
         for uid in lost:
             del self.uid2player[uid]
+
+
+    def ReplyTimeOutAnswer(self, uid):
+        rep = L2CAnswerQuestionRep()
+        rep.id = self.cur_qid
+        rep.user.uid = uid
+        rep.ret = TimeOut
+        self.Unicast(pb, uid)
 

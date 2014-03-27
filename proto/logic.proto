@@ -312,3 +312,10 @@ message L2CNotifyPersonalAward {
     required uint32 bounty = 2;          //虚拟币奖励
 }
 
+// 134
+message L2CAnswerQuestionRep {
+    required uint32 id = 1;
+    required User user = 2;             
+    required Result ret = 3;        // 只回复超时的情况
+}
+

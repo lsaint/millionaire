@@ -159,6 +159,10 @@ class TimeupState(State):
         self.room.NotifyQuestion(ins.user.uid)
 
 
+    def OnAnswerQuestion(self, ins):
+        self.room.ReplyTimeOutAnswer(ins.answer.user.uid)
+
+
 #
 class StatisticsState(State):
 

@@ -22,9 +22,9 @@ func NewGoModule(out chan *proto.GateOutPack, pm *postman.Postman) *GoModule {
 }
 
 func (this *GoModule) Py_SendMsg(args *py.Tuple) (ret *py.Base, err error) {
-    var tsid, ssid, uri, action, uid int
+    var tsid, ssid, uri, action, uid, fid int
     var sbin string
-    err = py.Parse(args, &tsid, &ssid, &uri, &sbin, &action, &uid)
+    err = py.Parse(args, &tsid, &ssid, &uri, &sbin, &action, &uid, &fid)
     if err != nil {
         fmt.Println("SendMsg err", err)
         return
@@ -40,6 +40,7 @@ func (this *GoModule) Py_SendMsg(args *py.Tuple) (ret *py.Base, err error) {
                                         Uri: pb.Uint32(uint32(uri)), 
                                         Action: proto.Action(action).Enum(),
                                         Uid : pb.Uint32(uint32(uid)),
+                                        Fid : pb.Uint32(uint32(fid)),
                                         Bin: b}
     return py.IncNone(), nil
 }

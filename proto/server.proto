@@ -27,7 +27,7 @@ message FrontendUnRegister {
 enum Action {
     Broadcast = 1;
     Randomcast = 2;
-    Specify = 3;
+    Unicast = 3;
 }
 
 message GateInPack {
@@ -44,5 +44,11 @@ message GateOutPack {
     required bytes bin = 4;
     required Action action = 5;
     optional uint32 uid = 6;
+    optional uint32 fid = 7;
+}
+
+// 99
+message N2SRegister {
+    required uint32 fid = 1;
 }
 

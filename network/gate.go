@@ -148,8 +148,12 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
             } else {
                 fmt.Println("random not find fid2frontend", rfid)
             }
-        case proto.Action_Specify:
-            if fid := this.uid2fid[pack.GetUid()]; fid != 0 {
+        case proto.Action_Unicast:
+            fid := pack.GetFid()
+            if fid == 0 {
+                fid = this.uid2fid[pack.GetUid()]
+            }
+            if fid != 0 {
                 p := this.doPack(pack, fid)
                 if cc := this.fid2frontend[fid]; cc != nil {
                     cc.Send(p)
@@ -166,7 +170,7 @@ func (this *Gate) doPack(pack *proto.GateOutPack, fid uint32) (ret []byte) {
     fp := &proto.FrontendPack{Uri: pack.Uri, Tsid: pack.Tsid, Ssid: pack.Ssid, 
                                 Bin: pack.Bin, Fid: pb.Uint32(fid)}
     switch pack.GetAction() {
-        case proto.Action_Specify:
+        case proto.Action_Unicast:
             fp.Uid = pack.Uid
     }
     if data, err := pb.Marshal(fp); err == nil {
@@ -194,6 +198,7 @@ func (this *Gate) register(b []byte, cc *ClientConnection) {
         }
         this.fid2frontend[fid] = cc
         this.fids = append(this.fids, fid)
+        this.notifyRegister(fid)
         fmt.Println("register fid:", fid)
     } else {
         fmt.Println("Unmarshal register pack err")
@@ -214,6 +219,13 @@ func (this *Gate) unregister(cc *ClientConnection) {
                 }
             }
         }
+    }
+}
+
+func (this *Gate) notifyRegister(fid uint32) {
+    if data, err := pb.Marshal(&proto.N2SRegister{Fid: pb.Uint32(fid)}); err == nil {
+        this.GateInChan <- &proto.GateInPack{Tsid: pb.Uint32(0), Ssid: pb.Uint32(0), 
+                                             Uri: pb.Uint32(99), Bin: data}
     }
 }
 

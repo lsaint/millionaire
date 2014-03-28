@@ -22,7 +22,7 @@ class Sender(object):
 
     def Broadcast(self, ins):
         uri, bin = self.parse(ins)
-        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Broadcast, 0)
+        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Broadcast, 0, 0)
         logging.debug("<--Broadcast %d %d %s: %s" % (
                         self.tsid, self.ssid,
                         ins.DESCRIPTOR.name, str(ins).replace("\n", " ")))
@@ -30,15 +30,15 @@ class Sender(object):
 
     def Randomcast(self, ins):
         uri, bin = self.parse(ins)
-        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Randomcast, 0)
+        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Randomcast, 0, 0)
         logging.debug("<--Randomcast %d %d %s: %s" % (
                         self.tsid, self.ssid,
                         ins.DESCRIPTOR.name, str(ins).replace("\n", " ")))
 
 
-    def Unicast(self, ins, uid):
+    def Unicast(self, ins, uid, fid=0):
         uri, bin = self.parse(ins)
-        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Specify, uid)
+        go.SendMsg(self.tsid, self.ssid, uri, bin, server_pb2.Unicast, uid, fid)
         logging.debug("<--Unicast %d %d %d %s: %s" % (
                         self.tsid, self.ssid,
                         uid, ins.DESCRIPTOR.name, str(ins).replace("\n", " ")))

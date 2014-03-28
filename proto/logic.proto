@@ -321,7 +321,7 @@ message L2CAnswerQuestionRep {
 // 135
 message L2FNotifyBalanceChange {
     required int32 money = 1;
-    required PayType type = 2;        
+    required PayType type = 2;
 }
 
 //一个房间比赛状态
@@ -329,6 +329,7 @@ message GameRoomInfo {
     required uint32 subsid = 1;
     required uint32 id = 2;            //题号
     required GameStatus status = 3;    //比赛状态
+    optional GameMatch match = 4;      //如果房间开启了比赛的话，传当前比赛包
 }
 
 // 136

@@ -17,7 +17,7 @@ from config import *
 def OnProto(tsid, ssid, uri, data):
     #logging.debug("OnProto--> tsid:%s ssid:%s uri:%d len:%d" % (tsid, ssid, uri, len(data)))
     try:
-        watchdog.dispatch(tsid, ssid, uri, data)
+        watchdog.Dispatch(tsid, ssid, uri, data)
     except Exception as err:
         logging.error("%s-%s" % ("OnProto", traceback.format_exc()))
 

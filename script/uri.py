@@ -10,13 +10,11 @@ URI2CLASS = {
         101     :   L2CMatchInfoRep,
         102     :   C2LStartMatch,
         103     :   L2CNotifyMatchInfo,
-        104     :   C2LLogin,
         105     :   L2CLoginRep,
         106     :   C2LTimeSync,
         107     :   L2CTimeSyncRep,
         108     :   C2LPing,
         109     :   L2CPingRep,
-        110     :   F2LNotifyMic1,
         111     :   C2LNextStep,
         112     :   L2CNextStepRep,
         113     :   L2CNotifyPresenterChange,
@@ -42,7 +40,16 @@ URI2CLASS = {
         133     :   L2CNotifyPersonalAward,
         134     :   L2CAnswerQuestionRep,
         135     :   L2FNotifyBalanceChange,
+        136     :   L2FSyncGameRoomInfos,
 }
+
+URI2CLASS_GLOBAL = {
+        104     :   C2LLogin,
+        110     :   F2LNotifyMic1,
+        99      :   N2SRegister,
+}
+
+URI2CLASS.update(URI2CLASS_GLOBAL)
 
 CLASS2URI = {}
 for uri, proto in URI2CLASS.items():

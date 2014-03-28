@@ -3,10 +3,13 @@
 import base64, logging
 from uri import *
 from room import Room
+from sender import Sender
+from logic_pb2 import L2FSyncGameRoomInfos
 
-class WatchDog(object):
+class WatchDog(Sender):
 
     def __init__(self):
+        Sender.__init__(self, 0, 0)
         self.ssid2room = {}
         self.uid2ssid = {}
 
@@ -19,13 +22,35 @@ class WatchDog(object):
         return room
 
 
-    def dispatch(self, tsid, ssid, uri, data):
-        cls = URI2CLASS.get(uri)
-        if cls is None:
+    def toIns(self, dt, uri, data):
+        cls = dt.get(uri)
+        if cls:
+            ins = cls()
+            ins.ParseFromString(base64.b64decode(data))
+            return ins
+
+
+    def getMethodName(self, ins):
+        return "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
+
+
+    def Dispatch(self, tsid, ssid, uri, data):
+        if self.globalDispatch(tsid, ssid, uri, data) is None:
+            self.roomDispatch(tsid, ssid, uri, data)
+
+
+    def globalDispatch(self, tsid, ssid, uri, data):
+        ins = self.toIns(URI2CLASS_GLOBAL, uri, data)
+        if ins:
+            return getattr(self, self.getMethodName(ins))(ins)
+
+
+    def roomDispatch(self, tsid, ssid, uri, data):
+        ins = self.toIns(URI2CLASS, uri, data)
+        if not ins:
             logging.warning("not exist uri %d" % uri)
             return
-        ins = cls()
-        ins.ParseFromString(base64.b64decode(data))
+
         ssid, uid = self.checkInRoom(ins)
         if not ssid:
             logging.debug("not logined %s" % str(ins).replace("\n", ""))
@@ -33,10 +58,8 @@ class WatchDog(object):
         room = self.gainRoom(tsid, ssid)
         if uid:
             room.SetPing(uid)
-        method_name= "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
-        logging.debug("--> %d %d %s: %s" % (
-                        tsid, ssid, method_name,
-                        str(ins).replace("\n", " ")))
+        method_name = self.getMethodName(ins)
+        logging.debug("--> %d %d %s: %s" % (tsid, ssid, method_name, str(ins).replace("\n", " ")))
         try:
             method = getattr(room, method_name)
         except:
@@ -57,16 +80,31 @@ class WatchDog(object):
             logging.error("checkInRoom %s" % err)
             return None, None
         else:
-            if ins.DESCRIPTOR.name == "C2LLogin":
-                self.uid2ssid[uid] = ins.subsid
-                return ins.subsid, uid
-            ssid = self.uid2ssid.get(uid)
-            # user who change sid but did not login yet
-            if ins.DESCRIPTOR.name == "F2LNotifyMic1":
-                if ssid and ssid != ins.subsid:
-                    logging.warn("register ssid not match. uid:%d" % uid)
-                    return None, None
-            return ssid, uid
+            return self.uid2ssid.get(uid), uid
+
+    #---
+
+    def OnNotifyMic1(self, ins):
+        ssid = self.uid2ssid.get(ins.user.uid)
+        # user who change ssid but did not login yet
+        if ssid and ssid != ins.subsid:
+            logging.warn("register ssid not match. uid:%d" % uid)
+            return True
+        return None
+
+
+    def OnLogin(self, ins):
+        self.uid2ssid[ins.user.uid] = ins.subsid
+        return None
+
+
+    def OnRegister(self, ins):
+        gris = [room.GetGameRoomInfos() for _, room in self.ssid2room.iteritems()]
+        pb = L2FSyncGameRoomInfos()
+        pb.rooms.extend(gris)
+        self.Unicast(pb, 0, ins.fid)
+        return True
+
 
 
 watchdog = WatchDog()

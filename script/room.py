@@ -175,7 +175,7 @@ class Room(Sender):
         if not player:
             player = Player(ins.user, self.state.status)
             self.uid2player[player.uid] = player
-        
+
         rep = L2CLoginRep()
         rep.user.role = player.role
         rep.ret = OK
@@ -437,4 +437,14 @@ class Room(Sender):
         rep.id = self.cur_qid
         rep.ret = TimeOut
         self.Unicast(pb, uid)
+
+
+    def GetGameRoomInfos(self):
+        gri = GameRoomInfo()
+        gri.subsid = self.ssid
+        gri.id = self.cur_qid
+        gri.status = self.state.status
+        gri.match.MergeFrom(self.match)
+        return gri
+
 

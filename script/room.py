@@ -196,7 +196,6 @@ class Room(Sender):
         def done(sn, ret):
             logging.debug("test-give uid:%d money:%d ret:%s" % (player.uid, TEST_GIVE_SILVER, ret))
             pb = L2FNotifyBalanceChange()
-            pb.user.uid = player.uid
             pb.money = TEST_GIVE_SILVER
             pb.type = SILVER
             self.Unicast(pb, player.uid)

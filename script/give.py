@@ -11,18 +11,18 @@ GIVE_URL = VM_HEAD + "/vm_add"
 GIVED = {}
 
 
-def give(uid, money=500):
+def give(uid, cb, money=TEST_GIVE_SILVER):
     global GIVED
     y = datetime.now().timetuple().tm_yday
     if GIVED.get(y) is None:
         GIVED = {y:[]}
     lt = GIVED[y]
     if uid not in lt:
-        _give(uid, money)
+        _give(uid, cb, money)
         lt.append(uid)
 
 
-def _give(uid, money):
+def _give(uid, cb, money):
     product = VM_PRODUCT
     money_type = 2
     orderid = "%s%s" % (str(time.time()), str(GetPostSn()))
@@ -40,7 +40,5 @@ def _give(uid, money):
           "desc": desc,
           "sign": sign}
     jn = json.dumps(dt)
-    def done(sn, ret):
-        logging.debug("test-give uid:%d money:%d ret:%s" % (uid, money, ret))
-    PostAsync(GIVE_URL, jn, done)
+    PostAsync(GIVE_URL, jn, cb)
 

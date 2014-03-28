@@ -318,3 +318,10 @@ message L2CAnswerQuestionRep {
     required Result ret = 2;        // 只回复超时的情况
 }
 
+// 135
+message L2FNotifyBalanceChange {
+    required User user = 1;
+    required int32 money = 2;
+    required PayType type = 3;        
+}
+

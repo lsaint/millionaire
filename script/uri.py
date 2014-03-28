@@ -41,6 +41,7 @@ URI2CLASS = {
         132     :   C2LLogout,
         133     :   L2CNotifyPersonalAward,
         134     :   L2CAnswerQuestionRep,
+        135     :   L2FNotifyBalanceChange,
 }
 
 CLASS2URI = {}

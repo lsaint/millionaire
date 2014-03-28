@@ -444,7 +444,8 @@ class Room(Sender):
         gri.subsid = self.ssid
         gri.id = self.cur_qid
         gri.status = self.state.status
-        gri.match.MergeFrom(self.match)
+        if self.match:
+            gri.match.MergeFrom(self.match)
         return gri
 
 

@@ -54,7 +54,7 @@ class IdleState(State):
         if pv:
             pb = L2CNotifyPreview()
             pb.MergeFrom(pv)
-            self.room.UniOrRandomcast(pb, uid)
+            self.room.UniOrBroadcast(pb, uid)
 
 
     def OnLeaveState(self):

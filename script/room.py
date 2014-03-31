@@ -121,13 +121,13 @@ class Room(Sender):
     def NotifyStati(self, uid=None):
         pb = L2CNotifyStatisticsStatus()
         pb.stati.extend(self.stati.GetDistribution())
-        self.UniOrRandomcast(pb, uid)
+        self.UniOrBroadcast(pb, uid)
 
 
     def NotifyAnswer(self, uid=None):
         pb = L2CNotifyAnswerStatus()
         pb.right_answer.MergeFrom(self.GetCurRightAnswer())
-        self.UniOrRandomcast(pb, uid)
+        self.UniOrBroadcast(pb, uid)
 
 
     def NotifyAnnounce(self, uid=None):
@@ -137,7 +137,7 @@ class Room(Sender):
         awards = self.GetCurAward()
         if awards:
             pb.sections.extend(awards)
-        self.UniOrRandomcast(pb, uid)
+        self.UniOrBroadcast(pb, uid)
 
 
     def NotifySituation(self, cal_revive=True, uid=None):
@@ -233,7 +233,7 @@ class Room(Sender):
         if not silence:
             self.state.OnPresenterDown()
             pb = L2CNotifyPresenterChange()
-            self.Randomcast(pb)
+            self.Broadcast(pb)
 
 
     def SetPresenter(self, player):
@@ -244,7 +244,7 @@ class Room(Sender):
         pb = L2CNotifyPresenterChange()
         pb.presenter.uid = player.uid
         pb.presenter.name = player.name
-        self.Randomcast(pb)
+        self.Broadcast(pb)
 
 
     def OnNotifyMic1(self, ins):

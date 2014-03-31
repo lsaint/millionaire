@@ -45,7 +45,7 @@ class IdleState(State):
         self.room.Reset()
 
         pb = L2CNotifyIdleStatus()
-        self.room.Randomcast(pb)
+        self.room.Broadcast(pb)
         self.timer.DoSetTimer(LOAD_PREVIEW_INTERVAL, self.notifyPreview)
 
 
@@ -84,7 +84,7 @@ class ReadyState(State):
     def OnEnterState(self):
         pb = L2CNotifyReadyStatus()
         pb.desc = "ready"
-        self.room.Randomcast(pb)
+        self.room.Broadcast(pb)
 
 
     def OnLeaveState(self):
@@ -148,7 +148,7 @@ class TimeupState(State):
     def OnEnterState(self):
         self.room.SettleNoAnswerPlayers()
         pb = L2CNotifyTimeupStatus()
-        self.room.Randomcast(pb)
+        self.room.Broadcast(pb)
 
 
     def OnNextStep(self, ins):
@@ -279,7 +279,7 @@ class EndingState(State):
 
     def OnEnterState(self):
         pb = L2CNotifyEndingStatus()
-        self.room.Randomcast(pb)
+        self.room.Broadcast(pb)
 
 
     def OnNextStep(self, ins):

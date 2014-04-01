@@ -32,19 +32,29 @@ class MatchMgr(object):
 
 
     def doneLoadWList(self, sn, jn_presenter_wl):
-        self.valid_presenters = json.loads(jn_presenter_wl)
-        logging.debug("load presenter whitelist sucess..")
+        try:
+            self.valid_presenters = json.loads(jn_presenter_wl)
+            logging.debug("load presenter whitelist sucess..")
+        except:
+            logging.error("load WList error: %s" % jn_presenter_wl)
 
 
     def doneLoadMatch(self, sn, jn_match):
-        lt = json.loads(jn_match)
-        for m in lt:
-            self.matchs[m["id"]] = self.loadMatch(m)
-        logging.debug( "load match sucess..")
+        try:
+            lt = json.loads(jn_match)
+            for m in lt:
+                self.matchs[m["id"]] = self.loadMatch(m)
+            logging.debug( "load match sucess..")
+        except:
+            logging.error("load match error: %s" % jn_match)
 
 
     def doneLoadPreview(self, sn, jn_preview):
-        pv = json.loads(jn_preview)
+        try:
+            pv = json.loads(jn_preview)
+        except:
+            logging.error("load preview error: %s" % jn_preview)
+            return
         start_s = time.strptime(pv["start"], TIME_FORMAT)
         end_s = time.strptime(pv["end"], TIME_FORMAT)
         start = datetime.fromtimestamp(time.mktime(start_s))

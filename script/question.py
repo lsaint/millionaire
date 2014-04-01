@@ -27,7 +27,11 @@ class QuesionPackage(object):
     def parseJson(self, jn):
         logging.info("LoadQuestion: %s" % jn)
         global OP_HEAD
-        lt = json.loads(jn)
+        try:
+            lt = json.loads(jn)
+        except:
+            logging.error("load question error: %s" % jn)
+            return
         for q in lt:
             op = q[2]                           # options
             right_answer = op[0]

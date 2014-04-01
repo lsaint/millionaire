@@ -436,7 +436,7 @@ class Room(Sender):
         rep = L2CAnswerQuestionRep()
         rep.id = self.cur_qid
         rep.ret = TimeOut
-        self.Unicast(pb, uid)
+        self.Unicast(rep, uid)
 
 
     def GetGameRoomInfos(self):

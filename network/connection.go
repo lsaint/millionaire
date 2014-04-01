@@ -1,7 +1,7 @@
 package network
 
 import (
-    "fmt"
+    "log"
     "net"
     "bufio"
     "encoding/binary"
@@ -40,7 +40,7 @@ func (this *ClientConnection) Send(buf []byte) {
         case this.sendchan <- buf:
 
         default:
-            //fmt.Println("send chan overflow or closed")
+            log.Println("[Error]sendchan overflow or closed")
     }
 }
 
@@ -49,7 +49,7 @@ func (this *ClientConnection) sendall() bool {
         select {
             case b := <-this.sendchan:
                 if _, err := this.writer.Write(b); err != nil {
-                    fmt.Println("write err:", err)
+                    log.Println("[Error]writer Write:", err)
                     return false
                 }
             default:
@@ -58,7 +58,7 @@ func (this *ClientConnection) sendall() bool {
     }
 
     if err := this.writer.Flush(); err != nil {
-        fmt.Println("flush err:", err)
+        log.Println("[Error]writer Flush:", err)
         return false
     }
     return true
@@ -80,7 +80,7 @@ func (this *ClientConnection) duplexRead(buff []byte) bool {
                 read_size = n
                 continue
             } else {
-                //fmt.Println("read err disconnect:", err)
+                //log.Println("read err disconnect:", err)
                 break
             }
         }
@@ -102,7 +102,7 @@ func (this *ClientConnection) duplexReadBody() (ret []byte,  ok bool) {
     }
     len_head := binary.LittleEndian.Uint32(buff_head) - LEN_EXTRA
     if len_head > MAX_LEN_HEAD {
-        fmt.Println("message len too long", len_head, string(buff_head))
+        log.Println("[Error]message len too long", len_head, string(buff_head))
         return
     }
     ret = make([]byte, len_head)
@@ -111,6 +111,11 @@ func (this *ClientConnection) duplexReadBody() (ret []byte,  ok bool) {
     }
     ok = true
     return
+}
+
+func (this *ClientConnection) Close() {
+    this.conn.Close()
+    close(this.sendchan)
 }
 
 type ConnBuff struct {

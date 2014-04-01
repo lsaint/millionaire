@@ -1,7 +1,7 @@
 package network
 
 import (
-    "fmt"
+    "log"
     "net"
     "math/rand"
     "encoding/binary"
@@ -42,17 +42,17 @@ func NewGate(entry chan *proto.GateInPack,  exit chan *proto.GateOutPack) *Gate 
 func (this *Gate) Start() {
     ln, err := net.Listen("tcp", GATE_PORT)                                                                            
     if err != nil {
-        fmt.Println("Listen err", err)
+        log.Println("[Error]Listen", err)
         return
     }
-    fmt.Println("Gate running", GATE_PORT)
+    log.Println("[Info]Gate running", GATE_PORT)
     for {
         conn, err := ln.Accept()
         if err != nil {
-            fmt.Println("Accept error", err)
+            log.Println("[Error]Accept", err)
             continue
         }
-        fmt.Println("frontend connected")
+        log.Println("[Info]frontend connected")
         go this.acceptConn(conn)
     }
 }
@@ -67,7 +67,8 @@ func (this *Gate) acceptConn(conn net.Conn) {
         this.buffChan <- &ConnBuff{cliConn, nil}
         break
     }
-    fmt.Println("frontend disconnect")
+    log.Println("[Info]frontend disconnect")
+    cliConn.Close()
 }
 
 func (this *Gate) parse() {
@@ -79,14 +80,12 @@ func (this *Gate) parse() {
                 this.unregister(conn)
                 continue
             }
-            //fmt.Println("len=", len(msg), "msg=", string(msg), "byte=", msg)
             len_msg := len(msg)
             if len_msg < LEN_URI {
                 continue
             } 
 
             f_uri := binary.LittleEndian.Uint32(msg[:LEN_URI])
-            //fmt.Println("f_uri=", f_uri)
             switch f_uri {
                 case URI_REGISTER:
                     this.register(msg[LEN_URI:], conn)
@@ -110,7 +109,7 @@ func (this *Gate) unpack(b []byte) (msg *proto.GateInPack, err error) {
         }
         msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid, Uri: fp.Uri, Bin: fp.Bin}
     } else {
-        fmt.Println("pb Unmarshal FrontendPack", err)
+        log.Println("[Error]pb Unmarshal FrontendPack", err)
     }
     return
 }
@@ -130,7 +129,7 @@ func (this *Gate) broadcastFid() uint32 {
 }
 
 func (this *Gate) comeout(pack *proto.GateOutPack) {
-    //fmt.Println("coming out", pack, "fid2frontend", this.fid2frontend)
+    //log.Println("coming out", pack, "fid2frontend", this.fid2frontend)
     l := len(this.fids)
     if l == 0 { return }
 
@@ -146,7 +145,7 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
             if cc := this.fid2frontend[rfid]; cc != nil {
                 cc.Send(p)
             } else {
-                fmt.Println("random not find fid2frontend", rfid)
+                log.Println("[Error]random not find fid2frontend", rfid)
             }
         case proto.Action_Unicast:
             fid := pack.GetFid()
@@ -158,10 +157,10 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
                 if cc := this.fid2frontend[fid]; cc != nil {
                     cc.Send(p)
                 } else {
-                    fmt.Println("not find fid2frontend", fid)
+                    log.Println("[Error]not find fid2frontend", fid)
                 }
             } else {
-                fmt.Println("not find uid2fid", pack.GetUid())
+                log.Println("[Error]not find uid2fid", pack.GetUid())
             }
     }
 }
@@ -178,18 +177,17 @@ func (this *Gate) doPack(pack *proto.GateOutPack, fid uint32) (ret []byte) {
         binary.LittleEndian.PutUint32(uri_field, uint32(URI_TRANSPORT))
         ret = append(uri_field, data...)
     } else {
-        fmt.Println("pack FrontendPack err", err)
+        log.Println("[Error]pack FrontendPack", err)
     }
     return
 }
 
 func (this *Gate) register(b []byte, cc *ClientConnection) {
     fp := &proto.FrontendRegister{}
-    //fmt.Println("unpacking ->", len(b), b, string(b))
     if err := pb.Unmarshal(b, fp); err == nil {
         fid := uint32(fp.GetFid())
         if fid == 0 {
-            fmt.Println("fid 0 err")
+            log.Println("[Error]fid 0 err")
             return
         }
         cc_ex, exist := this.fid2frontend[fid]
@@ -199,9 +197,9 @@ func (this *Gate) register(b []byte, cc *ClientConnection) {
         this.fid2frontend[fid] = cc
         this.fids = append(this.fids, fid)
         this.notifyRegister(fid)
-        fmt.Println("register fid:", fid)
+        log.Println("[Info]register fid:", fid)
     } else {
-        fmt.Println("Unmarshal register pack err")
+        log.Println("[Error]Unmarshal register pack", err)
     }
 }
 
@@ -210,7 +208,7 @@ func (this *Gate) unregister(cc *ClientConnection) {
         if c == cc {
             //this.fid2frontend[fid] = nil
             delete(this.fid2frontend, fid)
-            fmt.Println("unregister", fid)
+            log.Println("[Info]unregister", fid)
             for i, f := range this.fids {
                 if fid == f {
                     last := len(this.fids) - 1

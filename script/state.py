@@ -88,7 +88,7 @@ class ReadyState(State):
 
 
     def OnLeaveState(self):
-        self.room.CheckPing()
+        #self.room.CheckPing()
         self.room.InitCurSurivorNum()
 
 

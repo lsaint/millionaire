@@ -332,7 +332,7 @@ class Room(Sender):
                 self.winners.append(uid)
             if is_check_personal:
                 self.achecker.CheckPersonalAward(self.cur_qid, player)
-        self.achecker.CheckRaceAward(self.cur_qid, self.cur_survivor_num)
+        self.achecker.CheckRaceAward(self.cur_qid, len(self.winners))
 
 
     def GetCurAward(self):

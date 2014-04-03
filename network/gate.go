@@ -28,7 +28,7 @@ type Gate struct {
 }
 
 func NewGate(entry chan *proto.GateInPack,  exit chan *proto.GateOutPack) *Gate {
-    gs := &Gate{buffChan: make(chan *ConnBuff),
+    gs := &Gate{buffChan: make(chan *ConnBuff, 1024),
                     fid2frontend:  make(map[uint32]*ClientConnection),
                     uid2fid: make(map[uint32]uint32),
                     fids: make([]uint32, 0),

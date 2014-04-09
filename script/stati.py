@@ -29,6 +29,12 @@ class StatiMgr(object):
                 self.abcd2count[C], self.abcd2count[D]]
 
 
+    def LogDistribution(self):
+        total = reduce(lambda x, y: x+y, self.GetDistribution())
+        right = self.abcd2count[right_answer]
+        logging.info("S-ANS %d %d %d %d" % (qid, total, right, total-right))
+
+
     def GetTopN(self):
         return self.topn
 

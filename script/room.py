@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, logging
+import time, logging, json, random
 from timer import Timer
 from sender import Sender
 from state import *
@@ -11,12 +11,14 @@ from question import QuesionPackage
 from logic_pb2 import *
 from config import *
 from give import give
+from post import PostAsync
 
 
 class Room(Sender):
 
     def __init__(self, tsid, ssid):
         Sender.__init__(self, tsid, ssid)
+        self.mid = ""
         self.timer = Timer()
         self.uid2player = {}
         self.presenter = None
@@ -33,6 +35,10 @@ class Room(Sender):
         self.state = self.idle_state
 
         self.SetState(self.idle_state)
+
+
+    def GenMid(self):
+        self.mid = hex(int(str(int(time.time() * 1000000) + random.randint(0,100000))[6:]))[2:]
 
 
     def SetState(self, state, cli_status=None):
@@ -86,13 +92,13 @@ class Room(Sender):
         if not self.match:
             logging.warning("start non-exist mid %d"%ins.match_id)
             return
+        self.GenMid()
         self.notifyMatchInfo()
         self.achecker = AwardChecker(self.match.race_award, self.match.personal_award)
         def doneLoad():
             self.SetState(self.timing_state)
             self.SetFinalQid()
         self.qpackage.Load(self.match.pid, doneLoad)
-
 
 
     def notifyMatchInfo(self, uid=None):
@@ -122,6 +128,7 @@ class Room(Sender):
         pb = L2CNotifyStatisticsStatus()
         pb.stati.extend(self.stati.GetDistribution())
         self.UniOrBroadcast(pb, uid)
+        self.stati.LogDistribution()
 
 
     def NotifyAnswer(self, uid=None):
@@ -143,6 +150,7 @@ class Room(Sender):
     def NotifySituation(self, cal_revive=True, uid=None):
         if cal_revive:
             self.CalReviverNum()
+            logging.info("S-PCU %d" % len(self.uid2player))
         pb = L2CNotifySituation()
         pb.id = self.cur_qid
         pb.survivor_num = self.cur_survivor_num
@@ -193,13 +201,15 @@ class Room(Sender):
 
         self.state.OnLogin(ins)
 
-        def done(sn, ret):
-            logging.debug("test-give uid:%d money:%d ret:%s" % (player.uid, TEST_GIVE_SILVER, ret))
-            pb = L2FNotifyBalanceChange()
-            pb.money = TEST_GIVE_SILVER
-            pb.type = SILVER
-            self.Unicast(pb, player.uid)
-        give(player.uid, done)
+        logging.info("S-DAU %d" % player.uid)
+
+        #def done(sn, ret):
+        #    logging.debug("test-give uid:%d money:%d ret:%s" % (player.uid, TEST_GIVE_SILVER, ret))
+        #    pb = L2FNotifyBalanceChange()
+        #    pb.money = TEST_GIVE_SILVER
+        #    pb.type = SILVER
+        #    self.Unicast(pb, player.uid)
+        #give(player.uid, done)
 
 
     def OnTimeSync(self, ins):
@@ -287,6 +297,7 @@ class Room(Sender):
                                             self.state.status)
             self.Unicast(pb, player.uid)
             self.NotifySituation(False, player.uid)
+            logging.info("%s S-REV %d %d" % (self.mid, self.cur_qid, player.uid))
         else:
             logging.debug("revive_logout player:%d" % ins.user.uid)
 
@@ -447,5 +458,13 @@ class Room(Sender):
         if self.match:
             gri.match.MergeFrom(self.match)
         return gri
+
+
+    def GetBillboard(self):
+        def done(sn, ret):
+            bb = json.loads(ret)
+            logging.debug("GetBillboard----->", bb)
+        jn = json.dumps({"op": "gift", "param": 2})
+        PostAsync(BILLBOARD_URL, jn, done)
 
 

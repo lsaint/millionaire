@@ -93,8 +93,9 @@ class Room(Sender):
             logging.warning("start non-exist mid %d"%ins.match_id)
             return
         self.GenMid()
+        logging.info("START_MATCH %s %d %d" % (self.mid, self.ssid, ins.match_id))
         self.notifyMatchInfo()
-        self.achecker = AwardChecker(self.match.race_award, self.match.personal_award)
+        self.achecker = AwardChecker(self.mid, self.match.race_award, self.match.personal_award)
         def doneLoad():
             self.SetState(self.timing_state)
             self.SetFinalQid()

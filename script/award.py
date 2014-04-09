@@ -8,7 +8,8 @@ from config import *
 
 class AwardChecker(object):
 
-    def __init__(self, race_award, personal_award):
+    def __init__(self, mid, race_award, personal_award):
+        self.mid = mid
         self.race_award = race_award
         self.personal_award = personal_award
         self.section_done = {}
@@ -88,7 +89,7 @@ class AwardChecker(object):
         total_money = count * bounty
         sn = GetPostSn()
         add_time = time.strftime("%Y%m%d%H%M%S")
-        desc = "L'"
+        desc = self.mid
         to_uid_list = []
         for uid in winners:
             to_uid_list.append({"uid": uid, "money": bounty})
@@ -107,6 +108,7 @@ class AwardChecker(object):
         def done(sn, ret):
             logging.debug("post2vm ret: %s" % ret)
         PostAsync(VM_URL, jn, done, sn)
+        logging.info("S-GOLD %s %d" % (self.mid, len(winners)*bounty))
 
 
 

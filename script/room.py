@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time, logging, json, random
-from timer import Timer
+from timer import Timer, g_timer
 from sender import Sender
 from state import *
 from player import Player
@@ -35,6 +35,7 @@ class Room(Sender):
         self.state = self.idle_state
 
         self.SetState(self.idle_state)
+        self.loopGetBillboard()
 
 
     def GenMid(self):
@@ -203,14 +204,6 @@ class Room(Sender):
         self.state.OnLogin(ins)
 
         logging.info("S-DAU %d" % player.uid)
-
-        #def done(sn, ret):
-        #    logging.debug("test-give uid:%d money:%d ret:%s" % (player.uid, TEST_GIVE_SILVER, ret))
-        #    pb = L2FNotifyBalanceChange()
-        #    pb.money = TEST_GIVE_SILVER
-        #    pb.type = SILVER
-        #    self.Unicast(pb, player.uid)
-        #give(player.uid, done)
 
 
     def OnTimeSync(self, ins):
@@ -462,10 +455,32 @@ class Room(Sender):
 
 
     def GetBillboard(self):
-        def done(sn, ret):
-            bb = json.loads(ret)
-            logging.debug("GetBillboard----->", bb)
-        jn = json.dumps({"op": "gift", "param": 2})
-        PostAsync(BILLBOARD_URL, jn, done)
+        def done(op, ret):
+            items = json.loads(ret)
+            pb = L2CNotifyBillboard()
+            pb.type = op
+            for i in items:
+                item = pb.items.add()
+                item.uid = i["_id"]["uid"]
+                item.name = i["_id"]["name"]
+                item.total = i["total"]
+            self.Broadcast(pb)
+        def done_gift(sn, ret):
+            try:
+                done(GIFT, ret)
+            except Exception as err:
+                logging.error(err)
+        def done_sponsor(sn, ret):
+            try:
+                done(SPONSOR, ret)
+            except Exception as err:
+                logging.error(err)
+        jn = json.dumps({"op": "gift", "param": BILLBOARD_NUM})
+        PostAsync(BILLBOARD_URL, jn, done_gift)
+        jn = json.dumps({"op": "sponsor", "param": BILLBOARD_NUM})
+        PostAsync(BILLBOARD_URL, jn, done_sponsor)
 
+
+    def loopGetBillboard(self):
+        g_timer.DoSetTimer(BILLBOARD_INTERVAL, self.GetBillboard)
 

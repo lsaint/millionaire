@@ -54,12 +54,12 @@ def login(s):
     s.send(doPack(pb, MY_UID, FID))
 
     #gevent.sleep(25)
-    pb = C2LLogin()
-    pb.user.uid = MY_UID2
-    pb.user.name = "Ashley"
-    pb.topsid = TSID
-    pb.subsid = SSID
-    s.send(doPack(pb, MY_UID2, FID))
+    #pb = C2LLogin()
+    #pb.user.uid = MY_UID2
+    #pb.user.name = "Ashley"
+    #pb.topsid = TSID
+    #pb.subsid = SSID
+    #s.send(doPack(pb, MY_UID2, FID))
 
 
 def NotifyMic1(s):
@@ -162,19 +162,19 @@ s.connect(("127.0.0.1", 40214))
 jobs = [gevent.spawn(register, s),
         gevent.spawn(login, s),
         #gevent.spawn(timeSync, s),
-        gevent.spawn(NotifyMic1, s),
-        gevent.spawn(getMatch, s),
-        gevent.spawn(startMatch, s),
-        gevent.spawn(answerQuestion, s, MY_UID2, 1),
-        gevent.spawn(nextStep, s, Timeup, 10),
-        gevent.spawn(nextStep, s, Statistics, 11),
-        gevent.spawn(nextStep, s, Answer, 12),
-        gevent.spawn(nextStep, s, Announce, 13),
-        gevent.spawn(nextStep, s, Timeup, 20),
-        gevent.spawn(nextStep, s, Statistics, 21),
-        gevent.spawn(nextStep, s, Answer, 22),
-        gevent.spawn(nextStep, s, Announce, 23),
-        gevent.spawn(nextStep, s, Ending, 24),
+        #gevent.spawn(NotifyMic1, s),
+        #gevent.spawn(getMatch, s),
+        #gevent.spawn(startMatch, s),
+        #gevent.spawn(answerQuestion, s, MY_UID2, 1),
+        #gevent.spawn(nextStep, s, Timeup, 10),
+        #gevent.spawn(nextStep, s, Statistics, 11),
+        #gevent.spawn(nextStep, s, Answer, 12),
+        #gevent.spawn(nextStep, s, Announce, 13),
+        #gevent.spawn(nextStep, s, Timeup, 20),
+        #gevent.spawn(nextStep, s, Statistics, 21),
+        #gevent.spawn(nextStep, s, Answer, 22),
+        #gevent.spawn(nextStep, s, Announce, 23),
+        #gevent.spawn(nextStep, s, Ending, 24),
         gevent.spawn(get, s)]
 
 gevent.joinall(jobs)

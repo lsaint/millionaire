@@ -58,3 +58,4 @@ class Timer(object):
             del Timer.TimerDict[tid]
 
 
+g_timer = Timer()

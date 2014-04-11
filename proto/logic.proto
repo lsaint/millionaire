@@ -101,6 +101,19 @@ message GameMatch {
     optional PersonalAward personal_award = 6;
 }
 
+// 排行类型
+enum RankType {
+    GIFT = 1;           
+    SPONSOR = 2;        //赞助 
+}
+
+// 排行信息
+message RankItem {
+    required uint32 uid = 1;    
+    required string name = 2;
+    required uint32 total = 3;
+}
+
 //
 
 // 100
@@ -335,5 +348,12 @@ message GameRoomInfo {
 // 136
 message L2FSyncGameRoomInfos {
     repeated GameRoomInfo rooms = 1;   //所有活跃比赛房间
+}
+
+
+// 137
+message L2CNotifyBillboard {
+    required  RankType type = 1;
+    repeated  RankItem items = 2;
 }
 

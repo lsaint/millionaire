@@ -291,7 +291,6 @@ class Room(Sender):
                                             self.state.status)
             self.Unicast(pb, player.uid)
             self.NotifySituation(False, player.uid)
-            logging.info("%s S-REV %d %d" % (self.mid, self.cur_qid, player.uid))
         else:
             logging.debug("revive_logout player:%d" % ins.user.uid)
 
@@ -399,6 +398,7 @@ class Room(Sender):
         player = self.GetPlayer(ins.user.uid)
         if player and self.cur_qid == ins.id:
             player.DoRevive(self.state.status)
+            logging.info("%s S-REV %d %d" % (self.mid, self.cur_qid, player.uid))
         else:
             pb = L2FNotifyRevieRep()
             pb.ret = FL

@@ -115,7 +115,7 @@ func (this *ClientConnection) duplexReadBody() (ret []byte,  ok bool) {
 
 func (this *ClientConnection) Close() {
     this.conn.Close()
-    close(this.sendchan)
+    //close(this.sendchan)
 }
 
 type ConnBuff struct {

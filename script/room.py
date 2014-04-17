@@ -22,6 +22,7 @@ class Room(Sender):
         self.timer = Timer()
         self.uid2player = {}
         self.presenter = None
+        self.cache_billboard = {}
 
         self.idle_state = IdleState(self)
         self.ready_state = ReadyState(self)
@@ -202,6 +203,7 @@ class Room(Sender):
         self.notifyMatchInfo(player.uid)
 
         self.state.OnLogin(ins)
+        map(lambda pb: self.Unicast(pb, player.uid), self.cache_billboard.values())
 
         logging.info("S-DAU %d" % player.uid)
 
@@ -464,7 +466,8 @@ class Room(Sender):
                 item.uid = i["_id"]["uid"]
                 item.name = i["_id"]["name"]
                 item.total = i["total"]
-            self.Broadcast(pb)
+            self.cache_billboard[op] = pb
+            self.Randomcast(pb)
         def done_gift(sn, ret):
             try:
                 done(GIFT, ret)

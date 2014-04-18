@@ -463,8 +463,8 @@ class Room(Sender):
             pb.type = op
             for i in items:
                 item = pb.items.add()
-                item.uid = i["_id"]["uid"]
-                item.name = i["_id"]["name"]
+                item.uid = i["_id"]
+                item.name = i["name"]
                 item.total = i["total"]
             self.cache_billboard[op] = pb
             self.Randomcast(pb)

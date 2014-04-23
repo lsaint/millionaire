@@ -55,6 +55,7 @@ class IdleState(State):
             pb = L2CNotifyPreview()
             pb.MergeFrom(pv)
             self.room.UniOrBroadcast(pb, uid)
+            logging.debug("PREVIEW: %s" % pb.desc)
 
 
     def OnLeaveState(self):

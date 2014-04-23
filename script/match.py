@@ -77,7 +77,7 @@ class MatchMgr(object):
         match.id = m["id"]
         match.name = m["name"]
         match.pid = m["pid"]
-        match.coef_a = m["coef_a"]
+        map(lambda c: match.coefs.append(c), m["coefs"])
 
         m_ra = m["race_award"]
         if m_ra:

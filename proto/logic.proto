@@ -96,7 +96,7 @@ message GameMatch {
     required uint32 id = 1;                 // 赛事编号
     required string name = 2;               // 赛事名字
     optional uint32 pid = 3;                // 题包号(服务端使用)
-    optional uint32 coef_a = 4;             // 用于计算复活费用的常量系数
+    repeated int32 coefs = 4;               // 用于计算复活费用的常量系数
     optional RaceAward race_award = 5;
     optional PersonalAward personal_award = 6;
 }

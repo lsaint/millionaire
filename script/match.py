@@ -9,6 +9,7 @@ from logic_pb2 import *
 from timer import Timer
 from config import *
 from post import PostAsync
+from question import QuesionPackage
 
 
 class MatchMgr(object):
@@ -16,6 +17,8 @@ class MatchMgr(object):
     def __init__(self):
         self.preview = None
         self.matchs = {}    # GameMatch
+        self.qpackages = {}
+        self.qsn2match = {}
         self.timer = Timer()
         self.valid_presenters = []
 
@@ -39,14 +42,28 @@ class MatchMgr(object):
             logging.error("load WList error: %s" % jn_presenter_wl)
 
 
+    def doneLoadMatchAndQuestion(self, sn):
+        match = self.qsn2match.get(sn)
+        if sn:
+            self.matchs[match.id] = match
+            logging.debug("load match %d and qpackage %d sucess.." % (match.id, match.pid))
+        else:
+            logging.debug("not exist qsn: %d, match:%d" % (sn, match.id))
+
+
     def doneLoadMatch(self, sn, jn_match):
-        try:
-            lt = json.loads(jn_match)
-            for m in lt:
-                self.matchs[m["id"]] = self.loadMatch(m)
-            logging.debug( "load match sucess..")
-        except:
-            logging.error("load match error: %s" % jn_match)
+        #try:
+        lt = json.loads(jn_match)
+        for m in lt:
+            match = self.loadMatch(m)
+            qpackage = QuesionPackage()
+            sn = qpackage.Load(match.pid, self.doneLoadMatchAndQuestion)
+            self.qpackages[match.pid] = qpackage
+            self.qsn2match[sn] = match
+            #self.matchs[m["id"]] = 
+            logging.debug("match %d loaded, waitting for load qpackage %d" % (match.id, match.pid))
+        #except:
+        #    logging.error("load match error: %s" % jn_match)
 
 
     def doneLoadPreview(self, sn, jn_preview):
@@ -125,6 +142,10 @@ class MatchMgr(object):
 
     def IsValidPresenter(self, uid):
         return uid in self.valid_presenters
+
+
+    def GetQpackage(self, pid):
+        return self.qpackages.get(pid)
 
 
 g_match_mgr = MatchMgr()

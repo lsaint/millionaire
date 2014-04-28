@@ -65,7 +65,7 @@ class Room(Sender):
         self.cur_reviver_num = 0
         self.winners = []
         self.final_qid = 0
-        self.qpackage = QuesionPackage()
+        #self.qpackage = QuesionPackage()
         self.resetPlayers()
 
 
@@ -91,17 +91,17 @@ class Room(Sender):
         else:
             self.match = g_match_mgr.GetMatch(ins.match_id)
             self.is_warmup = False
-        if not self.match:
-            logging.warning("start non-exist mid %d"%ins.match_id)
+        self.qpackage = g_match_mgr.GetQpackage(self.match.pid)
+        if not self.match or not self.qpackage:
+            logging.warning("start match %d pid %d error" % (ins.match_id, self.qpackage or 0))
             return
         self.GenMid()
         logging.info("START_MATCH %s %d %d" % (self.mid, self.ssid, ins.match_id))
         self.notifyMatchInfo()
         self.achecker = AwardChecker(self.mid, self.match.race_award, self.match.personal_award)
-        def doneLoad():
-            self.SetState(self.timing_state)
-            self.SetFinalQid()
-        self.qpackage.Load(self.match.pid, doneLoad)
+        self.SetState(self.timing_state)
+        self.SetFinalQid()
+        #self.qpackage.Load(self.match.pid, doneLoad)
 
 
     def notifyMatchInfo(self, uid=None):

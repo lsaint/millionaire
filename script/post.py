@@ -28,3 +28,4 @@ def PostAsync(url, s, func=None, sn=None):
     go.PostAsync(url, s, sn)
     if func:
         g_post_callback[sn] = func
+    return sn

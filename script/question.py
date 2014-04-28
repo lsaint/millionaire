@@ -20,8 +20,8 @@ class QuesionPackage(object):
     def Load(self, pid, func):
         def done(sn, ret):
             self.parseJson(ret)
-            func()
-        PostAsync("%s%s%s" % (URL_OP, SUF_QPACK, pid), "", done)
+            func(sn)
+        return PostAsync("%s%s%s" % (URL_OP, SUF_QPACK, pid), "", done)
 
 
     def parseJson(self, jn):

@@ -42,13 +42,13 @@ class MatchMgr(object):
             logging.error("load WList error: %s" % jn_presenter_wl)
 
 
-    def doneLoadMatchAndQuestion(self, sn):
+    def doneLoadMatchAndQuestion(self, sn, ok):
         match = self.qsn2match.get(sn)
-        if sn:
+        if match and ok:
             self.matchs[match.id] = match
             logging.debug("load match %d and qpackage %d sucess.." % (match.id, match.pid))
         else:
-            logging.debug("not exist qsn: %d, match:%d" % (sn, match.id))
+            logging.debug("load match %d fail" % (match.id if match else 0))
 
 
     def doneLoadMatch(self, sn, jn_match):

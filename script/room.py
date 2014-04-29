@@ -65,7 +65,7 @@ class Room(Sender):
         self.cur_reviver_num = 0
         self.winners = []
         self.final_qid = 0
-        #self.qpackage = QuesionPackage()
+        self.qpackage = QuesionPackage()
         self.resetPlayers()
 
 
@@ -289,8 +289,7 @@ class Room(Sender):
             pb = L2FReviveRep()
             pb.user.uid = player.uid
             pb.user.role = player.role
-            pb.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer,
-                                            self.state.status)
+            pb.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer, self.state.status)
             self.Unicast(pb, player.uid)
             self.NotifySituation(False, player.uid)
         else:

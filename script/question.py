@@ -19,8 +19,8 @@ class QuesionPackage(object):
 
     def Load(self, pid, func):
         def done(sn, ret):
-            self.parseJson(ret)
-            func(sn)
+            ok = self.parseJson(ret)
+            func(sn, ok)
         return PostAsync("%s%s%s" % (URL_OP, SUF_QPACK, pid), "", done)
 
 
@@ -31,7 +31,7 @@ class QuesionPackage(object):
             lt = json.loads(jn)
         except:
             logging.error("load question error: %s" % jn)
-            return
+            return False
         for q in lt:
             op = q[2]                           # options
             right_answer = op[0]
@@ -46,6 +46,7 @@ class QuesionPackage(object):
             for i in range(len(OP_HEAD)):
                 if op[i] == right_answer:
                     self.id2rightanswer[gq.id] = OP_HEAD[i]
+            return True
 
 
     def GetQuestionCount(self):

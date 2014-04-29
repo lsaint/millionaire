@@ -46,7 +46,7 @@ class QuesionPackage(object):
             for i in range(len(OP_HEAD)):
                 if op[i] == right_answer:
                     self.id2rightanswer[gq.id] = OP_HEAD[i]
-            return True
+        return True
 
 
     def GetQuestionCount(self):

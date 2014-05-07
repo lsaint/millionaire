@@ -70,7 +70,7 @@ class Room(Sender):
             uid, name = item
             self.uid2player[uid] = Player(uid, name, self.state.status)
 
-        uid = self.cc.GetPresenter() 
+        uid = self.cc.GetPresenter()
         if uid != None:
             if uid != 0:
                 player = self.GetPlayer(uid)

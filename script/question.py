@@ -25,7 +25,7 @@ class QuesionPackage(object):
 
 
     def parseJson(self, jn):
-        logging.info("LoadQuestion: %s" % jn)
+        #logging.info("LoadQuestion: %s" % jn)
         global OP_HEAD
         try:
             lt = json.loads(jn)

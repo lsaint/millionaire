@@ -1,7 +1,7 @@
 package script
 
 import (
-    "fmt"
+    "log"
     "time"
     "encoding/base64"
     
@@ -32,27 +32,23 @@ func NewPyMgr(in chan *proto.GateInPack,  out chan *proto.GateOutPack) *PyMgr {
     mgr.gomod, err = py.NewGoModule("go", "", NewGoModule(out, mgr.pm))
     // defer gomod.Decref()
     if err != nil {
-        fmt.Println(err)
-        panic("NewGoModule failed:")
+        log.Fatalln("NewGoModule failed:", err)
     }
 
     code, err := py.CompileFile("./script/glue.py", py.FileInput)
     if err != nil {
-        fmt.Println(err)
-        panic("Compile failed")
+        log.Fatalln("Compile failed:", err)
     }
     defer code.Decref()
 
     mgr.pymod, err = py.ExecCodeModule("glue", code.Obj())
     if err != nil {
-        fmt.Println(err)
-        panic("ExecCodeModule glue err:")
+        log.Fatalln("ExecCodeModule glue err:", err)
     }
     _, err = mgr.pymod.CallMethodObjArgs("test")
     // defer mgr.pymode.Decref()
     if err != nil {
-        fmt.Println(err)
-        panic("ExecCodeModule failed")
+        log.Fatalln("ExecCodeModule failed:", err)
     }
     return  mgr
 }
@@ -77,13 +73,13 @@ func (this *PyMgr) onProto(pack *proto.GateInPack) {
     data := py.NewString(string(b)); defer data.Decref()
     _, err := this.pymod.CallMethodObjArgs("OnProto", tsid.Obj(), ssid.Obj(), uri.Obj(), data.Obj())
     if err != nil {
-        fmt.Println("OnProto err:", err)
+        log.Println("OnProto err:", err)
     }
 }
 
 func (this *PyMgr) onTicker() {
     if _, err := this.pymod.CallMethodObjArgs("OnTicker"); err != nil {
-        fmt.Println("onTicker err:", err)
+        log.Println("onTicker err:", err)
     }
 }
 
@@ -91,7 +87,7 @@ func (this *PyMgr) onPostDone(sn int64, ret string) {
     py_sn := py.NewInt64(sn); defer py_sn.Decref()
     py_ret := py.NewString(string(ret)); defer py_ret.Decref()
     if _, err := this.pymod.CallMethodObjArgs("OnPostDone", py_sn.Obj(), py_ret.Obj()); err != nil {
-        fmt.Println("onPostDone err:", err)
+        log.Println("onPostDone err:", err)
     }
 }
 

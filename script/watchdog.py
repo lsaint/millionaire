@@ -2,7 +2,7 @@
 
 import base64, logging
 from uri import *
-from room import Room
+from room import  NewRoom
 from sender import Sender
 from logic_pb2 import L2FSyncGameRoomInfos
 
@@ -17,7 +17,8 @@ class WatchDog(Sender):
     def gainRoom(self, tsid, ssid):
         room = self.ssid2room.get(ssid)
         if not room:
-            room = Room(tsid, ssid)
+            #room = Room(tsid, ssid)
+            room = NewRoom(tsid, ssid)
             self.ssid2room[ssid] = room
         return room
 

@@ -7,9 +7,9 @@ from logic_pb2 import *
 
 class Player(object):
 
-    def __init__(self, user, status):
-        self.uid = user.uid
-        self.name = user.name
+    def __init__(self, uid, name, status):
+        self.uid = uid
+        self.name = name
         self.coef_k = 1
         self.answers = {}
         self.bingos = {}

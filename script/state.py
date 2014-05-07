@@ -30,6 +30,8 @@ class State(object):
     def OnPresenterDown(self):
         pass
 
+    def Name(self):
+        return self.__class__.__name__
 #
 
 
@@ -128,6 +130,7 @@ class TimingState(State):
             logging.debug("OnAnswerQuestion DoAnswer false")
             return
         self.room.StatiAnswer(player, ins.answer.answer.answer)
+        self.cc.CachePlayerAnswer(player.uid, ins.answer.answer.id)
 
 
     def OnNextStep(self, ins):

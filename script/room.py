@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, logging, json, random
+import time, logging, json, random, os, cPickle
 from timer import Timer, g_timer
 from sender import Sender
 from state import *
@@ -12,6 +12,25 @@ from logic_pb2 import *
 from config import *
 from give import give
 from post import PostAsync
+from cache import CacheCenter
+
+
+def NewRoom(tsid, ssid):
+    n = "./pickle/%d_%d" % (tsid, ssid)
+    if os.path.isfile(n):
+        try:
+            room = cPickle.load(file(n))
+            room.goon()
+            logging.info("go on room %s %s" % (n, room.state.Name()))
+        except Exception as err:
+            logging.error("go on room err: %s" % err)
+            room = Room(tsid, ssid)
+            os.remove(n)
+            room.cc.Clear()
+    else:
+        logging.info("no pickle file found")
+        room = Room(tsid, ssid)
+        return room
 
 
 class Room(Sender):
@@ -23,6 +42,7 @@ class Room(Sender):
         self.uid2player = {}
         self.presenter = None
         self.cache_billboard = {}
+        self.cc = CacheCenter(tsid, ssid)
 
         self.idle_state = IdleState(self)
         self.ready_state = ReadyState(self)
@@ -39,6 +59,38 @@ class Room(Sender):
         self.loopGetBillboard()
 
 
+    def pickle(self):
+        f = file("./pickle/%d_%d" % (self.tsid, self.ssid), "w")
+        cPickle.dump(self, f)
+        f.close()
+        logging.info("[PICKLE]tsid: %d, ssid: %d, status: %s" % (
+                                    self.tsid, self.ssid, self.state.Name()))
+
+
+    # go on after pickled
+    def goon(self):
+        for item in self.cc.GetLoginedPlayers():
+            self.uid2player[uid] = Player(item[0], item[1], self.state.status)
+
+        uid = self.cc.GetPresenter() 
+        if uid != None:
+            if uid != 0:
+                player = self.GetPlayer(uid)
+                player.role = Presenter
+                player.ping = time.time()
+                self.presenter = player
+            else:
+                self.presenter = None
+
+        for uid in self.cc.GetRevivedPlayers():
+            self.GetPlayer(uid).role = Reviver
+
+        for uid, answer in self.cc.GetPlayerAnswers().iteritems():
+            self.GetPlayer(uid).answers[self.cur_qid] = answer
+
+        self.SetState(self.state)
+
+
     def GenMid(self):
         self.mid = hex(int(str(int(time.time() * 1000000) + random.randint(0,100000))[6:]))[2:]
 
@@ -48,7 +100,9 @@ class Room(Sender):
             return
         self.state.OnLeaveState()
         self.state = state
-        logging.info("Enter======================================> %s" % state.__class__.__name__)
+        logging.info("Enter======================================> %s" % state.Name())
+        self.cc.Clear()
+        self.pickle()
         self.state.OnEnterState()
 
 
@@ -184,7 +238,7 @@ class Room(Sender):
     def OnLogin(self, ins):
         player = self.GetPlayer(ins.user.uid)
         if not player:
-            player = Player(ins.user, self.state.status)
+            player = Player(ins.user.uid, ins.user.name, self.state.status)
             self.uid2player[player.uid] = player
 
         rep = L2CLoginRep()
@@ -205,6 +259,7 @@ class Room(Sender):
         self.state.OnLogin(ins)
         map(lambda pb: self.Unicast(pb, player.uid), self.cache_billboard.values())
 
+        self.cc.CacheLoginedPlayer(player.uid, player.name)
         logging.info("S-DAU %d" % player.uid)
 
 
@@ -240,6 +295,7 @@ class Room(Sender):
             self.state.OnPresenterDown()
             pb = L2CNotifyPresenterChange()
             self.Broadcast(pb)
+        self.cc.CachePresenter(0)
 
 
     def SetPresenter(self, player):
@@ -251,6 +307,7 @@ class Room(Sender):
         pb.presenter.uid = player.uid
         pb.presenter.name = player.name
         self.Broadcast(pb)
+        self.cc.CachePresenter(player.uid)
 
 
     def OnNotifyMic1(self, ins):
@@ -400,6 +457,7 @@ class Room(Sender):
         if player and self.cur_qid == ins.id:
             player.DoRevive(self.state.status)
             logging.info("%s S-REV %d %d" % (self.mid, self.cur_qid, player.uid))
+            self.cc.CacheRevivedPlayer(player.uid)
         else:
             pb = L2FNotifyRevieRep()
             pb.ret = FL
@@ -471,12 +529,12 @@ class Room(Sender):
             try:
                 done(GIFT, ret)
             except Exception as err:
-                logging.error(err)
+                logging.error("done_gift: %s" % err)
         def done_sponsor(sn, ret):
             try:
                 done(SPONSOR, ret)
             except Exception as err:
-                logging.error(err)
+                logging.error("done_sponsor: %s" % err)
         jn = json.dumps({"op": "gift", "param": BILLBOARD_NUM})
         PostAsync(BILLBOARD_URL, jn, done_gift)
         jn = json.dumps({"op": "sponsor", "param": BILLBOARD_NUM})

@@ -54,6 +54,7 @@ class MatchMgr(object):
     def doneLoadMatch(self, sn, jn_match):
         #try:
         lt = json.loads(jn_match)
+        self.matchs = {}
         for m in lt:
             match = self.loadMatch(m)
             qpackage = QuesionPackage()

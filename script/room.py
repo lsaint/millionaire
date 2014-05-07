@@ -28,7 +28,8 @@ def NewRoom(tsid, ssid, pickle_data=None):
     else:
         logging.info("no pickle data found")
         room = Room(tsid, ssid)
-        return room
+
+    return room
 
 
 class Room(Sender):

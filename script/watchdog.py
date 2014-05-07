@@ -19,7 +19,10 @@ class WatchDog(Sender):
     def loadCache(self):
         for k, v in CacheCenter.GetCacheState().iteritems():
             tsid, ssid = eval(k)
-            self.ssid2room[ssid] = NewRoom(tsid, ssid, v)
+            room = NewRoom(tsid, ssid, v)
+            self.ssid2room[ssid] = room
+            for uid, _ in room.uid2player.iteritems():
+                self.uid2ssid[uid] = ssid
 
 
     def gainRoom(self, tsid, ssid):

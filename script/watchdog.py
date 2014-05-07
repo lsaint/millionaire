@@ -5,6 +5,7 @@ from uri import *
 from room import  NewRoom
 from sender import Sender
 from logic_pb2 import L2FSyncGameRoomInfos
+from cache import CacheCenter
 
 class WatchDog(Sender):
 
@@ -12,12 +13,18 @@ class WatchDog(Sender):
         Sender.__init__(self, 0, 0)
         self.ssid2room = {}
         self.uid2ssid = {}
+        self.loadCache()
+
+
+    def loadCache(self):
+        for k, v in CacheCenter.GetCacheState().iteritems():
+            tsid, ssid = eval(k)
+            self.ssid2room[ssid] = NewRoom(tsid, ssid, v)
 
 
     def gainRoom(self, tsid, ssid):
         room = self.ssid2room.get(ssid)
         if not room:
-            #room = Room(tsid, ssid)
             room = NewRoom(tsid, ssid)
             self.ssid2room[ssid] = room
         return room

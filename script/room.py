@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, logging, json, random, os, cPickle
+import time, logging, json, random, cPickle
 from timer import Timer, g_timer
 from sender import Sender
 from state import *
@@ -15,20 +15,18 @@ from post import PostAsync
 from cache import CacheCenter
 
 
-def NewRoom(tsid, ssid):
-    n = "./pickle/%d_%d" % (tsid, ssid)
-    if os.path.isfile(n):
+def NewRoom(tsid, ssid, pickle_data=None):
+    if pickle_data:
         try:
-            room = cPickle.load(file(n))
+            room = cPickle.loads(pickle_data)
             room.goon()
-            logging.info("go on room %s %s" % (n, room.state.Name()))
+            logging.info("GO ON room %d %d %s" % (tsid, ssid, room.state.Name()))
         except Exception as err:
-            logging.error("go on room err: %s" % err)
+            logging.error("GO ON room err: %s" % err)
             room = Room(tsid, ssid)
-            os.remove(n)
             room.cc.Clear()
     else:
-        logging.info("no pickle file found")
+        logging.info("no pickle data found")
         room = Room(tsid, ssid)
         return room
 
@@ -60,9 +58,7 @@ class Room(Sender):
 
 
     def pickle(self):
-        f = file("./pickle/%d_%d" % (self.tsid, self.ssid), "w")
-        cPickle.dump(self, f)
-        f.close()
+        self.cc.CacheState(cPickle.dumps(self))
         logging.info("[PICKLE]tsid: %d, ssid: %d, status: %s" % (
                                     self.tsid, self.ssid, self.state.Name()))
 
@@ -70,7 +66,8 @@ class Room(Sender):
     # go on after pickled
     def goon(self):
         for item in self.cc.GetLoginedPlayers():
-            self.uid2player[uid] = Player(item[0], item[1], self.state.status)
+            uid, name = item
+            self.uid2player[uid] = Player(uid, name, self.state.status)
 
         uid = self.cc.GetPresenter() 
         if uid != None:

@@ -61,7 +61,7 @@ class CacheCenter(object):
 
 
     def GetPresenter(self):
-        return int(g_cache.get(self.key_pu))
+        return int(g_cache.get(self.key_pu) or 0)
 
 
     def GetPlayerAnswers(self):

@@ -31,7 +31,11 @@ class CacheCenter(object):
 
 
     def CacheLoginedPlayer(self, uid, name):
-        g_cache.lpush(self.key_lpu, (uid, name))
+        g_cache.hset(self.key_lpu, uid, name)
+
+
+    def CacheLogoutedPlayer(self, uid):
+        g_cache.hset(self.key_lpu, uid, "")
 
 
     def CacheRevivedPlayer(self, uid):
@@ -50,9 +54,12 @@ class CacheCenter(object):
         g_cache.delete(self.key_lpu, self.key_rpu, self.key_pu, self.key_pa)
 
 
-    def GetLoginedPlayers(self):
-        ret = g_cache.lrange(self.key_lpu, 0, -1)
-        return map(lambda x: eval(x), ret)
+    def GetLoginoutedPlayers(self):
+        ret = g_cache.hgetall(self.key_lpu)
+        r = {}
+        for uid, name in ret.iteritems():
+            r[int(uid)] = name
+        return r
 
 
     def GetRevivedPlayers(self):
@@ -69,8 +76,9 @@ class CacheCenter(object):
 
     def GetPlayerAnswers(self):
         ret = g_cache.hgetall(self.key_pa)
+        r = {}
         for k, v in ret.iteritems():
-            ret[int(k)] = int(v)
-        return ret
+            r[int(k)] = int(v)
+        return r
 
 

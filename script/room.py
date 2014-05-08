@@ -22,7 +22,7 @@ def NewRoom(tsid, ssid, pickle_data=None):
             room.goon()
             logging.info("GO ON room %d %d %s" % (tsid, ssid, room.state.Name()))
         except Exception as err:
-            logging.error("GO ON room err: %s" % err)
+            logging.error("GO ON room err: %s. clear cache and new room" % err)
             room = Room(tsid, ssid)
             room.cc.Clear()
     else:
@@ -66,9 +66,11 @@ class Room(Sender):
 
     # go on after pickled
     def goon(self):
-        for item in self.cc.GetLoginedPlayers():
-            uid, name = item
-            self.uid2player[uid] = Player(uid, name, self.state.status)
+        for uid, name in self.cc.GetLoginoutedPlayers().iteritems():
+            if name == "":      # logout
+                del self.uid2player[uid]
+            else:
+                self.uid2player[uid] = Player(uid, name, self.state.status)
 
         uid = self.cc.GetPresenter()
         if uid != None:
@@ -480,6 +482,7 @@ class Room(Sender):
         if player:
             del self.uid2player[player.uid]
             logging.debug("Logout %d" % player.uid)
+            self.cc.CacheLogoutedPlayer(player.uid)
         # OnNotifyMic1 will handle presenter logout
 
 

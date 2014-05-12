@@ -45,6 +45,12 @@ enum GameAnswer {
     D = 4;
 }
 
+//
+enum QuestionType {
+    TXT = 1;
+    PIC = 2;
+}
+
 //用户结构，不同协议里只会发部分信息
 message User {
     optional uint32 uid = 1;
@@ -60,6 +66,8 @@ message GameQuestion {
     repeated string options = 3;
     optional GameAnswer answer = 4;
     optional uint32 count_time = 5;    //倒计时时间 
+    optional QuestionType type = 6;
+    optional string pic_url = 7;
 }
 
 //用户提交答案
@@ -109,7 +117,7 @@ enum RankType {
 
 // 排行信息
 message RankItem {
-    required uint32 uid = 1;    
+    required int64 uid = 1;    
     required string name = 2;
     required uint32 total = 3;
 }
@@ -355,5 +363,10 @@ message L2FSyncGameRoomInfos {
 message L2CNotifyBillboard {
     required  RankType type = 1;
     repeated  RankItem items = 2;
+}
+
+// 138
+message L2CNotifyPreload {
+    repeated GameQuestion pre = 1;
 }
 

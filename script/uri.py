@@ -42,6 +42,7 @@ URI2CLASS = {
         135     :   L2FNotifyBalanceChange,
         136     :   L2FSyncGameRoomInfos,
         137     :   L2CNotifyBillboard,
+        138     :   L2CNotifyPreload,
 }
 
 URI2CLASS_GLOBAL = {

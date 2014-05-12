@@ -22,7 +22,7 @@ def NewRoom(tsid, ssid, pickle_data=None):
             room.goon()
             logging.info("GO ON room %d %d %s" % (tsid, ssid, room.state.Name()))
         except Exception as err:
-            logging.error("GO ON room err: %s. clear cache and new room" % err)
+            logging.error("GO ON room err: %s. clear cache and new room." % err)
             room = Room(tsid, ssid)
             room.cc.Clear()
     else:
@@ -155,7 +155,8 @@ class Room(Sender):
         self.achecker = AwardChecker(self.mid, self.match.race_award, self.match.personal_award)
         self.SetState(self.timing_state)
         self.SetFinalQid()
-        #self.qpackage.Load(self.match.pid, doneLoad)
+
+        self.Randomcast(self.qpackage.GetPreloadQuestions())
 
 
     def notifyMatchInfo(self, uid=None):
@@ -255,6 +256,7 @@ class Room(Sender):
         self.Unicast(pb, player.uid)
 
         self.notifyMatchInfo(player.uid)
+        self.Unicast(self.qpackage.GetPreloadQuestions(), player.uid)
 
         self.state.OnLogin(ins)
         map(lambda pb: self.Unicast(pb, player.uid), self.cache_billboard.values())

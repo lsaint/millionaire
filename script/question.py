@@ -5,7 +5,7 @@
 
 import json, random, logging
 from post import PostAsync
-from logic_pb2 import GameQuestion, A, B, C, D
+from logic_pb2 import GameQuestion, A, B, C, D, TXT, PIC, L2CNotifyPreload 
 from config import *
 
 OP_HEAD = [A, B, C, D]
@@ -41,6 +41,8 @@ class QuesionPackage(object):
             gq.question = q[1]                  # question desc
             gq.options.extend(op)
             gq.count_time = q[3]                # count_time
+            gq.type = q[4]
+            gq.pic_url = q[5]
             self.id2question[gq.id] = gq
 
             for i in range(len(OP_HEAD)):
@@ -55,6 +57,16 @@ class QuesionPackage(object):
 
     def GetQuestion(self, qid):
         return self.id2question.get(qid)
+
+
+    def GetPreloadQuestions(self):
+        pb = L2CNotifyPreload()
+        for idx, question in self.id2rightanswer.iteritems():
+            if question.type == PIC:
+                q = pb.pre.add()
+                q.id  = question.id
+                q.pic_url = question.pic_url
+        return pb
 
 
     def GetRightAnswer(self, qid):

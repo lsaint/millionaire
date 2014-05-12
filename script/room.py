@@ -155,8 +155,13 @@ class Room(Sender):
         self.achecker = AwardChecker(self.mid, self.match.race_award, self.match.personal_award)
         self.SetState(self.timing_state)
         self.SetFinalQid()
+        self.notifyPreload()
 
-        self.Randomcast(self.qpackage.GetPreloadQuestions())
+
+    def notifyPreload(self, uid = None):
+        pb, count = self.qpackage.GetPreloadQuestions()
+        if count > 0:
+            self.UniOrRandomcast(pb, uid)
 
 
     def notifyMatchInfo(self, uid=None):
@@ -256,7 +261,7 @@ class Room(Sender):
         self.Unicast(pb, player.uid)
 
         self.notifyMatchInfo(player.uid)
-        self.Unicast(self.qpackage.GetPreloadQuestions(), player.uid)
+        self.notifyPreload(player.uid)
 
         self.state.OnLogin(ins)
         map(lambda pb: self.Unicast(pb, player.uid), self.cache_billboard.values())

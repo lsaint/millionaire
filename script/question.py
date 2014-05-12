@@ -61,12 +61,14 @@ class QuesionPackage(object):
 
     def GetPreloadQuestions(self):
         pb = L2CNotifyPreload()
-        for idx, question in self.id2rightanswer.iteritems():
+        count = 0
+        for idx, question in self.id2question.iteritems():
             if question.type == PIC:
                 q = pb.pre.add()
                 q.id  = question.id
                 q.pic_url = question.pic_url
-        return pb
+                count += 1
+        return pb, count
 
 
     def GetRightAnswer(self, qid):

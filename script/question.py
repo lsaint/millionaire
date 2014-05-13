@@ -15,6 +15,7 @@ class QuesionPackage(object):
     def __init__(self):
         self.id2question = {}
         self.id2rightanswer = {}
+        self.pb_preload = None 
 
 
     def Load(self, pid, func):
@@ -48,6 +49,15 @@ class QuesionPackage(object):
             for i in range(len(OP_HEAD)):
                 if op[i] == right_answer:
                     self.id2rightanswer[gq.id] = OP_HEAD[i]
+
+            if gq.type == PIC:
+                if not self.pb_preload:
+                    self.pb_preload = L2CNotifyPreload()
+                q = self.pb_preload.pre.add()
+                q.id  = gq.id
+                q.pic_url = gq.pic_url
+                logging.debug("preloading %d" % q.id)
+
         return True
 
 
@@ -60,15 +70,7 @@ class QuesionPackage(object):
 
 
     def GetPreloadQuestions(self):
-        pb = L2CNotifyPreload()
-        count = 0
-        for idx, question in self.id2question.iteritems():
-            if question.type == PIC:
-                q = pb.pre.add()
-                q.id  = question.id
-                q.pic_url = question.pic_url
-                count += 1
-        return pb, count
+        return self.pb_preload
 
 
     def GetRightAnswer(self, qid):

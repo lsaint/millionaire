@@ -159,8 +159,8 @@ class Room(Sender):
 
 
     def notifyPreload(self, uid = None):
-        pb, count = self.qpackage.GetPreloadQuestions()
-        if count > 0:
+        pb = self.qpackage.GetPreloadQuestions()
+        if pb:
             self.UniOrRandomcast(pb, uid)
 
 

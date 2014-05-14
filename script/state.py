@@ -130,7 +130,7 @@ class TimingState(State):
             logging.debug("OnAnswerQuestion DoAnswer false")
             return
         self.room.StatiAnswer(player, ins.answer.answer.answer)
-        self.cc.CachePlayerAnswer(player.uid, ins.answer.answer.id)
+        self.room.cc.CachePlayerAnswer(player.uid, ins.answer.answer.id)
 
 
     def OnNextStep(self, ins):

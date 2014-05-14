@@ -99,7 +99,7 @@ class WatchDog(Sender):
         ssid = self.uid2ssid.get(ins.user.uid)
         # user who change ssid but did not login yet
         if ssid and ssid != ins.subsid:
-            logging.warn("register ssid not match. uid:%d" % uid)
+            logging.warn("register ssid not match. uid:%d" % ins.user.uid)
             return True
         return None
 

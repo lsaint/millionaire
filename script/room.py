@@ -524,6 +524,8 @@ class Room(Sender):
     def GetBillboard(self):
         def done(op, ret):
             items = json.loads(ret)
+            if len(items) == 0:
+                return
             pb = L2CNotifyBillboard()
             pb.type = op
             for i in items:

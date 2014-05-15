@@ -73,7 +73,7 @@ func (this *ClientConnection) duplexRead(buff []byte) bool {
 		}
 
 		// read
-		this.conn.SetReadDeadline(time.Now().Add(1e8))
+		this.conn.SetReadDeadline(time.Now().Add(1e7))
 		n, err := this.reader.Read(buff[read_size:])
 		if err != nil {
 			if e, ok := err.(*net.OpError); ok && e.Temporary() {

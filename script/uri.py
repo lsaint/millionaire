@@ -5,11 +5,12 @@ from logic_pb2 import *
 from server_pb2 import *
 
 
-URI2CLASS = {
+URI2CLASS_ROOM = {
         100     :   C2LMatchInfo,
         101     :   L2CMatchInfoRep,
         102     :   C2LStartMatch,
         103     :   L2CNotifyMatchInfo,
+        104     :   C2LLogin,
         105     :   L2CLoginRep,
         106     :   C2LTimeSync,
         107     :   L2CTimeSyncRep,
@@ -51,7 +52,16 @@ URI2CLASS_GLOBAL = {
         99      :   N2SRegister,
 }
 
+URI2CLASS_CAPTURE_FLAG = {
+        104     :   C2LLogin,
+        139     :   C2LStartCaptureFlag,
+        140     :   F2LCaptureAction,
+}
+
+URI2CLASS = {}
+URI2CLASS.update(URI2CLASS_ROOM)
 URI2CLASS.update(URI2CLASS_GLOBAL)
+URI2CLASS.update(URI2CLASS_CAPTURE_FLAG)
 
 CLASS2URI = {}
 for uri, proto in URI2CLASS.items():

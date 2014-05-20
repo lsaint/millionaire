@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time
+import time, cPickle, logging
 from sender import Sender
 from logic_pb2 import *
 from timer import Timer
@@ -8,9 +8,20 @@ from config import *
 from cache import CacheCenter
 
 
-def NewFlagMgr(tsid, ssid):
-    return FlagMgr(tsid, ssid)
-
+def NewFlagMgr(tsid, ssid, pickle_data):
+    if pickle_data:
+        try:
+            f = cPickle.loads(pickle_data)
+            f.goon()
+            logging.info("GO ON flag %d %d" % (tsid, ssid))
+        except Exception as err:
+            logging.error("GO ON flag err: %s. clear cache and new flag." % err)
+            f = FlagMgr(tsid, ssid)
+            f.cc.ClearFlag()
+    else:
+        logging.info("no flag pickle data found")
+        f = FlagMgr(tsid, ssid)
+    return f
 
 
 
@@ -57,10 +68,16 @@ class FlagMgr(Sender):
         self.uid2action = {}
 
 
+    def changeDoneAction(self, a):
+        self.done_action = a
+        self.cc.ClearFlag()
+        self.pickle()
+
+
     def OnStartCaptureFlag(self, ins):
         if not self.checkWhitelist(ins.user.uid):
             return
-        self.done_action = Null
+        self.changeDoneAction(Null)
         self.start_time = time.time()
         s = "当前战旗无主，最先投入Y币夺旗的用户将获得战旗的拥有权。"
         self.notifyStatus(s)
@@ -76,7 +93,7 @@ class FlagMgr(Sender):
             rep.ret = OK
             s = "恭喜%s抢先一步，获得战旗。%s" % (ins.user.name,
                                 "其他用户可对战旗发起攻击或守护，战旗被攻破后贡献最高者将夺得战旗")
-            self.done_action = FirstBlood
+            self.changeDoneAction(FirstBlood)
             self.notifyStatus(s)
         else:
             rep.ret = FL
@@ -86,6 +103,7 @@ class FlagMgr(Sender):
     def OnCaptureAction(self, ins):
         a = self.getaction(ins.user)
         a.update(ins)
+        self.cc.CacheCaptureAction(cPickle.dumps(ins))
 
         t, s = self.top1, ""
         pb = L2CNotifyFlagMesssage()
@@ -153,7 +171,7 @@ class FlagMgr(Sender):
             t = self.owner
             self.owner = ins.user
             self.hp = FLAG_MAX_HP
-            self.done_action = OwnerChange
+            self.changeDoneAction(OwnerChange)
             s = "恭喜%s在攻防战中战果累累，打败%s获得战旗，大家祝贺TA！" % (t.name, self.owner.name)
             self.notifyStatus(s)
             self.settle()
@@ -178,7 +196,7 @@ class FlagMgr(Sender):
 
 
     def onCaptureTimeup(self):
-        self.done_action = Defended
+        self.changeDoneAction(Defended)
         s = ""
         if self.owner.uid != 0:
             s = "恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
@@ -189,4 +207,22 @@ class FlagMgr(Sender):
         self.notifyStatus(s)
         self.settle()
         self.timer.ReleaseTimer()
+
+
+    def pickle(self):
+        self.cc.CacheFlagStatus(cPickle.dumps(self))
+
+
+    def goon(self):
+        elapse = int(time.time() - self.start_time)
+        if  elapse >= CAPTURE_TIME:
+            self.onCaptureTimeup()
+            return
+        else:
+            self.timer.SetTimer1(CAPTURE_TIME - elapse, self.onCaptureTimeup)
+        self.timer.SetTimer(SYNC_FLG_INTERVAL, self.syncFlagStatus)
+
+        for ins in self.cc.GetCaptureActions():
+            self.uid2action.update(ins)
+
 

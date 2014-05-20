@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import redis
+import redis, cPickle
 from config import *
 
 g_cache = redis.StrictRedis(host = HOST_REDIS, port = PORT_REDIS, db=0)
@@ -10,6 +10,7 @@ g_cache.ping()
 class CacheCenter(object):
 
     key_state = "mill:state"    # {(tsid, ssid): pickle_data}
+    key_flag = "mill:flag"      # {(tsid, ssid): pickle_data}
 
     def __init__(self, tsid, ssid):
         self.tsid = tsid
@@ -19,12 +20,19 @@ class CacheCenter(object):
         self.key_rpu = self.prefix + "revived.player.uids"
         self.key_pu = self.prefix + "presenter.uid"
         self.key_pa = self.prefix + "player.answer"
+        self.key_ca = self.prefix + "player.capture.actions"
 
 
     @classmethod
     def GetCacheState(cls):
         return g_cache.hgetall(cls.key_state)
 
+
+    @classmethod
+    def GetCacheFlag(cls):
+        return g_cache.hgetall(cls.key_flag)
+
+    #
 
     def CacheState(self, pickle_data):
         g_cache.hset(self.key_state, (self.tsid, self.ssid), pickle_data)
@@ -50,8 +58,22 @@ class CacheCenter(object):
         g_cache.hset(self.key_pa, uid, answer)
 
 
+    # flag
+    def CacheFlagStatus(self, pickle_data):
+        g_cache.set(self.key_flag, (self.tsid, self.ssid), pickle_data)
+
+
+    def CacheCaptureAction(self, pickle_action):
+        g_cache.lpush(self.key_ca, pickle_action)
+
+    # flag end
+
     def Clear(self):
         g_cache.delete(self.key_lpu, self.key_rpu, self.key_pu, self.key_pa)
+
+
+    def ClearFlag(self):
+        g_cache.delete(self.key_ca)
 
 
     def GetLoginoutedPlayers(self):
@@ -80,5 +102,10 @@ class CacheCenter(object):
         for k, v in ret.iteritems():
             r[int(k)] = int(v)
         return r
+
+
+    def GetCaptureActions(self):
+        ret = g_cache.lrange(self.key_ca, 0, -1)
+        return map(lambda x: cPickle.loads(x), ret)
 
 

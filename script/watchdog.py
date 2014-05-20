@@ -6,6 +6,7 @@ from room import  NewRoom
 from sender import Sender
 from logic_pb2 import L2FSyncGameRoomInfos
 from cache import CacheCenter
+from flag import NewFlagMgr
 
 class WatchDog(Sender):
 
@@ -13,6 +14,7 @@ class WatchDog(Sender):
         Sender.__init__(self, 0, 0)
         self.ssid2room = {}
         self.uid2ssid = {}
+        self.ssid2flag = {}
         self.loadCache()
 
 
@@ -24,6 +26,11 @@ class WatchDog(Sender):
             for uid, _ in room.uid2player.iteritems():
                 self.uid2ssid[uid] = ssid
 
+        for k, v in CacheCenter.GetCacheFlag().iteritems():
+            tsid, ssid = eval(k)
+            f = NewFlagMgr(tsid, ssid, v)
+            self.ssid2flag[tsid] = f
+
 
     def gainRoom(self, tsid, ssid):
         room = self.ssid2room.get(ssid)
@@ -31,6 +38,14 @@ class WatchDog(Sender):
             room = NewRoom(tsid, ssid)
             self.ssid2room[ssid] = room
         return room
+
+
+    def gainFlag(self, tsid, ssid):
+        f = self.ssid2flag.get(ssid)
+        if not f:
+            f = NewFlagMgr(tsid, ssid)
+            self.ssid2flag[ssid] = f
+        return f
 
 
     def toIns(self, dt, uri, data):
@@ -45,9 +60,11 @@ class WatchDog(Sender):
         return "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
 
 
+    # go to next dispatch method when upstream return None
     def Dispatch(self, tsid, ssid, uri, data):
-        if self.globalDispatch(tsid, ssid, uri, data) is None:
-            self.roomDispatch(tsid, ssid, uri, data)
+        for method in (self.globalDispatch, self.roomDispatch, self.captureFlagDispatch):
+            if method(tsid, ssid, uri, data) is not None:
+                break
 
 
     def globalDispatch(self, tsid, ssid, uri, data):
@@ -57,29 +74,34 @@ class WatchDog(Sender):
 
 
     def roomDispatch(self, tsid, ssid, uri, data):
-        ins = self.toIns(URI2CLASS, uri, data)
+        ins = self.toIns(URI2CLASS_ROOM, uri, data)
         if not ins:
-            logging.warning("not exist uri %d" % uri)
+            #logging.warning("not exist uri %d" % uri)
             return
 
         ssid, uid = self.checkInRoom(ins)
         if not ssid:
             logging.debug("not logined %s" % str(ins).replace("\n", ""))
-            return
+            return False
         room = self.gainRoom(tsid, ssid)
         if uid:
             room.SetPing(uid)
         method_name = self.getMethodName(ins)
         logging.debug("--> %d %d %s: %s" % (tsid, ssid, method_name, str(ins).replace("\n", " ")))
-        try:
+        if hasattr(room, method_name):
             method = getattr(room, method_name)
-        except:
-            try:
-                method = getattr(room.state, method_name)
-            except:
-                logging.warning("not exist method: %s" % method_name)
-                return
-        method(ins)
+        elif hasattr(room.state, method_name):
+            method = getattr(room.state, method_name)
+        else:
+            return
+        return method(ins)
+
+
+    def captureFlagDispatch(self, tsid, ssid, uri, data):
+        ins = self.toIns(URI2CLASS_CAPTURE_FLAG, uri, data)
+        if ins:
+            f = self.gainFlag(tsid, ssid)
+            return getattr(f, self.getMethodName(ins))(ins)
 
 
     def checkInRoom(self, ins):

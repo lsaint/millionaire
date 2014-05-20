@@ -370,3 +370,70 @@ message L2CNotifyPreload {
     repeated GameQuestion pre = 1;
 }
 
+/////
+
+enum CaptureAction {
+   Attack = 1; 
+   Heal = 2;
+}
+
+enum FlagAction {
+    Null = 0;           // 无人占领
+    FirstBlood = 1;
+    OwnerChange = 2;
+    Defended = 3;
+}
+
+enum FlagMsgType {
+    Normal = 1;     // 旗帜下方显示区
+    Popup = 2;      // 弹窗
+    PopupUid = 3;   // 带(关注TA)的弹窗
+}
+
+// 139
+message C2LStartCaptureFlag {
+    required User user = 1;   // 白名单检测
+}
+
+// 140
+message L2CStartCaptureFlagRep {
+    required Result ret = 1;
+}
+
+// 141
+message L2CNotifyFlagStatus {
+    required User owner = 1;
+    required uint32 hp = 2;
+    required uint32 maxhp = 3;
+    required FlagAction action = 4;
+    required int32 time = 5;    // action=Defended时,表示下次可夺旗的CD,否者为本次夺旗剩余时间.
+    required string tip = 6;
+}
+
+// 142
+message F2LCaptureAction {
+    required CaptureAction action = 1;
+    required uint32 point = 2;
+    required PayType type = 3;
+    required User user = 4;
+}
+
+// 143
+message L2CNotifyFlagMesssage {
+    required string desc = 1;
+    required FlagMsgType type = 2;
+    optional User user = 3;     // 点击关注此人
+}
+
+// 144
+message F2LFirstBlood {
+    required User user = 1;
+}
+
+// 145
+message L2FFirstBloodRep {
+    required User user = 1;
+    required Result ret = 2;
+}
+
+

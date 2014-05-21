@@ -382,6 +382,7 @@ enum FlagAction {
     FirstBlood = 1;
     OwnerChange = 2;
     Defended = 3;
+    Disable = 4;        // ¶áÆìÉÐÎ´¿ªÆô
 }
 
 enum FlagMsgType {

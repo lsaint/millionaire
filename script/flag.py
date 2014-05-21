@@ -57,7 +57,7 @@ class FlagMgr(Sender):
 
     def __init__(self, tsid, ssid):
         Sender.__init__(self, tsid, ssid)
-        self.done_action = None
+        self.done_action = Disable
         self.timer = Timer()
         self.cc = CacheCenter(tsid, ssid)
         self.start_time = 0
@@ -76,6 +76,10 @@ class FlagMgr(Sender):
 
     def OnStartCaptureFlag(self, ins):
         if not self.checkWhitelist(ins.user.uid):
+            logging.warn("%d not in flag whitelist" % ins.user.uid)
+            return
+        if self.isStarted():
+            logging.debug("flag started")
             return
         self.changeDoneAction(Null)
         self.start_time = time.time()
@@ -129,7 +133,7 @@ class FlagMgr(Sender):
 
 
     def isStarted(self):
-        return self.done_action in (FirstBlood, OwnerChange)
+        return self.done_action != Disable
 
 
     def getaction(self, user):
@@ -209,6 +213,7 @@ class FlagMgr(Sender):
         self.timer.ReleaseTimer()
 
 
+    # not necessary to pickle Disable status
     def pickle(self):
         self.cc.CacheFlagStatus(cPickle.dumps(self))
 

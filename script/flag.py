@@ -8,7 +8,7 @@ from config import *
 from cache import CacheCenter
 
 
-def NewFlagMgr(tsid, ssid, pickle_data):
+def NewFlagMgr(tsid, ssid, pickle_data=None):
     if pickle_data:
         try:
             f = cPickle.loads(pickle_data)
@@ -187,9 +187,9 @@ class FlagMgr(Sender):
 
     def packStatus(self, tip=""):
         pb = L2CNotifyFlagStatus()
-        pb.owner = self.owner
+        pb.owner.MergeFrom(self.owner)
         pb.hp, pb.maxhp = self.hp, FLAG_MAX_HP
-        pb.action = action
+        pb.action = self.done_action
         pb.time = int(time.time() - self.start_time)
         pb.tip = tip
         return pb

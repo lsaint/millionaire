@@ -3,7 +3,7 @@
 import redis, cPickle
 from config import *
 
-g_cache = redis.StrictRedis(host = HOST_REDIS, port = PORT_REDIS, db=0)
+g_cache = redis.StrictRedis(unix_socket_path=UNIX_DOMAIN_REDIS, db=0)
 g_cache.ping()
 
 

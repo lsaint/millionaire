@@ -55,7 +55,12 @@ URI2CLASS_GLOBAL = {
 URI2CLASS_CAPTURE_FLAG = {
         104     :   C2LLogin,
         139     :   C2LStartCaptureFlag,
-        140     :   F2LCaptureAction,
+        140     :   L2CStartCaptureFlagRep,
+        141     :   L2CNotifyFlagStatus,
+        142     :   F2LCaptureAction,
+        143     :   L2CNotifyFlagMesssage,
+        144     :   F2LFirstBlood,
+        145     :   L2FFirstBloodRep,
 }
 
 URI2CLASS = {}

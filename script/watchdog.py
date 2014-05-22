@@ -40,8 +40,8 @@ class WatchDog(Sender):
         return room
 
 
-    def gainFlag(self, uid):
-        ssid = this.uid2ssid[uid]
+    def gainFlag(self, tsid, uid):
+        ssid = self.uid2ssid[uid]
         f = self.ssid2flag.get(ssid)
         if not f:
             f = NewFlagMgr(tsid, ssid)
@@ -101,7 +101,7 @@ class WatchDog(Sender):
     def captureFlagDispatch(self, tsid, ssid, uri, data, uid):
         ins = self.toIns(URI2CLASS_CAPTURE_FLAG, uri, data)
         if ins:
-            f = self.gainFlag(uid)
+            f = self.gainFlag(tsid, uid)
             return getattr(f, self.getMethodName(ins))(ins)
 
 

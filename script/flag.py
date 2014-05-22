@@ -64,6 +64,7 @@ class FlagMgr(Sender):
         self.owner = User()
         self.hp = FLAG_MAX_HP
         self.maxhp = FLAG_MAX_HP
+        self.pre_hp = 0
         self.top1 = None
         self.uid2action = {}
 
@@ -196,7 +197,9 @@ class FlagMgr(Sender):
 
 
     def syncFlagStatus(self):
-        self.Randomcast(self.packStatus())
+        if self.pre_hp != self.hp:
+            self.Randomcast(self.packStatus())
+            self.pre_hp = self.hp
 
 
     def onCaptureTimeup(self):

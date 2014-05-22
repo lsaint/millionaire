@@ -60,7 +60,7 @@ class CacheCenter(object):
 
     # flag
     def CacheFlagStatus(self, pickle_data):
-        g_cache.set(self.key_flag, (self.tsid, self.ssid), pickle_data)
+        g_cache.hset(self.key_flag, (self.tsid, self.ssid), pickle_data)
 
 
     def CacheCaptureAction(self, pickle_action):

@@ -56,7 +56,7 @@ class QuesionPackage(object):
                 q = self.pb_preload.pre.add()
                 q.id  = gq.id
                 q.pic_url = gq.pic_url
-                logging.debug("preloading %d" % q.id)
+                logging.debug("preloading %d %s" % (q.id, q.pic_url))
 
         return True
 

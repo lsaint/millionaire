@@ -83,7 +83,7 @@ class FlagMgr(Sender):
             return
         self.changeDoneAction(Null)
         self.start_time = time.time()
-        s = "当前战旗无主，最先投入Y币夺旗的用户将获得战旗的拥有权。"
+        s = u"当前战旗无主，最先投入Y币夺旗的用户将获得战旗的拥有权。"
         self.notifyStatus(s)
         self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLG_INTERVAL, self.syncFlagStatus)
@@ -95,8 +95,8 @@ class FlagMgr(Sender):
         if self.owner.uid != 0:
             self.owner = ins.user
             rep.ret = OK
-            s = "恭喜%s抢先一步，获得战旗。%s" % (ins.user.name,
-                                "其他用户可对战旗发起攻击或守护，战旗被攻破后贡献最高者将夺得战旗")
+            s = u"恭喜%s抢先一步，获得战旗。%s" % (ins.user.name,
+                                u"其他用户可对战旗发起攻击或守护，战旗被攻破后贡献最高者将夺得战旗")
             self.changeDoneAction(FirstBlood)
             self.notifyStatus(s)
         else:
@@ -113,9 +113,9 @@ class FlagMgr(Sender):
         pb = L2CNotifyFlagMesssage()
         if t != self.checkAttackTop1(a):
             if not t:
-                s = "本次攻防战伤害最高者: %s" % a.Name()
+                s = u"本次攻防战伤害最高者: %s" % a.Name()
             else:
-                s = "当前夺旗攻防战中，%s超越%s，对战旗伤害最高。" % (a.Name(), t.Name())
+                s = u"当前夺旗攻防战中，%s超越%s，对战旗伤害最高。" % (a.Name(), t.Name())
         pb.desc = s
         pb.type = Normal
         self.Randomcast(pb)
@@ -164,7 +164,7 @@ class FlagMgr(Sender):
             return
         pb = L2CNotifyFlagMesssage()
         pb.type = Popup
-        pb.desc = "本次战旗争夺中，你一共花费了%dYB, 获得了%d白银的返还奖励。" % (ypoint/10, re)
+        pb.desc = u"本次战旗争夺中，你一共花费了%dYB, 获得了%d白银的返还奖励。" % (ypoint/10, re)
         self.Unicast(pb, uid)
 
 
@@ -176,7 +176,7 @@ class FlagMgr(Sender):
             self.owner = ins.user
             self.hp = FLAG_MAX_HP
             self.changeDoneAction(OwnerChange)
-            s = "恭喜%s在攻防战中战果累累，打败%s获得战旗，大家祝贺TA！" % (t.name, self.owner.name)
+            s = u"恭喜%s在攻防战中战果累累，打败%s获得战旗，大家祝贺TA！" % (t.name, self.owner.name)
             self.notifyStatus(s)
             self.settle()
         if ins.action == Heal:
@@ -203,10 +203,10 @@ class FlagMgr(Sender):
         self.changeDoneAction(Defended)
         s = ""
         if self.owner.uid != 0:
-            s = "恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
+            s = u"恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
             pb = L2CNotifyFlagMesssage()
             pb.type = Popup
-            pb.desc = "恭喜你最终成功守护战旗，你将获得7天的战旗拥有权，以及71频道的独家冠名权。"
+            pb.desc = u"恭喜你最终成功守护战旗，你将获得7天的战旗拥有权，以及71频道的独家冠名权。"
             self.Unicast(pb, self.owner.uid)
         self.notifyStatus(s)
         self.settle()

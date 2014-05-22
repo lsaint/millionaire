@@ -119,10 +119,11 @@ class FlagMgr(Sender):
         if t != self.checkAttackTop1(a):
             if not t:
                 s = u"本次攻防战伤害最高者: %s" % a.Name()
+                pb.type = Top
             else:
                 s = u"当前夺旗攻防战中，%s超越%s，对战旗伤害最高。" % (a.Name(), t.Name())
+                pb.type = Normal
         pb.desc = s
-        pb.type = Normal
         self.Randomcast(pb)
 
         self.capturing(ins)

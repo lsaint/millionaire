@@ -389,6 +389,7 @@ enum FlagMsgType {
     Normal = 1;     // 旗帜下方显示区
     Popup = 2;      // 弹窗
     PopupUid = 3;   // 带(关注TA)的弹窗
+    Top = 4;        // 最高伤害 显示在Normal上方
 }
 
 // 139

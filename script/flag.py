@@ -76,12 +76,16 @@ class FlagMgr(Sender):
 
 
     def OnStartCaptureFlag(self, ins):
+        pb = L2CStartCaptureFlagRep()
+        pb.ret = FL
         if not self.checkWhitelist(ins.user.uid):
             logging.warn("%d not in flag whitelist" % ins.user.uid)
             return
         if self.isStarted():
             logging.debug("flag started")
             return
+        pb.ret = OK
+        self.Unicast(pb, ins.user.uid)
         self.changeDoneAction(Null)
         self.start_time = time.time()
         s = u"当前战旗无主，最先投入Y币夺旗的用户将获得战旗的拥有权。"

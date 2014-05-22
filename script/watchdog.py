@@ -29,7 +29,7 @@ class WatchDog(Sender):
         for k, v in CacheCenter.GetCacheFlag().iteritems():
             tsid, ssid = eval(k)
             f = NewFlagMgr(tsid, ssid, v)
-            self.ssid2flag[tsid] = f
+            self.ssid2flag[ssid] = f
 
 
     def gainRoom(self, tsid, ssid):
@@ -40,7 +40,8 @@ class WatchDog(Sender):
         return room
 
 
-    def gainFlag(self, tsid, ssid):
+    def gainFlag(self, uid):
+        ssid = this.uid2ssid[uid]
         f = self.ssid2flag.get(ssid)
         if not f:
             f = NewFlagMgr(tsid, ssid)
@@ -61,19 +62,19 @@ class WatchDog(Sender):
 
 
     # go to next dispatch method when upstream return None
-    def Dispatch(self, tsid, ssid, uri, data):
+    def Dispatch(self, tsid, ssid, uri, data, uid):
         for method in (self.globalDispatch, self.roomDispatch, self.captureFlagDispatch):
-            if method(tsid, ssid, uri, data) is not None:
+            if method(tsid, ssid, uri, data, uid) is not None:
                 break
 
 
-    def globalDispatch(self, tsid, ssid, uri, data):
+    def globalDispatch(self, tsid, ssid, uri, data, uid):
         ins = self.toIns(URI2CLASS_GLOBAL, uri, data)
         if ins:
             return getattr(self, self.getMethodName(ins))(ins)
 
 
-    def roomDispatch(self, tsid, ssid, uri, data):
+    def roomDispatch(self, tsid, ssid, uri, data, uid):
         ins = self.toIns(URI2CLASS_ROOM, uri, data)
         if not ins:
             #logging.warning("not exist uri %d" % uri)
@@ -97,10 +98,10 @@ class WatchDog(Sender):
         return method(ins)
 
 
-    def captureFlagDispatch(self, tsid, ssid, uri, data):
+    def captureFlagDispatch(self, tsid, ssid, uri, data, uid):
         ins = self.toIns(URI2CLASS_CAPTURE_FLAG, uri, data)
         if ins:
-            f = self.gainFlag(tsid, ssid)
+            f = self.gainFlag(uid)
             return getattr(f, self.getMethodName(ins))(ins)
 
 

@@ -109,7 +109,7 @@ func (this *Gate) unpack(b []byte) (msg *proto.GateInPack, err error) {
 		if fp.GetUid() != 0 {
 			this.uid2fid[fp.GetUid()] = fp.GetFid()
 		}
-		msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid, Uri: fp.Uri, Bin: fp.Bin}
+		msg = &proto.GateInPack{Tsid: fp.Tsid, Ssid: fp.Ssid, Uri: fp.Uri, Bin: fp.Bin, Uid: fp.Uid}
 	} else {
 		log.Println("[Error]pb Unmarshal FrontendPack", err)
 	}

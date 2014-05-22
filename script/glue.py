@@ -14,10 +14,10 @@ from config import *
 
 
 
-def OnProto(tsid, ssid, uri, data):
+def OnProto(tsid, ssid, uri, data, uid):
     #logging.debug("OnProto--> tsid:%s ssid:%s uri:%d len:%d" % (tsid, ssid, uri, len(data)))
     try:
-        watchdog.Dispatch(tsid, ssid, uri, data)
+        watchdog.Dispatch(tsid, ssid, uri, data, uid)
     except Exception as err:
         logging.error("%s-%s" % ("OnProto", traceback.format_exc()))
 

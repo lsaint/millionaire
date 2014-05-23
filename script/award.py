@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 
-import md5, json, time, logging
+import md5, json, time, logging, random
 from post import PostAsync, GetPostSn
 from config import *
 
@@ -111,4 +111,26 @@ class AwardChecker(object):
         logging.info("S-GOLD %s %d" % (self.mid, len(winners)*bounty))
 
 
+
+def VmAddSilver(uid, money):
+    product = VM_PRODUCT
+    money_type = 2
+    add_time = time.strftime("%Y%m%d%H%M%S")
+    desc = "millionaire-flag-restitution"
+    orderid = "%s%d%s" % (add_time, VM_APPID, random.sample(desc+add_time, 7))
+    sign = md5.new("%d%s%d%d%d%s%s%s%s" % (uid, orderid, money, money_type,
+                            VM_APPID, product, add_time, desc, VM_KEY)).hexdigest()
+    dt = { "uid": uid,
+            "orderid": orderid,
+            "money": money,
+            "appid": VM_APPID,
+            "money_type": money_type,
+            "product": product,
+            "add_time": add_time,
+            "desc": desc,
+            "sign": sign}
+    jn = json.dumps(dt)
+    def done(sn, ret):
+        logging.info("VM_ADD_SILVER %d %d, ret: %s" % (uid, money, ret))
+    PostAsync(VM_ADD_SILVER, jn, done)
 

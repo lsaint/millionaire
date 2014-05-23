@@ -6,6 +6,7 @@ from logic_pb2 import *
 from timer import Timer
 from config import *
 from cache import CacheCenter
+from award import VmAddSilver
 
 
 def NewFlagMgr(tsid, ssid, pickle_data=None):
@@ -97,7 +98,7 @@ class FlagMgr(Sender):
     def OnFirstBlood(self, ins):
         rep = L2FFirstBloodRep()
         rep.user.uid = ins.user.uid
-        if self.owner.uid != 0:
+        if self.owner.uid == 0:
             self.owner = ins.user
             rep.ret = OK
             s = u"恭喜%s抢先一步，获得战旗。%s" % (ins.user.name,
@@ -172,6 +173,7 @@ class FlagMgr(Sender):
         pb.type = Popup
         pb.desc = u"本次战旗争夺中，你一共花费了%dYB, 获得了%d白银的返还奖励。" % (ypoint/10, re)
         self.Unicast(pb, uid)
+        VmAddSilver(uid, re)
 
 
     def capturing(self, ins):

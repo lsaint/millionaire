@@ -34,8 +34,8 @@ class CaptureAction(object):
         self.paytype2point = {YB: 0, SILVER: 0}
 
 
-    def __cmp__(self, other):
-        return self.action2hp[Attack].__cmp__(other.action2hp[Attack])
+    def AttackGt(self, other):
+        return (not ohter) or (self.action2hp[Attack] >= other.action2hp[Attack])
 
 
     def __str__(self):
@@ -155,7 +155,7 @@ class FlagMgr(Sender):
 
 
     def checkAttackTop1(self, a):
-        if not self.top1 or a > self.top1:
+        if a.AttackGt(self.top1):
             self.top1 = a
         return self.top1
 

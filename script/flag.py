@@ -35,7 +35,7 @@ class CaptureAction(object):
 
 
     def AttackGt(self, other):
-        return (not ohter) or (self.action2hp[Attack] >= other.action2hp[Attack])
+        return (not other) or (self.action2hp[Attack] >= other.action2hp[Attack])
 
 
     def __str__(self):

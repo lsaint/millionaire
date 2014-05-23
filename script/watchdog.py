@@ -101,8 +101,10 @@ class WatchDog(Sender):
     def captureFlagDispatch(self, tsid, ssid, uri, data, uid):
         ins = self.toIns(URI2CLASS_CAPTURE_FLAG, uri, data)
         if ins:
+            n = self.getMethodName(ins)
+            logging.debug("--> %d %d %s: %s" % (tsid, ssid, n, str(ins).replace("\n", " ")))
             f = self.gainFlag(tsid, uid)
-            return getattr(f, self.getMethodName(ins))(ins)
+            return getattr(f, n)(ins)
 
 
     def checkInRoom(self, ins):

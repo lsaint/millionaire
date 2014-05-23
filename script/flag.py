@@ -111,6 +111,9 @@ class FlagMgr(Sender):
 
 
     def OnCaptureAction(self, ins):
+        if not self.owner:
+            logging.debug("capture aciton on None owner")
+            return
         a = self.getaction(ins.user)
         a.update(ins)
         self.cc.CacheCaptureAction(cPickle.dumps(ins))
@@ -124,8 +127,8 @@ class FlagMgr(Sender):
             else:
                 s = u"当前夺旗攻防战中，%s超越%s，对战旗伤害最高。" % (a.Name(), t.Name())
                 pb.type = Normal
-        pb.desc = s
-        self.Randomcast(pb)
+            pb.desc = s
+            self.Randomcast(pb)
 
         self.capturing(ins)
 

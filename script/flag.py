@@ -38,6 +38,10 @@ class CaptureAction(object):
         return self.action2hp[Attack].__cmp__(other.action2hp[Attack])
 
 
+    def __str__(self):
+        return "CaptureAction: %s %s %s" % (self.user, self.action2hp, self.paytype2point)
+
+
     def update(self, ins):
         self.action2hp[ins.action] += ins.point
         self.paytype2point[ins.type] += ins.point

@@ -124,7 +124,7 @@ class FlagMgr(Sender):
 
         t, s = self.top1, ""
         pb = L2CNotifyFlagMesssage()
-        if t != self.checkAttackTop1(a):
+        if ins.action == Attack and t != self.checkAttackTop1(a):
             if not t:
                 s = u"本次攻防战伤害最高者: %s" % a.Name()
                 pb.type = Top

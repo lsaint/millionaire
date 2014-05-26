@@ -115,8 +115,8 @@ class FlagMgr(Sender):
 
 
     def OnCaptureAction(self, ins):
-        if not self.owner:
-            logging.debug("capture aciton on None owner")
+        if self.done_action not in (FirstBlood, OwnerChange):
+            logging.debug("capture aciton on err status: %s" % self.done_action)
             return
         a = self.getaction(ins.user)
         a.update(ins)

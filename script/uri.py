@@ -6,11 +6,13 @@ from server_pb2 import *
 
 
 URI2CLASS_ROOM = {
+        104     :   C2LLogin,
+        110     :   F2LNotifyMic1,
+
         100     :   C2LMatchInfo,
         101     :   L2CMatchInfoRep,
         102     :   C2LStartMatch,
         103     :   L2CNotifyMatchInfo,
-        104     :   C2LLogin,
         105     :   L2CLoginRep,
         106     :   C2LTimeSync,
         107     :   L2CTimeSyncRep,

@@ -185,14 +185,14 @@ class FlagMgr(Sender):
 
 
     def capturing(self, ins):
-        if ins.action == Attack:
+        if ins.action == Attack and ins.user.uid != self.owner.uid:
             self.hp -= ins.point
         if self.hp <= 0:
-            t = self.owner
-            self.owner = ins.user
-            self.hp = FLAG_MAX_HP
-            self.changeDoneAction(OwnerChange)
+            t = self.top1.user
             s = u"恭喜%s在攻防战中战果累累，打败%s获得战旗，大家祝贺TA！" % (t.name, self.owner.name)
+            self.hp = FLAG_MAX_HP
+            self.owner.MergeFrom(t.user)
+            self.changeDoneAction(OwnerChange)
             self.notifyStatus(s)
             self.settle()
         if ins.action == Heal:
@@ -206,7 +206,7 @@ class FlagMgr(Sender):
         pb.owner.MergeFrom(self.owner)
         pb.hp, pb.maxhp = self.hp, FLAG_MAX_HP
         pb.action = self.done_action
-        pb.time = int(time.time() - self.start_time)
+        pb.time = int(CAPTURE_TIME - (time.time() - self.start_time))
         pb.tip = tip
         return pb
 

@@ -98,8 +98,8 @@ class FlagMgr(Sender):
         self.Unicast(pb, ins.user.uid)
         self.changeDoneAction(Null)
         self.start_time = time.time()
-        s = u"当前战旗无主，最先投入Y币夺旗的用户将获得战旗的拥有权。"
-        self.notifyStatus(s)
+        #s = u"当前战旗无主，最先投入Y币夺旗的用户将获得战旗的拥有权。"
+        self.notifyStatus()
         self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
 
@@ -178,7 +178,7 @@ class FlagMgr(Sender):
         return self.top1
 
 
-    def notifyStatus(self, s):
+    def notifyStatus(self, s=""):
         self.Broadcast(self.packStatus(s))
 
 

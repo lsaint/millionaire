@@ -52,6 +52,10 @@ class CaptureAction(object):
         return self.user.name
 
 
+    def Uid(self):
+        return self.user.uid
+
+
     def GetRestitution(self):
         ypoint = self.paytype2point[YB]
         if ypoint != 0:
@@ -71,7 +75,7 @@ class FlagMgr(Sender):
         self.hp = FLAG_MAX_HP
         self.maxhp = FLAG_MAX_HP
         self.pre_hp = 0
-        self.top1 = None
+        self.top1 = None        # top1's capture action ins
         self.uid2action = {}
 
 
@@ -122,26 +126,35 @@ class FlagMgr(Sender):
         a = self.getaction(ins.user)
         a.update(ins)
         self.cc.CacheCaptureAction(cPickle.dumps(ins))
+        logging.debug("self.uid2action" % self.uid2action)
 
         t, s = self.top1, ""
-        pb = L2CNotifyFlagMesssage()
         if ins.action == Attack and t != self.checkAttackTop1(a):
-            if not t:
-                s = u"本次攻防战伤害最高者: %s" % a.Name()
-                pb.type = Top
-            else:
-                s = u"当前夺旗攻防战中，%s超越%s，对战旗伤害最高。" % (a.Name(), t.Name())
-                pb.type = Normal
-            pb.desc = s
-            self.Randomcast(pb)
+            self.notifyTopAttack(a.Name())
+            if t:
+                self.notifyFlagMessage(Normal, s)
 
         self.capturing(ins)
 
 
     def OnLogin(self, ins):
         self.Unicast(self.packStatus(), ins.user.uid)
+        if self.top1:
+            self.notifyTopAttack(self.top1.Name(), ins.user.uid)
 
 ### 
+
+    def notifyFlagMessage(self, type, desc, target_uid=None, uid=None):
+        pb = L2CNotifyFlagMesssage()
+        pb.type = type
+        pb.desc = desc
+        pb.user.uid = target_uid
+        self.UniOrRandomcast(pb, uid)
+
+
+    def notifyTopAttack(self, name, uid=None):
+        self.notifyFlagMessage(Top, u"本次攻防战伤害最高者: %s" % name, None, uid)
+
 
     def checkWhitelist(self, uid):
         return True
@@ -177,10 +190,8 @@ class FlagMgr(Sender):
         ypoint, re = action.GetRestitution()
         if re == 0:
             return
-        pb = L2CNotifyFlagMesssage()
-        pb.type = Popup
-        pb.desc = u"本次战旗争夺中，你一共花费了%dYB, 获得了%d白银的返还奖励。" % (ypoint/10, re)
-        self.Unicast(pb, uid)
+        s = u"本次战旗争夺中，你一共花费了%dYB, 获得了%d白银的返还奖励。" % (ypoint/10, re)
+        self.notifyFlagMessage(Popup, s, None, uid)
         VmAddSilver(uid, re)
 
 
@@ -221,11 +232,9 @@ class FlagMgr(Sender):
         self.changeDoneAction(Defended)
         s = ""
         if self.owner.uid != 0:
+            s2 = u"恭喜你最终成功守护战旗，你将获得7天的战旗拥有权，以及71频道的独家冠名权。"
+            self.notifyFlagMessage(Popup, s2, None, self.owner.uid)
             s = u"恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
-            pb = L2CNotifyFlagMesssage()
-            pb.type = Popup
-            pb.desc = u"恭喜你最终成功守护战旗，你将获得7天的战旗拥有权，以及71频道的独家冠名权。"
-            self.Unicast(pb, self.owner.uid)
         self.notifyStatus(s)
         self.settle()
         self.timer.ReleaseTimer()

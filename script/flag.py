@@ -188,6 +188,7 @@ class FlagMgr(Sender):
                 continue
             self.makeRestitution(uid, action)
         self.uid2action = {}
+        self.top1 = None
 
 
     def makeRestitution(self, uid, action):

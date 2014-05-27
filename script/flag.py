@@ -88,10 +88,10 @@ class FlagMgr(Sender):
 
     def getCountTime(self):
         elapse = int(time.time() - self.start_time)
-        if elapse > (CAPTURE_TIME + NEXT_CAPTURE_CD):
+        if elapse >= (CAPTURE_TIME + NEXT_CAPTURE_CD):
             # waitting for enable
             return 0, 0
-        elif elapse > CAPTURE_TIME:
+        elif elapse >= CAPTURE_TIME:
             # captured CD 
             return NEXT_CAPTURE_CD - (elapse - CAPTURE_TIME), -1
         else:

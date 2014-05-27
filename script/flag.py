@@ -101,7 +101,7 @@ class FlagMgr(Sender):
         s = u"当前战旗无主，最先投入Y币夺旗的用户将获得战旗的拥有权。"
         self.notifyStatus(s)
         self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
-        self.timer.SetTimer(SYNC_FLG_INTERVAL, self.syncFlagStatus)
+        self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
 
 
     def OnFirstBlood(self, ins):
@@ -123,7 +123,7 @@ class FlagMgr(Sender):
         if self.done_action not in (FirstBlood, OwnerChange):
             logging.debug("capture aciton on err status: %s" % self.done_action)
             return
-        a = self.getaction(ins.user)
+        a = self.gainaction(ins.user)
         a.update(ins)
         self.cc.CacheCaptureAction(cPickle.dumps(ins))
         logging.debug("self.uid2action %s" % self.uid2action)
@@ -164,8 +164,12 @@ class FlagMgr(Sender):
         return self.done_action != Disable
 
 
-    def getaction(self, user):
-        return self.uid2action.get(user.uid) or CaptureAction(user)
+    def gainaction(self, user):
+        action = self.uid2action.get(user.uid)
+        if not action:
+            action = CaptureAction(user)
+            self.uid2action[user.uid] = action
+        return action
 
 
     def checkAttackTop1(self, a):

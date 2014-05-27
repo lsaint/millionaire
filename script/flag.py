@@ -126,7 +126,7 @@ class FlagMgr(Sender):
         a = self.getaction(ins.user)
         a.update(ins)
         self.cc.CacheCaptureAction(cPickle.dumps(ins))
-        logging.debug("self.uid2action" % self.uid2action)
+        logging.debug("self.uid2action %s" % self.uid2action)
 
         t, s = self.top1, ""
         if ins.action == Attack and t != self.checkAttackTop1(a):
@@ -148,7 +148,7 @@ class FlagMgr(Sender):
         pb = L2CNotifyFlagMesssage()
         pb.type = type
         pb.desc = desc
-        pb.user.uid = target_uid
+        pb.user.uid = target_uid or 0
         self.UniOrRandomcast(pb, uid)
 
 
@@ -252,7 +252,7 @@ class FlagMgr(Sender):
             return
         else:
             self.timer.SetTimer1(CAPTURE_TIME - elapse, self.onCaptureTimeup)
-        self.timer.SetTimer(SYNC_FLG_INTERVAL, self.syncFlagStatus)
+        self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
 
         for ins in self.cc.GetCaptureActions():
             self.uid2action.update(ins)

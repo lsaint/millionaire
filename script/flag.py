@@ -206,7 +206,7 @@ class FlagMgr(Sender):
             t = self.top1.user
             s = u"恭喜%s在攻防战中战果累累，打败%s获得战旗，大家祝贺TA！" % (t.name, self.owner.name)
             self.hp = FLAG_MAX_HP
-            self.owner.MergeFrom(t.user)
+            self.owner.MergeFrom(t)
             self.changeDoneAction(OwnerChange)
             self.notifyStatus(s)
             self.settle()

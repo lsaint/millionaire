@@ -128,6 +128,8 @@ class FlagMgr(Sender):
                                 u"其他用户可对战旗发起攻击或守护，战旗被攻破后贡献最高者将夺得战旗")
             self.changeDoneAction(FirstBlood)
             self.notifyStatus(s)
+            p = u"%s 干脆利落，才出手就夺得战旗，真是英勇无畏！" % self.owner.name
+            self.notifyFlagMessage(PopupUid, p, self.owner.uid)
         else:
             rep.ret = FL
         self.Unicast(rep, rep.user.uid)

@@ -87,15 +87,16 @@ class FlagMgr(Sender):
 
 
     def getCountTime(self):
-        # capturing remain time
-        t = int(CAPTURE_TIME - (time.time() - self.start_time))
-        if t < 0:
+        elapse = int(time.time() - self.start_time)
+        if elapse > (CAPTURE_TIME + NEXT_CAPTURE_CD):
+            # waitting for enable
+            return 0, 0
+        elif elapse > CAPTURE_TIME:
             # captured CD 
-            t = int(NEXT_CAPTURE_CD - (time.time() - self.start_time))
-            if t < 0:
-                # waitting for enable
-                t = 0
-        return t
+            return NEXT_CAPTURE_CD - (elapse - CAPTURE_TIME), -1
+        else:
+            # capturing remain time
+            return CAPTURE_TIME - elapse, 1
 
 
     def OnStartCaptureFlag(self, ins):
@@ -235,7 +236,7 @@ class FlagMgr(Sender):
         pb.owner.MergeFrom(self.owner)
         pb.hp, pb.maxhp = self.hp, FLAG_MAX_HP
         pb.action = self.done_action
-        pb.time = self.getCountTime()
+        pb.time = self.getCountTime()[0]
         pb.tip = tip
         return pb
 
@@ -256,7 +257,7 @@ class FlagMgr(Sender):
         self.notifyStatus(s)
         self.settle()
         #self.timer.ReleaseTimer()
-        self.timer.SetTimer1(self.getCountTime(), self.onNextCaptureCD)
+        self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)
 
 
     def onNextCaptureCD(self):
@@ -269,14 +270,14 @@ class FlagMgr(Sender):
 
 
     def goon(self):
-        elapse = int(time.time() - self.start_time)
-        if elapse >= NEXT_CAPTURE_CD:
+        t, c = self.getCountTime()
+        if c == 0:
             return
-        elif elapse < NEXT_CAPTURE_CD and elapse >= CAPTURE_TIME :
-            self.onCaptureTimeup()
+        elif c < 0:
+            self.onNextCaptureCD()
             return
-        else:
-            self.timer.SetTimer1(CAPTURE_TIME - elapse, self.onCaptureTimeup)
+
+        self.timer.SetTimer1(t, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
 
         for ins in self.cc.GetCaptureActions():

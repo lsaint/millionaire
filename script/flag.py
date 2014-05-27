@@ -80,9 +80,22 @@ class FlagMgr(Sender):
 
 
     def changeDoneAction(self, a):
+        logging.info("FLAG done action %s --> %s" % (self.done_action, a))
         self.done_action = a
         self.cc.ClearFlag()
         self.pickle()
+
+
+    def getCountTime(self):
+        # capturing remain time
+        t = int(CAPTURE_TIME - (time.time() - self.start_time))
+        if t < 0:
+            # captured CD 
+            t = int(NEXT_CAPTURE_CD - (time.time() - self.start_time))
+            if t < 0:
+                # waitting for enable
+                t = 0
+        return t
 
 
     def OnStartCaptureFlag(self, ins):
@@ -92,7 +105,7 @@ class FlagMgr(Sender):
             logging.warn("%d not in flag whitelist" % ins.user.uid)
             return
         if self.isStarted():
-            logging.debug("flag started")
+            logging.debug("flag started %s" % self.done_action)
             return
         pb.ret = OK
         self.Unicast(pb, ins.user.uid)
@@ -222,7 +235,7 @@ class FlagMgr(Sender):
         pb.owner.MergeFrom(self.owner)
         pb.hp, pb.maxhp = self.hp, FLAG_MAX_HP
         pb.action = self.done_action
-        pb.time = int(CAPTURE_TIME - (time.time() - self.start_time))
+        pb.time = self.getCountTime()
         pb.tip = tip
         return pb
 
@@ -242,7 +255,12 @@ class FlagMgr(Sender):
             s = u"恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
         self.notifyStatus(s)
         self.settle()
-        self.timer.ReleaseTimer()
+        #self.timer.ReleaseTimer()
+        self.timer.SetTimer1(self.getCountTime(), self.onNextCaptureCD)
+
+
+    def onNextCaptureCD(self):
+        self.changeDoneAction(Disable)
 
 
     # not necessary to pickle Disable status
@@ -252,7 +270,9 @@ class FlagMgr(Sender):
 
     def goon(self):
         elapse = int(time.time() - self.start_time)
-        if  elapse >= CAPTURE_TIME:
+        if elapse >= NEXT_CAPTURE_CD:
+            return
+        elif elapse < NEXT_CAPTURE_CD and elapse >= CAPTURE_TIME :
             self.onCaptureTimeup()
             return
         else:

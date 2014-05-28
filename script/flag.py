@@ -112,7 +112,6 @@ class FlagMgr(Sender):
         self.Unicast(pb, ins.user.uid)
         self.changeDoneAction(Null)
         self.start_time = time.time()
-        #s = u"当前战旗无主，最先投入Y币夺旗的用户将获得战旗的拥有权。"
         self.notifyStatus()
         self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
@@ -258,7 +257,6 @@ class FlagMgr(Sender):
             s = u"恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
         self.notifyStatus(s)
         self.settle()
-        #self.timer.ReleaseTimer()
         self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)
 
 

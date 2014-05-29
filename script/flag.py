@@ -253,10 +253,13 @@ class FlagMgr(Sender):
         self.changeDoneAction(Defended)
         s = ""
         if self.owner.uid != 0:
-            s2 = u"恭喜你最终成功守护战旗，你将获得7天的战旗拥有权，以及71频道的独家冠名权。"
-            self.notifyFlagMessage(Popup, s2, None, self.owner.uid)
+            s = u"恭喜你最终成功守护战旗，你将获得7天的战旗拥有权，以及71频道的独家冠名权。"
+            self.notifyFlagMessage(Popup, s, None, self.owner.uid)
             s = u"恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
             self.notifyFlagMessage(PopupUid, s, self.owner.uid)
+        else:
+            s = u"夺旗结束，各路大侠摩拳擦掌准备着下一轮的战斗，好像即将上演！"
+            self.notifyFlagMessage(Popup, s)
         self.notifyStatus()
         self.settle()
         self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)

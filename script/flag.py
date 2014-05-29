@@ -221,10 +221,11 @@ class FlagMgr(Sender):
         if self.hp <= 0:
             t = self.top1.user
             s = u"恭喜%s在攻防战中战果累累，打败%s获得战旗，大家祝贺TA！" % (t.name, self.owner.name)
+            self.notifyFlagMessage(PopupUid, s, t.uid)
             self.hp = FLAG_MAX_HP
             self.owner.MergeFrom(t)
             self.changeDoneAction(OwnerChange)
-            self.notifyStatus(s)
+            self.notifyStatus()
             self.settle()
         if ins.action == Heal:
             self.hp += ins.point
@@ -255,7 +256,8 @@ class FlagMgr(Sender):
             s2 = u"恭喜你最终成功守护战旗，你将获得7天的战旗拥有权，以及71频道的独家冠名权。"
             self.notifyFlagMessage(Popup, s2, None, self.owner.uid)
             s = u"恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
-        self.notifyStatus(s)
+            self.notifyFlagMessage(PopupUid, s, self.owner.uid)
+        self.notifyStatus()
         self.settle()
         self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)
 

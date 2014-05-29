@@ -258,7 +258,7 @@ class FlagMgr(Sender):
             s = u"恭喜%s在战旗攻防战中一夫当关，坚持到最后，大家祝贺TA！" % self.owner.name
             self.notifyFlagMessage(PopupUid, s, self.owner.uid)
         else:
-            s = u"夺旗结束，各路大侠摩拳擦掌准备着下一轮的战斗，好像即将上演！"
+            s = u"夺旗结束，各路大侠摩拳擦掌准备着下一轮的战斗，好戏即将上演！"
             self.notifyFlagMessage(Popup, s)
         self.notifyStatus()
         self.settle()

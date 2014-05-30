@@ -129,6 +129,8 @@ class FlagMgr(Sender):
             self.notifyStatus(s)
             p = u"%s 干脆利落，才出手就夺得战旗，真是英勇无畏！" % self.owner.name
             self.notifyFlagMessage(PopupUid, p, self.owner.uid)
+            s = u"恭喜你成功夺得战旗！"
+            self.notifyFlagMessage(Popup, s, None, self.owner.uid)
         else:
             rep.ret = FL
         self.Unicast(rep, rep.user.uid)

@@ -52,19 +52,19 @@ class MatchMgr(object):
 
 
     def doneLoadMatch(self, sn, jn_match):
-        #try:
-        lt = json.loads(jn_match)
-        self.matchs = {}
-        for m in lt:
-            match = self.loadMatch(m)
-            qpackage = QuesionPackage()
-            sn = qpackage.Load(match.pid, self.doneLoadMatchAndQuestion)
-            self.qpackages[match.pid] = qpackage
-            self.qsn2match[sn] = match
-            #self.matchs[m["id"]] = 
-            logging.debug("match %d loaded, waitting for load qpackage %d" % (match.id, match.pid))
-        #except:
-        #    logging.error("load match error: %s" % jn_match)
+        try:
+            lt = json.loads(jn_match)
+            self.matchs = {}
+            for m in lt:
+                match = self.loadMatch(m)
+                qpackage = QuesionPackage()
+                sn = qpackage.Load(match.pid, self.doneLoadMatchAndQuestion)
+                self.qpackages[match.pid] = qpackage
+                self.qsn2match[sn] = match
+                #self.matchs[m["id"]] = 
+                logging.debug("match %d loaded, loading qpackage %d." % (match.id, match.pid))
+        except:
+            logging.error("load match error: %s" % jn_match)
 
 
     def doneLoadPreview(self, sn, jn_preview):

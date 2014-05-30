@@ -145,10 +145,11 @@ class FlagMgr(Sender):
         self.cc.CacheCaptureAction(cPickle.dumps(ins))
         logging.debug("self.uid2action %s" % self.uid2action)
 
-        t, s = self.top1, ""
+        t = self.top1
         if ins.action == Attack and t != self.checkAttackTop1(a):
             self.notifyTopAttack(a.Name())
             if t:
+                s = u"当前夺旗攻防战中，%s超越%s，对战旗伤害最高。" % (a.Name(), t.Name())
                 self.notifyFlagMessage(Normal, s)
 
         self.capturing(ins)

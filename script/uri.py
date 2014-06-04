@@ -63,6 +63,7 @@ URI2CLASS_CAPTURE_FLAG = {
         143     :   L2CNotifyFlagMesssage,
         144     :   F2LFirstBlood,
         145     :   L2FFirstBloodRep,
+        146     :   L2CNotifyMoneyChange,
 }
 
 URI2CLASS = {}

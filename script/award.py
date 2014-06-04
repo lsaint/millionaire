@@ -112,7 +112,7 @@ class AwardChecker(object):
 
 
 
-def VmAddSilver(uid, money):
+def VmAddSilver(uid, money, done):
     product = VM_PRODUCT
     money_type = 2
     add_time = time.strftime("%Y%m%d%H%M%S")
@@ -130,7 +130,7 @@ def VmAddSilver(uid, money):
             "desc": desc,
             "sign": sign}
     jn = json.dumps(dt)
-    def done(sn, ret):
-        logging.info("VM_ADD_SILVER %d %d, ret: %s" % (uid, money, ret))
+    #def done(sn, ret):
+    #    logging.info("VM_ADD_SILVER %d %d, ret: %s" % (uid, money, ret))
     PostAsync(VM_ADD_SILVER, jn, done)
 

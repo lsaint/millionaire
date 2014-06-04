@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, cPickle, logging
+import time, cPickle, logging, json
 from sender import Sender
 from logic_pb2 import *
 from timer import Timer
@@ -105,7 +105,7 @@ class FlagMgr(Sender):
         if not self.checkWhitelist(ins.user.uid):
             logging.warn("%d not in flag whitelist" % ins.user.uid)
             return
-        if self.isStarted():
+        if not self.canBeStart():
             logging.debug("flag started %s" % self.done_action)
             return
         pb.ret = OK
@@ -178,8 +178,8 @@ class FlagMgr(Sender):
         return True
 
 
-    def isStarted(self):
-        return self.done_action != Disable
+    def canBeStart(self):
+        return self.done_action == Disable and self.getCountTime()[0] == 0
 
 
     def gainaction(self, user):
@@ -215,7 +215,17 @@ class FlagMgr(Sender):
             return
         s = u"本次战旗争夺中，你一共花费了%dYB, 获得了%d白银的返还奖励。" % (ypoint/10, re)
         self.notifyFlagMessage(Popup, s, None, uid)
-        VmAddSilver(uid, re)
+
+        def done(sn, ret):
+            logging.info("VM_ADD_SILVER %d %d, ret: %s" % (uid, re, ret))
+            dt = json.loads(ret)
+            if dt["op_ret"] == 1:
+                pb = L2CNotifyMoneyChange()
+                pb.silver = re
+                pb.gold = 0
+                self.Unicast(pb, uid)
+        VmAddSilver(uid, re, done)
+
 
 
     def capturing(self, ins):
@@ -262,7 +272,7 @@ class FlagMgr(Sender):
             s = format % (self.owner.name, u"并")
             self.notifyFlagMessage(PopupUid, s, self.owner.uid)
         else:
-            s = u"夺旗结束，各路大侠摩拳擦掌准备着下一轮的战斗，好戏即将上演！"
+            s = u"夺旗结束，各路大侠摩拳擦掌准备着下一轮的战斗，敬请期待！"
             self.notifyFlagMessage(Popup, s)
         self.notifyStatus()
         self.settle()

@@ -438,4 +438,9 @@ message L2FFirstBloodRep {
     required Result ret = 2;
 }
 
+// 146
+message L2CNotifyMoneyChange {
+    required int32 silver = 1;  // 正数增加 负数减少
+    required int32 gold = 2;    
+}
 

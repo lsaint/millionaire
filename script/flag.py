@@ -171,7 +171,7 @@ class FlagMgr(Sender):
 
 
     def notifyTopAttack(self, name, uid=None):
-        self.notifyFlagMessage(Top, u"本次攻防战伤害最高者: %s" % name, None, uid)
+        self.notifyFlagMessage(Top, u"本次攻防战伤害最高者: %s" % name, uid, None)
 
 
     def checkWhitelist(self, uid):

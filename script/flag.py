@@ -240,7 +240,7 @@ class FlagMgr(Sender):
             s = u"恭喜%s在攻防战中战果累累，打败%s获得战旗，大家祝贺TA！" % (t.name, self.owner.name)
             self.notifyFlagMessage(PopupUid, s, t.uid)
             s = u"恭喜你，本次攻防战中你成功获得了战旗的拥有权。新的战神，就是你！"
-            self.notifyFlagMessage(Popup, s, None, t.name)
+            self.notifyFlagMessage(Popup, s, None, t.uid)
             self.hp = FLAG_MAX_HP
             self.owner.MergeFrom(t)
             self.changeDoneAction(OwnerChange)

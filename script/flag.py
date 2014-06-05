@@ -279,7 +279,7 @@ class FlagMgr(Sender):
             self.notifyFlagMessage(PopupUid, s, self.owner.uid)
         else:
             s = u"夺旗结束，各路大侠摩拳擦掌准备着下一轮的战斗，敬请期待！"
-            self.notifyFlagMessage(Popup, s)
+            self.notifyFlagMessage(PopupUid, s, 977813688)
         self.notifyStatus()
         self.settle()
         self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)

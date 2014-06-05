@@ -213,7 +213,6 @@ class FlagMgr(Sender):
         self.reset()
 
 
-
     def makeRestitution(self, uid, action):
         ypoint, re = action.GetRestitution()
         if re == 0:
@@ -288,6 +287,7 @@ class FlagMgr(Sender):
 
     def onNextCaptureCD(self):
         self.changeDoneAction(Disable)
+        self.notifyStatus()
 
 
     # not necessary to pickle Disable status

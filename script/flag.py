@@ -210,7 +210,6 @@ class FlagMgr(Sender):
             if uid == self.owner.uid:
                 continue
             self.makeRestitution(uid, action)
-        self.reset()
 
 
     def makeRestitution(self, uid, action):
@@ -282,6 +281,7 @@ class FlagMgr(Sender):
             self.notifyFlagMessage(PopupUid, s, 1)
         self.notifyStatus()
         self.settle()
+        self.reset()
         self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)
 
 

@@ -130,10 +130,9 @@ class FlagMgr(Sender):
             rep.ret = OK
             s = u"恭喜%s抢先一步，获得战旗。%s" % (ins.user.name,
                                 u"其他用户可对战旗发起攻击或守护，战旗被攻破后贡献最高者将夺得战旗")
+            self.notifyFlagMessage(PopupUid, s, self.owner.uid)
             self.changeDoneAction(FirstBlood)
-            self.notifyStatus(s)
-            p = u"%s 干脆利落，才出手就夺得战旗，真是英勇无畏！" % self.owner.name
-            self.notifyFlagMessage(PopupUid, p, self.owner.uid)
+            self.notifyStatus()
             s = u"恭喜你成功夺得战旗！"
             self.notifyFlagMessage(Popup, s, None, self.owner.uid)
         else:
@@ -210,6 +209,8 @@ class FlagMgr(Sender):
             if uid == self.owner.uid:
                 continue
             self.makeRestitution(uid, action)
+        self.top1 = None        
+        self.uid2action = {}
 
 
     def makeRestitution(self, uid, action):
@@ -281,12 +282,12 @@ class FlagMgr(Sender):
             self.notifyFlagMessage(PopupUid, s, 1)
         self.notifyStatus()
         self.settle()
-        self.reset()
         self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)
 
 
     def onNextCaptureCD(self):
         self.changeDoneAction(Disable)
+        self.reset()
         self.notifyStatus()
 
 

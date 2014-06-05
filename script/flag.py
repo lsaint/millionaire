@@ -209,7 +209,7 @@ class FlagMgr(Sender):
             if uid == self.owner.uid:
                 continue
             self.makeRestitution(uid, action)
-        self.top1 = None        
+        self.top1 = None
         self.uid2action = {}
 
 
@@ -280,6 +280,7 @@ class FlagMgr(Sender):
         else:
             s = u"夺旗结束，各路大侠摩拳擦掌准备着下一轮的战斗，敬请期待！"
             self.notifyFlagMessage(PopupUid, s, 1)
+        self.hp = FLAG_MAX_HP
         self.notifyStatus()
         self.settle()
         self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)

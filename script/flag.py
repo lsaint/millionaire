@@ -71,12 +71,17 @@ class FlagMgr(Sender):
         self.timer = Timer()
         self.cc = CacheCenter(tsid, ssid)
         self.start_time = 0
+
+        self.reset()
+
+
+    def reset(self):
+        self.top1 = None        # top1's capture action ins
+        self.uid2action = {}
         self.owner = User()
         self.hp = FLAG_MAX_HP
         self.maxhp = FLAG_MAX_HP
         self.pre_hp = 0
-        self.top1 = None        # top1's capture action ins
-        self.uid2action = {}
 
 
     def changeDoneAction(self, a):
@@ -205,8 +210,8 @@ class FlagMgr(Sender):
             if uid == self.owner.uid:
                 continue
             self.makeRestitution(uid, action)
-        self.uid2action = {}
-        self.top1 = None
+        self.reset()
+
 
 
     def makeRestitution(self, uid, action):

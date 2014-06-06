@@ -162,20 +162,20 @@ class FlagMgr(Sender):
     def OnLogin(self, ins):
         self.Unicast(self.packStatus(), ins.user.uid)
         if self.top1:
-            self.notifyTopAttack(self.top1.Name(), ins.user.uid)
+            self.notifyTopAttack(self.top1.Name(), None, ins.user.uid)
 
 ### 
 
-    def notifyFlagMessage(self, type, desc, target_uid=None, uid=None):
+    def notifyFlagMessage(self, type, desc, ta_uid=None, uid=None):
         pb = L2CNotifyFlagMesssage()
         pb.type = type
         pb.desc = desc
-        pb.user.uid = target_uid or 0
+        pb.user.uid = ta_uid or 0
         self.UniOrRandomcast(pb, uid)
 
 
-    def notifyTopAttack(self, name, uid=None):
-        self.notifyFlagMessage(Top, u"本次攻防战伤害最高者: %s" % name, uid, None)
+    def notifyTopAttack(self, name, ta_uid=None, uid=None):
+        self.notifyFlagMessage(Top, u"本次攻防战伤害最高者: %s" % name, ta_uid, uid)
 
 
     def checkWhitelist(self, uid):

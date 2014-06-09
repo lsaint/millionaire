@@ -272,7 +272,7 @@ class FlagMgr(Sender):
         self.changeDoneAction(Defended)
         s = ""
         if self.owner.uid != 0:
-            format = u"恭喜%s最终成功守护战旗，%s将获得7天的战旗拥有权，以及71频道的独家冠名权。"
+            format=u"恭喜%s最终成功守护战旗，%s将获得6天的战旗拥有权，以及一周内71频道的独家冠名权。"
             s = format % (u"你", u"你")
             self.notifyFlagMessage(Popup, s, None, self.owner.uid)
             s = format % (self.owner.name, u"并")

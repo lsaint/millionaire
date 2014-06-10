@@ -147,7 +147,7 @@ class FlagMgr(Sender):
         a = self.gainaction(ins.user)
         a.update(ins)
         self.cc.CacheCaptureAction(cPickle.dumps(ins))
-        logging.debug("self.uid2action %s" % self.uid2action)
+        #logging.debug("self.uid2action %s" % self.uid2action)
 
         t = self.top1
         if ins.action == Attack and t != self.checkAttackTop1(a):

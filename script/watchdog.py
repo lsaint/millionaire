@@ -88,7 +88,7 @@ class WatchDog(Sender):
         if uid:
             room.SetPing(uid)
         method_name = self.getMethodName(ins)
-        logging.debug("--> %d %d %s: %s" % (tsid, ssid, method_name, str(ins).replace("\n", " ")))
+        logging.debug("R--> %d %d %s: %s" % (tsid, ssid, method_name, str(ins).replace("\n", " ")))
         if hasattr(room, method_name):
             method = getattr(room, method_name)
         elif hasattr(room.state, method_name):
@@ -105,7 +105,7 @@ class WatchDog(Sender):
         ins = self.toIns(URI2CLASS_CAPTURE_FLAG, uri, data)
         if ins:
             n = self.getMethodName(ins)
-            logging.debug("--> %d %d %s: %s" % (tsid, ssid, n, str(ins).replace("\n", " ")))
+            logging.debug("F--> %d %d %s: %s" % (tsid, ssid, n, str(ins).replace("\n", " ")))
             f = self.gainFlag(tsid, uid)
             return getattr(f, n)(ins)
 

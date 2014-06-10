@@ -302,7 +302,7 @@ class FlagMgr(Sender):
         if c == 0:
             return
         elif c < 0:
-            self.onNextCaptureCD()
+            self.timer.SetTimer1(t, self.onNextCaptureCD)
             return
 
         self.timer.SetTimer1(t, self.onCaptureTimeup)

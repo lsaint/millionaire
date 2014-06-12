@@ -94,6 +94,8 @@ func (this *Gate) parse() {
 				this.comein(msg[LEN_URI:])
 			case URI_UNREGISTER:
 				this.unregister(conn)
+			default:
+				log.Println("[Error]invalid f_uri:", f_uri)
 			}
 
 		case pack := <-this.GateOutChan:
@@ -157,11 +159,12 @@ func (this *Gate) comeout(pack *proto.GateOutPack) {
 			fid = this.uid2fid[pack.GetUid()]
 		}
 		if fid != 0 {
-			p := this.doPack(pack, fid)
 			if cc := this.fid2frontend[fid]; cc != nil {
-				cc.Send(p)
+				cc.Send(this.doPack(pack, fid))
 			} else {
-				log.Println("[Error]not find fid2frontend", fid)
+				n_fid := this.randomFid()
+				log.Println("[Info]not find fid2frontend", fid, "redirect to", n_fid)
+				cc.Send(this.doPack(pack, n_fid))
 			}
 		} else {
 			log.Println("[Error]not find uid2fid", pack.GetUid())

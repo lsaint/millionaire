@@ -15,6 +15,7 @@ const (
 	URI_REGISTER   = 1
 	URI_TRANSPORT  = 2
 	URI_UNREGISTER = 3
+	URI_PING       = 4
 	GATE_PORT      = ":40214"
 	BUF_COUNT      = 102400
 )
@@ -94,6 +95,8 @@ func (this *Gate) parse() {
 				this.comein(msg[LEN_URI:])
 			case URI_UNREGISTER:
 				this.unregister(conn)
+			case URI_PING:
+
 			default:
 				log.Println("[Error]invalid f_uri:", f_uri)
 			}

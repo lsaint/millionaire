@@ -312,7 +312,7 @@ class Room(Sender):
         self.state.OnPresenterUp()
         pb = L2CNotifyPresenterChange()
         pb.presenter.uid = player.uid
-        pb.presenter.name = player.name
+        pb.presenter.name = unicode(player.name)
         self.Broadcast(pb)
         self.cc.CachePresenter(player.uid)
 

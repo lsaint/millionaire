@@ -61,7 +61,7 @@ func (this *Gate) Start() {
 func (this *Gate) acceptConn(conn net.Conn) {
 	cliConn := NewClientConnection(conn)
 	for {
-		if buff_body, ok := cliConn.duplexReadBody(); ok {
+		if buff_body, ok := cliConn.ReadBody(); ok {
 			this.buffChan <- &ConnBuff{cliConn, buff_body}
 			continue
 		}

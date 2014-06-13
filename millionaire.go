@@ -34,10 +34,13 @@ func main() {
 	BUF_COUNT := 102400
 	in := make(chan *proto.GateInPack, BUF_COUNT)
 	out := make(chan *proto.GateOutPack, BUF_COUNT)
-	pymgr := script.NewPyMgr(in, out)
+	http_req_chan := make(chan *network.HttpReq, BUF_COUNT)
+	pymgr := script.NewPyMgr(in, out, http_req_chan)
 	gate := network.NewGate(in, out)
+	httpsrv := network.NewHttpServer(http_req_chan)
 	go gate.Start()
 	go pymgr.Start()
+	go httpsrv.Start()
 
 	handleSig()
 }

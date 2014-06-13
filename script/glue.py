@@ -36,5 +36,11 @@ def OnPostDone(sn, ret):
         logging.error("%s-%s" % ("OnPostDone", traceback.format_exc()))
 
 
+
+def OnHttpReq(jn, kind):
+    print "python OnHttpReq", jn, kind
+    return "glue\n"
+
+
 def test():
     logging.debug("testtestbanbang")

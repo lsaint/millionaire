@@ -3,6 +3,7 @@ package script
 import (
 	"encoding/base64"
 	"log"
+	"millionaire/network"
 	"time"
 
 	"millionaire/postman"
@@ -21,13 +22,19 @@ const (
 type PyMgr struct {
 	recvChan chan *proto.GateInPack
 	sendChan chan *proto.GateOutPack
+	httpChan chan *network.HttpReq
 	pm       *postman.Postman
 	pymod    *py.Module
 	gomod    py.GoModule
 }
 
-func NewPyMgr(in chan *proto.GateInPack, out chan *proto.GateOutPack) *PyMgr {
-	mgr := &PyMgr{recvChan: in, sendChan: out, pm: postman.NewPostman()}
+func NewPyMgr(in chan *proto.GateInPack, out chan *proto.GateOutPack,
+	http_req_chan chan *network.HttpReq) *PyMgr {
+
+	mgr := &PyMgr{recvChan: in,
+		httpChan: http_req_chan,
+		sendChan: out,
+		pm:       postman.NewPostman()}
 	var err error
 	mgr.gomod, err = py.NewGoModule("go", "", NewGoModule(out, mgr.pm))
 	// defer gomod.Decref()
@@ -63,6 +70,8 @@ func (this *PyMgr) Start() {
 			this.onProto(pack)
 		case post_ret := <-this.pm.DoneChan:
 			this.onPostDone(post_ret.Sn, <-post_ret.Ret)
+		case req := <-this.httpChan:
+			req.Ret <- this.onHttpReq(req.Req, req.Kind)
 		}
 	}
 }
@@ -100,4 +109,22 @@ func (this *PyMgr) onPostDone(sn int64, ret string) {
 	if _, err := this.pymod.CallMethodObjArgs("OnPostDone", py_sn.Obj(), py_ret.Obj()); err != nil {
 		log.Println("onPostDone err:", err)
 	}
+}
+
+func (this *PyMgr) onHttpReq(jn string, kind int) string {
+	py_jn := py.NewString(jn)
+	defer py_jn.Decref()
+	py_kind := py.NewInt64(int64(kind))
+	defer py_kind.Decref()
+	r, err := this.pymod.CallMethodObjArgs("OnHttpReq", py_jn.Obj(), py_kind.Obj())
+
+	if err != nil {
+		log.Println("onHttpReq err:", err)
+		return ""
+	}
+	if ret, ok := py.AsString(r); ok {
+		return ret.String()
+	}
+	log.Println("AsString err")
+	return ""
 }

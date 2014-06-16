@@ -101,7 +101,7 @@ class WatchDog(Sender):
 
     def captureFlagDispatch(self, tsid, ssid, uri, data, uid):
         if self.uid2ssid.get(uid) is None:
-            logging.debug("not login user %d, %d" % (uid, uri))
+            #logging.debug("not login user %d, %d" % (uid, uri))
             return
         ins = self.toIns(URI2CLASS_CAPTURE_FLAG, uri, data)
         if ins:

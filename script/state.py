@@ -98,7 +98,6 @@ class ReadyState(State):
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.timing_state, ins.status)
-        treasure.UpdateStatus(self.room.ssid, 1)
 
 
     def OnPresenterDown(self):

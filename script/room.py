@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, logging, json, random, cPickle, traceback
+import time, logging, json, random, cPickle, traceback, treasure
 from timer import Timer, g_timer
 from sender import Sender
 from state import *
@@ -160,6 +160,7 @@ class Room(Sender):
         self.notifyMatchInfo()
         self.achecker = AwardChecker(self.mid, self.match.race_award, self.match.personal_award)
         self.SetState(self.timing_state)
+        treasure.UpdateStatus(self.ssid, 1)
         self.SetFinalQid()
         self.notifyPreload()
 

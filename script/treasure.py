@@ -15,7 +15,7 @@ def UpdateStatus(ssid, st):
 
 def ListAll(rooms):
     sts = []
-    for room in roms:
+    for room in rooms:
         sts.append({"subsid": room.ssid, "status": int(room.IsStarted())})
     ret = {"ret": 1, "count": len(rooms), "statuses": sts}
     return json.dumps(ret)

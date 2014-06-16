@@ -134,6 +134,10 @@ class Room(Sender):
         self.Unicast(rep, ins.user.uid)
 
 
+    def IsStarted(self):
+        return not not self.match
+
+
     def OnStartMatch(self, ins):
         if not self.isPresenter(ins.user.uid):
             return
@@ -148,6 +152,7 @@ class Room(Sender):
         self.qpackage = g_match_mgr.GetQpackage(self.match.pid)
         if not self.match or not self.qpackage:
             logging.warning("start match %d pid %d error" % (ins.match_id, self.qpackage or 0))
+            self.match = None
             return
         self.GenMid()
         logging.info("START_MATCH %s %d %d" % (self.mid, self.ssid, ins.match_id))

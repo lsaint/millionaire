@@ -7,6 +7,7 @@ from timer import Timer
 from stati import StatiMgr
 from match import g_match_mgr
 from config import *
+import treasure
 
 
 
@@ -97,6 +98,7 @@ class ReadyState(State):
 
     def OnNextStep(self, ins):
         self.room.SetState(self.room.timing_state, ins.status)
+        treasure.UpdateStatus(self.room.ssid, 1)
 
 
     def OnPresenterDown(self):
@@ -290,5 +292,6 @@ class EndingState(State):
         if ins.status == self.status and self.room.presenter:
             self.room.Reset()
             self.room.SetState(self.room.ready_state)
+            treasure.UpdateStatus(self.room.ssid, 0)
 
 

@@ -38,8 +38,10 @@ def OnPostDone(sn, ret):
 
 
 def OnHttpReq(jn, kind):
-    print "python OnHttpReq", jn, kind
-    return "glue\n"
+    if kind == 1:   # add money
+        return ""
+    if kind == 2:   # list all
+        return watchdog.OnTreasureListall()
 
 
 def test():

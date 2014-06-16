@@ -7,6 +7,7 @@ from sender import Sender
 from logic_pb2 import L2FSyncGameRoomInfos
 from cache import CacheCenter
 from flag import NewFlagMgr
+import treasure
 
 class WatchDog(Sender):
 
@@ -144,6 +145,9 @@ class WatchDog(Sender):
         self.Unicast(pb, 0, ins.fid)
         return True
 
+
+    def OnTreasureListall(self):
+        return treasure.ListAll(self.ssid2room.values())
 
 
 watchdog = WatchDog()

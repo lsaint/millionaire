@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, logging, json, random, cPickle
+import time, logging, json, random, cPickle, traceback
 from timer import Timer, g_timer
 from sender import Sender
 from state import *
@@ -23,6 +23,7 @@ def NewRoom(tsid, ssid, pickle_data=None):
             logging.info("GO ON room %d %d %s" % (tsid, ssid, room.state.Name()))
         except Exception as err:
             logging.error("GO ON room err: %s. clear cache and new room." % err)
+            logging.error(traceback.format_exc())
             room = Room(tsid, ssid)
             room.cc.Clear()
     else:

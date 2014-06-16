@@ -68,7 +68,7 @@ class Room(Sender):
     # go on after pickled
     def goon(self):
         for uid, name in self.cc.GetLoginoutedPlayers().iteritems():
-            if name == "":      # logout
+            if name == "" and self.uid2player.has_key(uid):      # logout
                 del self.uid2player[uid]
             else:
                 self.uid2player[uid] = Player(uid, name, self.state.status)

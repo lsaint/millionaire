@@ -151,7 +151,7 @@ class FlagMgr(Sender):
 
         t = self.top1
         if ins.action == Attack and t != self.checkAttackTop1(a):
-            self.notifyTopAttack(a.Name())
+            self.notifyTopAttack(a.Name(), a.Uid())
             if t:
                 s = u"当前夺旗攻防战中，%s超越%s，对战旗伤害最高。" % (a.Name(), t.Name())
                 self.notifyFlagMessage(Normal, s)
@@ -162,7 +162,7 @@ class FlagMgr(Sender):
     def OnLogin(self, ins):
         self.Unicast(self.packStatus(), ins.user.uid)
         if self.top1:
-            self.notifyTopAttack(self.top1.Name(), None, ins.user.uid)
+            self.notifyTopAttack(self.top1.Name(), self.top1.Uid(), ins.user.uid)
 
 ### 
 

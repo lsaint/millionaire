@@ -43,8 +43,7 @@ func NewGate(entry chan *proto.GateInPack, exit chan *proto.GateOutPack) *Gate {
 func (this *Gate) Start() {
 	ln, err := net.Listen("tcp", GATE_PORT)
 	if err != nil {
-		log.Println("[Error]Listen", err)
-		return
+		log.Fatalln(err)
 	}
 	log.Println("[Info]Gate running", GATE_PORT)
 	for {

@@ -90,6 +90,7 @@ class Room(Sender):
             self.GetPlayer(uid).answers[self.cur_qid] = answer
 
         self.SetState(self.state)
+        self.loopGetBillboard()
 
 
     def GenMid(self):

@@ -6,6 +6,7 @@ from config import *
 
 
 def UpdateStatus(ssid, st):
+    return
     sign = hmac.new(BOX_KEY, "%d%d%d" % (BOX_APPID, st, ssid), hashlib.sha1).hexdigest()
     dt = {"appid": BOX_APPID, "status": st, "subsid": ssid, "sign": sign}
     def done(sn, ret):

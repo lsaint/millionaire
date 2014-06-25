@@ -147,7 +147,7 @@ class FlagMgr(Sender):
     def setCaptureLimitTimer(self):
         if self.limit_timer:
             self.timer.KillTimer(self.limit_timer)
-        self.limit_timer = self.timer.SetTimer1(CAPTURE_LIMIT_TIME, self.onCaptureTimeup)
+        self.limit_timer = self.timer.SetTimer1(OWNER_WIN_TIME, self.onCaptureTimeup)
         self.own_time = int(time.time())
 
 
@@ -271,7 +271,7 @@ class FlagMgr(Sender):
         pb.action = self.done_action
         pb.time = self.getCountTime()[0]
         pb.tip = tip
-        pt.owner_win_time = CAPTURE_LIMIT_TIME - self.own_time
+        pt.owner_win_time = OWNER_WIN_TIME - self.own_time
         return pb
 
 

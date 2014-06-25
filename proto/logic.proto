@@ -29,6 +29,12 @@ enum GameStatus {
     Ending = 9;           //结束状态
 }
 
+//游戏模式
+enum GameMode {
+    Question = 1;
+    Flag = 2;
+}
+
 //游戏角色
 enum GameRole {
     Presenter = 1;         //主持者
@@ -162,6 +168,7 @@ message L2CLoginRep {
     required GameStatus status = 3;
     required uint32 cur_time = 4;
     required uint32 coef_k = 5;
+    required GameMode mode = 6;
 }
 
 //客户端发起的时间校对
@@ -410,6 +417,7 @@ message L2CNotifyFlagStatus {
     required FlagAction action = 4;
     required int32 time = 5;    // action=Defended时,表示下次可夺旗的CD,否者为本次夺旗剩余时间.
     required string tip = 6;
+    required uint32 owner_win_time = 7; // 限制时间内不易主则结束
 }
 
 // 142
@@ -442,5 +450,15 @@ message L2FFirstBloodRep {
 message L2CNotifyMoneyChange {
     required int32 silver = 1;  // 正数增加 负数减少
     required int32 gold = 2;    
+}
+
+// 147
+message C2LChangeGameMode {
+    required GameMode cur_mode = 1;
+}
+
+// 148
+message L2CNotifyGameMode {
+    required GameMode mode = 1;
 }
 

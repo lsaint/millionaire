@@ -56,6 +56,7 @@ class Room(Sender):
         self.state = self.idle_state
 
         self.SetState(self.idle_state)
+        self.mode = Question
         self.loopGetBillboard()
 
 
@@ -261,6 +262,7 @@ class Room(Sender):
         rep.status = self.state.status
         rep.cur_time = int(time.time())
         rep.coef_k = player.CalCoefK(self.cur_qid, self.qpackage.id2rightanswer, self.state.status)
+        rep.mode = self.mode
         self.Unicast(rep, player.uid)
 
         pb = L2CNotifyPresenterChange()
@@ -276,6 +278,7 @@ class Room(Sender):
 
         self.cc.CacheLoginedPlayer(player.uid, player.name)
         logging.info("S-DAU %d" % player.uid)
+
 
 
     def OnTimeSync(self, ins):
@@ -561,4 +564,18 @@ class Room(Sender):
 
     def loopGetBillboard(self):
         g_timer.DoSetTimer(BILLBOARD_INTERVAL, self.GetBillboard)
+
+
+    def notifyGameMode(self, uid=None):
+        pb = L2CNotifyGameMode()
+        pb.mode = self.mode
+        self.UniOrBroadcast(pb, uid)
+
+
+    def OnChangeGameMode(self, ins):
+        if ins.cur_mode != self.mode:
+            logging.error("change mode err")
+            return
+        self.mode = Flag if self.mode == Question else Question
+        self.notifyGameMode()
 

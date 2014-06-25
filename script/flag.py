@@ -82,6 +82,8 @@ class FlagMgr(Sender):
         self.hp = FLAG_MAX_HP
         self.maxhp = FLAG_MAX_HP
         self.pre_hp = 0
+        self.limit_timer = 0
+        self.own_time = 0
 
 
     def changeDoneAction(self, a):
@@ -132,12 +134,21 @@ class FlagMgr(Sender):
                                 u"其他用户可对战旗发起攻击或守护，战旗被攻破后贡献最高者将夺得战旗")
             self.notifyFlagMessage(PopupUid, s, self.owner.uid)
             self.changeDoneAction(FirstBlood)
+            self.setCaptureLimitTimer()
             self.notifyStatus()
             s = u"恭喜你成功夺得战旗！"
             self.notifyFlagMessage(Popup, s, None, self.owner.uid)
         else:
             rep.ret = FL
         self.Unicast(rep, rep.user.uid)
+
+
+    # owner Defended if on one defeat her/him in x min
+    def setCaptureLimitTimer(self):
+        if self.limit_timer:
+            self.timer.KillTimer(self.limit_timer)
+        self.limit_timer = self.timer.SetTimer1(CAPTURE_LIMIT_TIME, self.onCaptureTimeup)
+        self.own_time = int(time.time())
 
 
     def OnCaptureAction(self, ins):
@@ -244,6 +255,7 @@ class FlagMgr(Sender):
             self.hp = FLAG_MAX_HP
             self.owner.MergeFrom(t)
             self.changeDoneAction(OwnerChange)
+            self.setCaptureLimitTimer()
             self.notifyStatus()
             self.settle()
         if ins.action == Heal:
@@ -259,6 +271,7 @@ class FlagMgr(Sender):
         pb.action = self.done_action
         pb.time = self.getCountTime()[0]
         pb.tip = tip
+        pt.owner_win_time = CAPTURE_LIMIT_TIME - self.own_time
         return pb
 
 
@@ -269,6 +282,7 @@ class FlagMgr(Sender):
 
 
     def onCaptureTimeup(self):
+        self.timer.KillTimer(self.limit_timer)
         self.changeDoneAction(Defended)
         s = ""
         if self.owner.uid != 0:

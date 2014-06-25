@@ -46,6 +46,8 @@ URI2CLASS_ROOM = {
         136     :   L2FSyncGameRoomInfos,
         137     :   L2CNotifyBillboard,
         138     :   L2CNotifyPreload,
+        147     :   C2LChangeGameMode,
+        148     :   L2CNotifyGameMode,
 }
 
 URI2CLASS_GLOBAL = {

@@ -152,6 +152,10 @@ class FlagMgr(Sender):
 
 
     def OnCaptureAction(self, ins):
+        if ins.user.uid == self.owner.uid and ins.action == Attack:
+            logging.debug("attacking itself %d" % self.owner.uid)
+            return
+
         if self.done_action not in (FirstBlood, OwnerChange):
             logging.debug("capture aciton on err status: %s" % self.done_action)
             return
@@ -244,7 +248,7 @@ class FlagMgr(Sender):
 
 
     def capturing(self, ins):
-        if ins.action == Attack and ins.user.uid != self.owner.uid:
+        if ins.action == Attack:
             self.hp -= ins.point
         if self.hp <= 0:
             t = self.top1.user

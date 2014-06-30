@@ -566,6 +566,15 @@ class Room(Sender):
         g_timer.DoSetTimer(BILLBOARD_INTERVAL, self.GetBillboard)
 
 
+    def abort(self):
+        treasure.UpdateStatus(self.ssid, 0)
+        self.Reset()
+        if self.presenter:
+            self.SetState(self.ready_state)
+        else:
+            self.SetState(self.idle_state)
+
+
     def notifyGameMode(self, uid=None):
         pb = L2CNotifyGameMode()
         pb.mode = self.mode
@@ -578,4 +587,7 @@ class Room(Sender):
             return
         self.mode = Flag if self.mode == Question else Question
         self.notifyGameMode()
+
+        if self.mode == Flag:
+            self.abort()
 

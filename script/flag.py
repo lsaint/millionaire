@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, cPickle, logging, json
+import time, cPickle, logging, json, treasure
 from sender import Sender
 from logic_pb2 import *
 from timer import Timer
@@ -122,6 +122,7 @@ class FlagMgr(Sender):
         self.notifyStatus()
         self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
+        treasure.UpdateStatus(self.ssid, 1)
 
 
     def OnFirstBlood(self, ins):
@@ -305,9 +306,21 @@ class FlagMgr(Sender):
 
 
     def onNextCaptureCD(self):
+        self.abort()
+
+
+    def abort(self):
         self.changeDoneAction(Disable)
         self.reset()
         self.notifyStatus()
+        treasure.UpdateStatus(self.ssid, 0)
+
+
+    def OnChangeGameMode(self, ins):
+        if self.done_action == OwnerChange:
+            self.abort()
+        elif self.done_action == Defended:
+            treasure.UpdateStatus(self.ssid, 0)
 
 
     # not necessary to pickle Disable status

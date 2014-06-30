@@ -78,7 +78,7 @@ class FlagMgr(Sender):
     def reset(self):
         self.top1 = None        # top1's capture action ins
         self.uid2action = {}
-        self.owner = User()
+        self.owner = User(name = OFFICIAL_NAME, uid = OFFICIAL_UID)
         self.hp = FLAG_MAX_HP
         self.maxhp = FLAG_MAX_HP
         self.pre_hp = 0
@@ -117,7 +117,7 @@ class FlagMgr(Sender):
             return
         pb.ret = OK
         self.Unicast(pb, ins.user.uid)
-        self.changeDoneAction(Null)
+        self.changeDoneAction(OwnerChange)
         self.start_time = time.time()
         self.notifyStatus()
         self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
@@ -275,7 +275,7 @@ class FlagMgr(Sender):
         pb.action = self.done_action
         pb.time = self.getCountTime()[0]
         pb.tip = tip
-        pt.owner_win_time = OWNER_WIN_TIME - self.own_time
+        pb.owner_win_time = int(time.time() - self.own_time)
         return pb
 
 

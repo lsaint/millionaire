@@ -81,7 +81,8 @@ class WatchDog(Sender):
             #logging.warning("not exist uri %d" % uri)
             return
 
-        ssid, uid = self.checkInRoom(ins)
+        #ssid, uid = self.checkInRoom(ins)
+        ssid = self.uid2ssid.get(uid)
         if not ssid:
             logging.debug("not logined %s" % str(ins).replace("\n", ""))
             return False

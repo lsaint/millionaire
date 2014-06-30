@@ -82,7 +82,7 @@ class WatchDog(Sender):
             return
 
         #ssid, uid = self.checkInRoom(ins)
-        ssid = self.uid2ssid.get(uid)
+        ssid = self.getssid(uid, ins)
         if not ssid:
             logging.debug("not logined %s" % str(ins).replace("\n", ""))
             return False
@@ -102,7 +102,6 @@ class WatchDog(Sender):
 
     def captureFlagDispatch(self, tsid, ssid, uri, data, uid):
         if self.uid2ssid.get(uid) is None:
-            #logging.debug("not login user %d, %d" % (uid, uri))
             return
         ins = self.toIns(URI2CLASS_CAPTURE_FLAG, uri, data)
         if ins:
@@ -122,6 +121,12 @@ class WatchDog(Sender):
             return None, None
         else:
             return self.uid2ssid.get(uid), uid
+
+
+    def getssid(self, uid=None, ins=None):
+        if ins and hasattr(ins, "subsid"):
+            return ins.subsid
+        return self.uid2ssid.get(uid)
 
     #---
 

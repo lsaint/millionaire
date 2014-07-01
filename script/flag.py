@@ -119,6 +119,7 @@ class FlagMgr(Sender):
         self.Unicast(pb, ins.user.uid)
         self.changeDoneAction(OwnerChange)
         self.start_time = time.time()
+        self.own_time = self.start_time
         self.notifyStatus()
         self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)

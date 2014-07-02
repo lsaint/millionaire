@@ -117,7 +117,8 @@ class FlagMgr(Sender):
         self.start_time = time.time()
         self.own_time = self.start_time
         self.setCaptureLimitTimer()
-        self.notifyStatus()
+        tip = u"夺旗比赛开始，战旗被攻破后对战旗伤害最高的用户将获得战旗。战旗拥有者享受7天战旗拥有权以及一周内71频道冠名权的荣耀！"
+        self.notifyStatus(tip)
         self.capture_timer = self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
         treasure.UpdateStatus(self.ssid, 1)

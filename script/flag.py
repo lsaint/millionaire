@@ -96,7 +96,7 @@ class FlagMgr(Sender):
     def getCountTime(self):
         elapse = 0
         if self.done_action == OwnerChange:
-            elapse = int(time.time() - self.start_time)
+            elapse = int(CAPTURE_TIME - (time.time() - self.start_time))
             if elapse < 0:
                 elapse = 0
         return elapse

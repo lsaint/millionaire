@@ -43,6 +43,7 @@ class Room(Sender):
         self.presenter = None
         self.cache_billboard = {}
         self.cc = CacheCenter(tsid, ssid)
+        self.mode = Question
 
         self.idle_state = IdleState(self)
         self.ready_state = ReadyState(self)
@@ -56,7 +57,6 @@ class Room(Sender):
         self.state = self.idle_state
 
         self.SetState(self.idle_state)
-        self.mode = Question
         self.loopGetBillboard()
 
 

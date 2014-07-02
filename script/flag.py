@@ -120,6 +120,7 @@ class FlagMgr(Sender):
         self.changeDoneAction(OwnerChange)
         self.start_time = time.time()
         self.own_time = self.start_time
+        self.setCaptureLimitTimer()
         self.notifyStatus()
         self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
@@ -337,6 +338,9 @@ class FlagMgr(Sender):
             self.timer.SetTimer1(t, self.onNextCaptureCD)
             return
 
+        limit_time = OWNER_WIN_TIME - int(time.time() - self.own_time)
+        if limit_time > 0:
+            self.timer.SetTimer1(limit_time, self.onCaptureTimeup)
         self.timer.SetTimer1(t, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
 

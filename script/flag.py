@@ -232,7 +232,7 @@ class FlagMgr(Sender):
         ypoint, re = action.GetRestitution()
         if re == 0:
             return
-        s = u"本次战旗争夺中，你一共花费了%dYB, 获得了%d白银的返还奖励。" % (ypoint/10.0, re)
+        s = u"本次战旗争夺中，你一共花费了%.1fYB, 获得了%d白银的返还奖励。" % (ypoint/10.0, re)
         self.notifyFlagMessage(Popup, s, None, uid)
 
         def done(sn, ret):

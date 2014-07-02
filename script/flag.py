@@ -67,7 +67,7 @@ class FlagMgr(Sender):
 
     def __init__(self, tsid, ssid):
         Sender.__init__(self, tsid, ssid)
-        self.done_action = Disable
+        self.done_action = Defended
         self.timer = Timer()
         self.cc = CacheCenter(tsid, ssid)
         self.start_time = 0
@@ -76,9 +76,9 @@ class FlagMgr(Sender):
 
 
     def reset(self):
+        self.owner = User(name = OFFICIAL_NAME, uid = OFFICIAL_UID)
         self.top1 = None        # top1's capture action ins
         self.uid2action = {}
-        self.owner = User(name = OFFICIAL_NAME, uid = OFFICIAL_UID)
         self.hp = FLAG_MAX_HP
         self.maxhp = FLAG_MAX_HP
         self.pre_hp = 0
@@ -94,16 +94,12 @@ class FlagMgr(Sender):
 
 
     def getCountTime(self):
-        elapse = int(time.time() - self.start_time)
-        if elapse >= (CAPTURE_TIME + NEXT_CAPTURE_CD):
-            # waitting for enable
-            return 0, 0
-        elif elapse >= CAPTURE_TIME:
-            # captured CD 
-            return NEXT_CAPTURE_CD - (elapse - CAPTURE_TIME), -1
-        else:
-            # capturing remain time
-            return CAPTURE_TIME - elapse, 1
+        elapse = 0
+        if self.done_action == OwnerChange:
+            elapse = int(time.time() - self.start_time)
+            if elapse < 0:
+                elapse = 0
+        return elapse
 
 
     def OnStartCaptureFlag(self, ins):
@@ -122,7 +118,7 @@ class FlagMgr(Sender):
         self.own_time = self.start_time
         self.setCaptureLimitTimer()
         self.notifyStatus()
-        self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
+        self.capture_timer = self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
         treasure.UpdateStatus(self.ssid, 1)
 
@@ -201,7 +197,7 @@ class FlagMgr(Sender):
 
 
     def canBeStart(self):
-        return self.done_action == Disable and self.getCountTime()[0] == 0
+        return self.getCountTime() == 0
 
 
     def gainaction(self, user):
@@ -276,7 +272,7 @@ class FlagMgr(Sender):
         pb.owner.MergeFrom(self.owner)
         pb.hp, pb.maxhp = self.hp, FLAG_MAX_HP
         pb.action = self.done_action
-        pb.time = self.getCountTime()[0]
+        pb.time = self.getCountTime()
         pb.tip = tip
         pb.owner_win_time = int(time.time() - self.own_time)
         return pb
@@ -290,29 +286,19 @@ class FlagMgr(Sender):
 
     def onCaptureTimeup(self):
         self.timer.KillTimer(self.limit_timer)
+        self.timer.KillTimer(self.capture_timer)
         self.changeDoneAction(Defended)
-        s = ""
-        if self.owner.uid != 0:
-            format=u"恭喜%s最终成功守护战旗，%s将获得6天的战旗拥有权，以及一周内71频道的独家冠名权。"
-            s = format % (u"你", u"你")
-            self.notifyFlagMessage(Popup, s, None, self.owner.uid)
-            s = format % (self.owner.name, u"并")
-            self.notifyFlagMessage(PopupUid, s, self.owner.uid)
-        else:
-            s = u"夺旗结束，各路大侠摩拳擦掌准备着下一轮的战斗，敬请期待！"
-            self.notifyFlagMessage(PopupUid, s, 1)
+        format=u"恭喜%s最终成功守护战旗，%s将获得6天的战旗拥有权，以及一周内71频道的独家冠名权。"
+        s = format % (u"你", u"你")
+        self.notifyFlagMessage(Popup, s, None, self.owner.uid)
+        s = format % (self.owner.name, u"并")
+        self.notifyFlagMessage(PopupUid, s, self.owner.uid)
         self.hp = FLAG_MAX_HP
         self.notifyStatus()
         self.settle()
-        self.timer.SetTimer1(self.getCountTime()[0], self.onNextCaptureCD)
-
-
-    def onNextCaptureCD(self):
-        self.abort()
 
 
     def abort(self):
-        self.changeDoneAction(Disable)
         self.reset()
         self.notifyStatus()
         treasure.UpdateStatus(self.ssid, 0)
@@ -325,7 +311,6 @@ class FlagMgr(Sender):
             treasure.UpdateStatus(self.ssid, 0)
 
 
-    # not necessary to pickle Disable status
     def pickle(self):
         self.cc.CacheFlagStatus(cPickle.dumps(self))
 
@@ -334,14 +319,11 @@ class FlagMgr(Sender):
         t, c = self.getCountTime()
         if c == 0:
             return
-        elif c < 0:
-            self.timer.SetTimer1(t, self.onNextCaptureCD)
-            return
 
         limit_time = OWNER_WIN_TIME - int(time.time() - self.own_time)
         if limit_time > 0:
-            self.timer.SetTimer1(limit_time, self.onCaptureTimeup)
-        self.timer.SetTimer1(t, self.onCaptureTimeup)
+            self.limit_timer = self.timer.SetTimer1(limit_time, self.onCaptureTimeup)
+        self.capture_timer = self.timer.SetTimer1(t, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
 
         for ins in self.cc.GetCaptureActions():

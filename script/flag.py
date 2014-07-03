@@ -72,11 +72,12 @@ class FlagMgr(Sender):
         self.cc = CacheCenter(tsid, ssid)
         self.start_time = 0
 
-        self.reset()
+        self.reset(True)
 
 
-    def reset(self):
-        self.owner = User(name = OFFICIAL_NAME, uid = OFFICIAL_UID)
+    def reset(self, isSetOwner):
+        if isSetOwner:
+            self.owner = User(name = OFFICIAL_NAME, uid = OFFICIAL_UID)
         self.top1 = None        # top1's capture action ins
         self.uid2action = {}
         self.hp = FLAG_MAX_HP
@@ -122,25 +123,6 @@ class FlagMgr(Sender):
         self.capture_timer = self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
         treasure.UpdateStatus(self.ssid, 1)
-
-
-    def OnFirstBlood(self, ins):
-        rep = L2FFirstBloodRep()
-        rep.user.uid = ins.user.uid
-        if self.owner.uid == 0:
-            self.owner = ins.user
-            rep.ret = OK
-            s = u"恭喜%s抢先一步，获得战旗。%s" % (ins.user.name,
-                                u"其他用户可对战旗发起攻击或守护，战旗被攻破后贡献最高者将夺得战旗")
-            self.notifyFlagMessage(PopupUid, s, self.owner.uid)
-            self.changeDoneAction(FirstBlood)
-            self.setCaptureLimitTimer()
-            self.notifyStatus()
-            s = u"恭喜你成功夺得战旗！"
-            self.notifyFlagMessage(Popup, s, None, self.owner.uid)
-        else:
-            rep.ret = FL
-        self.Unicast(rep, rep.user.uid)
 
 
     # owner Defended if on one defeat her/him in x min
@@ -294,20 +276,19 @@ class FlagMgr(Sender):
         self.notifyFlagMessage(Popup, s, None, self.owner.uid)
         s = format % (self.owner.name, u"并")
         self.notifyFlagMessage(PopupUid, s, self.owner.uid)
-        self.hp = FLAG_MAX_HP
-        self.notifyStatus()
         self.settle()
+        self.abort(False)
 
 
-    def abort(self):
-        self.reset()
+    def abort(self, isSetOwner):
+        self.reset(isSetOwner)
         self.notifyStatus()
         treasure.UpdateStatus(self.ssid, 0)
 
 
     def OnChangeGameMode(self, ins):
         if self.done_action == OwnerChange:
-            self.abort()
+            self.abort(True)
         elif self.done_action == Defended:
             treasure.UpdateStatus(self.ssid, 0)
 

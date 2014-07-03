@@ -66,7 +66,7 @@ URI2CLASS_CAPTURE_FLAG = {
         144     :   F2LFirstBlood,
         145     :   L2FFirstBloodRep,
         146     :   L2CNotifyMoneyChange,
-        148     :   L2CNotifyGameMode,
+        147     :   C2LChangeGameMode,
 }
 
 URI2CLASS = {}

@@ -67,10 +67,8 @@ class FlagMgr(Sender):
 
     def __init__(self, tsid, ssid):
         Sender.__init__(self, tsid, ssid)
-        self.done_action = Defended
         self.timer = Timer()
         self.cc = CacheCenter(tsid, ssid)
-        self.start_time = 0
 
         self.reset(True)
 
@@ -78,6 +76,8 @@ class FlagMgr(Sender):
     def reset(self, isSetOwner):
         if isSetOwner:
             self.owner = User(name = OFFICIAL_NAME, uid = OFFICIAL_UID)
+        self.start_time = 0
+        self.done_action = Defended
         self.top1 = None        # top1's capture action ins
         self.uid2action = {}
         self.hp = FLAG_MAX_HP
@@ -287,10 +287,7 @@ class FlagMgr(Sender):
 
 
     def OnChangeGameMode(self, ins):
-        if self.done_action == OwnerChange:
-            self.abort(True)
-        elif self.done_action == Defended:
-            treasure.UpdateStatus(self.ssid, 0)
+        self.abort(self.done_action==OwnerChange)
 
 
     def pickle(self):

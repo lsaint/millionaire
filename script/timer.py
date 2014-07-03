@@ -40,16 +40,16 @@ class Timer(object):
 
 
     def SetTimer1(self, sec, cb, *args):
-        self.setTimer(sec, False, cb, *args)
+        return self.setTimer(sec, False, cb, *args)
 
 
     def SetTimer(self, sec, cb, *args):
-        self.setTimer(sec, True, cb, *args)
+        return self.setTimer(sec, True, cb, *args)
 
 
     def DoSetTimer(self, sec, cb, *args):
         cb(*args)
-        self.setTimer(sec, True, cb, *args)
+        return self.setTimer(sec, True, cb, *args)
 
 
     @classmethod

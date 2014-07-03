@@ -567,12 +567,15 @@ class Room(Sender):
 
 
     def abort(self):
+        logging.debug("[ABORT]{ssid}".format(ssid=self.ssid))
         treasure.UpdateStatus(self.ssid, 0)
-        self.Reset()
         if self.presenter:
-            self.SetState(self.ready_state)
+            self.state = self.ready_state
         else:
-            self.SetState(self.idle_state)
+            self.state = self.idle_state
+        self.Reset()
+        self.cc.Clear()
+        self.pickle()
 
 
     def notifyGameMode(self, uid=None):

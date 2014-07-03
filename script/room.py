@@ -444,7 +444,7 @@ class Room(Sender):
 
     # giving when leave announce state
     def PersonalPrizeGiving(self):
-        if not self.achecker.IsGivingPersonalAward():
+        if (not self.achecker) or (not self.achecker.IsGivingPersonalAward()):
             return
         uids, bounty = self.achecker.PersonalPrizeGiving()
         pb = L2CNotifyPersonalAward()
@@ -567,15 +567,12 @@ class Room(Sender):
 
 
     def abort(self):
-        logging.debug("[ABORT]{ssid}".format(ssid=self.ssid))
         treasure.UpdateStatus(self.ssid, 0)
-        if self.presenter:
-            self.state = self.ready_state
-        else:
-            self.state = self.idle_state
         self.Reset()
-        self.cc.Clear()
-        self.pickle()
+        if self.presenter:
+            self.SetState(self.ready_state)
+        else:
+            self.SetState(self.idle_state)
 
 
     def notifyGameMode(self, uid=None):

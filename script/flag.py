@@ -115,6 +115,7 @@ class FlagMgr(Sender):
         pb.ret = OK
         self.Unicast(pb, ins.user.uid)
         self.changeDoneAction(OwnerChange)
+        self.owner = User(name = OFFICIAL_NAME, uid = OFFICIAL_UID)
         self.start_time = time.time()
         self.own_time = self.start_time
         self.setCaptureLimitTimer()

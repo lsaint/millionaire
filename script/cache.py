@@ -67,8 +67,8 @@ class CacheCenter(object):
     def CacheCaptureAction(self, pickle_action):
         g_cache.lpush(self.key_ca, pickle_action)
 
-    def CacheFlagTop1(self, pickle_user):
-        g_cache.set(self.key_ft1, pickle_user)
+    def CacheFlagTop1(self, uid):
+        g_cache.set(self.key_ft1, uid)
 
     # flag end
 
@@ -115,5 +115,7 @@ class CacheCenter(object):
 
     def GetFlagTop1(self):
         ret = g_cache.get(self.key_ft1)
-        return cPickle.loads(ret)
+        if ret != None:
+            return int(ret)
+        return 0
 

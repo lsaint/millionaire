@@ -199,7 +199,7 @@ class FlagMgr(Sender):
     def checkAttackTop1(self, a):
         if a.AttackGt(self.top1):
             self.top1 = a
-            self.cc.CacheFlagTop1(cPickle.dumps(self.top1))
+            self.cc.CacheFlagTop1(self.top1.Uid())
         return self.top1
 
 
@@ -317,6 +317,5 @@ class FlagMgr(Sender):
             a = self.gainaction(ins.user)
             a.update(ins)
             self.capturing(ins)
-        self.top1 = self.cc.GetFlagTop1()
-
+        self.top1 = self.uid2action.get(self.cc.GetFlagTop1())
 

@@ -41,13 +41,10 @@ func (this *ClientConnection) Send(buf []byte) {
 }
 
 func (this *ClientConnection) sending() {
-	for {
-		select {
-		case b := <-this.sendchan:
-			if _, err := this.conn.Write(b); err != nil {
-				log.Println("[Error]conn write err:", err)
-				this.Close()
-			}
+	for b := range this.sendchan {
+		if _, err := this.conn.Write(b); err != nil {
+			log.Println("[Error]conn write err:", err)
+			this.Close()
 		}
 	}
 }

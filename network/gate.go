@@ -72,36 +72,36 @@ func (this *Gate) acceptConn(conn net.Conn) {
 }
 
 func (this *Gate) parse() {
-	for {
-		select {
-		case conn_buff := <-this.buffChan:
-			msg := conn_buff.buff
-			conn := conn_buff.conn
-			if msg == nil {
-				this.unregister(conn)
-				continue
-			}
-			len_msg := len(msg)
-			if len_msg < LEN_URI {
-				continue
-			}
-
-			f_uri := binary.LittleEndian.Uint32(msg[:LEN_URI])
-			switch f_uri {
-			case URI_REGISTER:
-				this.register(msg[LEN_URI:], conn)
-			case URI_TRANSPORT:
-				this.comein(msg[LEN_URI:])
-			case URI_UNREGISTER:
-				this.unregister(conn)
-			case URI_PING:
-
-			default:
-				log.Println("[Error]invalid f_uri:", f_uri)
-			}
-
-		case pack := <-this.GateOutChan:
+	go func() {
+		for pack := range this.GateOutChan {
 			this.comeout(pack)
+		}
+	}()
+
+	for conn_buff := range this.buffChan {
+		msg := conn_buff.buff
+		conn := conn_buff.conn
+		if msg == nil {
+			this.unregister(conn)
+			continue
+		}
+		len_msg := len(msg)
+		if len_msg < LEN_URI {
+			continue
+		}
+
+		f_uri := binary.LittleEndian.Uint32(msg[:LEN_URI])
+		switch f_uri {
+		case URI_REGISTER:
+			this.register(msg[LEN_URI:], conn)
+		case URI_TRANSPORT:
+			this.comein(msg[LEN_URI:])
+		case URI_UNREGISTER:
+			this.unregister(conn)
+		case URI_PING:
+
+		default:
+			log.Println("[Error]invalid f_uri:", f_uri)
 		}
 	}
 }

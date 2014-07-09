@@ -296,8 +296,8 @@ class FlagMgr(Sender):
 
 
     def goon(self):
-        t, c = self.getCountTime()
-        if c == 0:
+        t = self.getCountTime()
+        if t == 0:
             return
 
         limit_time = OWNER_WIN_TIME - int(time.time() - self.own_time)

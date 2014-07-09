@@ -21,6 +21,7 @@ class CacheCenter(object):
         self.key_pu = self.prefix + "presenter.uid"
         self.key_pa = self.prefix + "player.answer"
         self.key_ca = self.prefix + "player.capture.actions"
+        self.key_ft1 = self.prefix + "player.flag.top1"
 
 
     @classmethod
@@ -66,6 +67,9 @@ class CacheCenter(object):
     def CacheCaptureAction(self, pickle_action):
         g_cache.lpush(self.key_ca, pickle_action)
 
+    def CacheFlagTop1(self, pickle_user):
+        g_cache.set(self.key_ft1, pickle_user)
+
     # flag end
 
     def Clear(self):
@@ -73,7 +77,7 @@ class CacheCenter(object):
 
 
     def ClearFlag(self):
-        g_cache.delete(self.key_ca)
+        g_cache.delete(self.key_ca, self.key_ft1)
 
 
     def GetLoginoutedPlayers(self):
@@ -108,4 +112,8 @@ class CacheCenter(object):
         ret = g_cache.lrange(self.key_ca, 0, -1)
         return map(lambda x: cPickle.loads(x), ret)
 
+
+    def GetFlagTop1(self):
+        ret = g_cache.get(self.key_ft1)
+        return cPickle.loads(ret)
 

@@ -313,6 +313,8 @@ class FlagMgr(Sender):
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
 
         for ins in self.cc.GetCaptureActions():
-            self.uid2action.update(ins)
+            a = self.gainaction(ins.user)
+            a.update(ins)
+            self.capturing(ins)
 
 

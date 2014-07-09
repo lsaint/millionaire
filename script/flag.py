@@ -90,6 +90,9 @@ class FlagMgr(Sender):
     def changeDoneAction(self, a):
         logging.info("FLAG done action %s --> %s" % (self.done_action, a))
         self.done_action = a
+
+
+    def cache(self):
         self.cc.ClearFlag()
         self.pickle()
 
@@ -124,6 +127,7 @@ class FlagMgr(Sender):
         self.capture_timer = self.timer.SetTimer1(CAPTURE_TIME, self.onCaptureTimeup)
         self.timer.SetTimer(SYNC_FLAG_INTERVAL, self.syncFlagStatus)
         treasure.UpdateStatus(self.ssid, 1)
+        self.cache()
 
 
     # owner Defended if on one defeat her/him in x min
@@ -245,6 +249,7 @@ class FlagMgr(Sender):
             self.setCaptureLimitTimer()
             self.notifyStatus()
             self.settle()
+            self.cache()
         if ins.action == Heal:
             self.hp += ins.point
             if self.hp > FLAG_MAX_HP:
@@ -279,6 +284,7 @@ class FlagMgr(Sender):
         self.notifyFlagMessage(PopupUid, s, self.owner.uid)
         self.settle()
         self.abort(False)
+        self.cache()
 
 
     def abort(self, isSetOwner):

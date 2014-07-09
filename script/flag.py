@@ -264,7 +264,10 @@ class FlagMgr(Sender):
         pb.action = self.done_action
         pb.time = self.getCountTime()
         pb.tip = tip
-        pb.owner_win_time = OWNER_WIN_TIME - int(time.time() - self.own_time)
+        t = OWNER_WIN_TIME - int(time.time() - self.own_time)
+        if t < 0:
+            t = 0
+        pb.owner_win_time = t
         return pb
 
 

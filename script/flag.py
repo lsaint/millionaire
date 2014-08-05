@@ -44,6 +44,8 @@ class CaptureAction(object):
 
 
     def update(self, ins):
+        if ins.action != Attack and ins.action != Heal:
+            return
         self.action2hp[ins.action] += ins.point
         self.paytype2point[ins.type] += ins.point
 
@@ -83,6 +85,7 @@ class FlagMgr(Sender):
         self.hp = FLAG_MAX_HP
         self.maxhp = FLAG_MAX_HP
         self.pre_hp = 0
+        self.pre_maxhp = 0
         self.limit_timer = 0
         self.own_time = 0
 
@@ -151,6 +154,12 @@ class FlagMgr(Sender):
         self.cc.CacheCaptureAction(cPickle.dumps(ins))
         #logging.debug("self.uid2action %s" % self.uid2action)
 
+        if ins.action == Inc_Max and self.maxhp < MAX_HP_LIMITATION:
+            self.maxhp += ins.point
+            if self.maxhp > MAX_HP_LIMITATION:
+                self.maxhp = MAX_HP_LIMITATION
+            logging.debug("capture aciton add %d point to maxhp, final %d" % (ins.point, self.maxhp) )
+        
         t = self.top1
         if ins.action == Attack and t != self.checkAttackTop1(a):
             self.notifyTopAttack(a.Name(), a.Uid())
@@ -245,6 +254,7 @@ class FlagMgr(Sender):
             s = u"恭喜你，本次攻防战中你成功获得了战旗的拥有权。新的战神，就是你！"
             self.notifyFlagMessage(Popup, s, None, t.uid)
             self.hp = FLAG_MAX_HP
+            self.maxhp = FLAG_MAX_HP
             self.owner.MergeFrom(t)
             self.changeDoneAction(OwnerChange)
             self.setCaptureLimitTimer()
@@ -253,14 +263,15 @@ class FlagMgr(Sender):
             self.cache()
         if ins.action == Heal:
             self.hp += ins.point
-            if self.hp > FLAG_MAX_HP:
-                self.hp = FLAG_MAX_HP
+            if self.hp > self.maxhp:
+                self.hp = self.maxhp
 
 
     def packStatus(self, tip=""):
         pb = L2CNotifyFlagStatus()
         pb.owner.MergeFrom(self.owner)
-        pb.hp, pb.maxhp = self.hp, FLAG_MAX_HP
+        pb.hp = self.hp
+        pb.maxhp = self.maxhp
         pb.action = self.done_action
         pb.time = self.getCountTime()
         pb.tip = tip
@@ -272,10 +283,10 @@ class FlagMgr(Sender):
 
 
     def syncFlagStatus(self):
-        if self.pre_hp != self.hp:
+        if self.pre_hp != self.hp or self.pre_maxhp != self.maxhp:
             self.Randomcast(self.packStatus())
             self.pre_hp = self.hp
-
+            self.pre_maxhp = self.maxhp
 
     def onCaptureTimeup(self):
         self.timer.KillTimer(self.limit_timer)

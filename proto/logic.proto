@@ -382,6 +382,7 @@ message L2CNotifyPreload {
 enum CaptureAction {
    Attack = 1; 
    Heal = 2;
+   Inc_Max = 3;         //增加旗子血量上限
 }
 
 enum FlagAction {

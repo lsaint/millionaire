@@ -62,26 +62,24 @@ class WatchDog(Sender):
         return "%s%s" % ("On", ins.DESCRIPTOR.name[3:])
 
 
-    # go to next dispatch method when upstream return None
     def Dispatch(self, tsid, ssid, uri, data, uid):
-        for method in (self.globalDispatch, self.roomDispatch, self.captureFlagDispatch):
-            if method(tsid, ssid, uri, data, uid) is not None:
+        ins = None
+        for dt, method in ((URI2CLASS_GLOBAL, self.globalDispatch),
+                   (URI2CLASS_ROOM, self.roomDispatch),
+                   (URI2CLASS_CAPTURE_FLAG, self.captureFlagDispatch)):
+            # ParseFromString only once
+            if not ins:
+                ins = self.toIns(dt, uri, data)
+            # go to next dispatch method when upstream return None
+            if ins and method(tsid, ssid, uri, data, uid, ins) is not None:
                 break
 
 
-    def globalDispatch(self, tsid, ssid, uri, data, uid):
-        ins = self.toIns(URI2CLASS_GLOBAL, uri, data)
-        if ins:
-            return getattr(self, self.getMethodName(ins))(ins)
+    def globalDispatch(self, tsid, ssid, uri, data, uid, ins):
+        return getattr(self, self.getMethodName(ins))(ins)
 
 
-    def roomDispatch(self, tsid, ssid, uri, data, uid):
-        ins = self.toIns(URI2CLASS_ROOM, uri, data)
-        if not ins:
-            #logging.warning("not exist uri %d" % uri)
-            return
-
-        #ssid, uid = self.checkInRoom(ins)
+    def roomDispatch(self, tsid, ssid, uri, data, uid, ins):
         ssid = self.getssid(uid, ins)
         if not ssid:
             logging.debug("not logined %s" % str(ins).replace("\n", ""))
@@ -100,15 +98,13 @@ class WatchDog(Sender):
         return method(ins)
 
 
-    def captureFlagDispatch(self, tsid, ssid, uri, data, uid):
+    def captureFlagDispatch(self, tsid, ssid, uri, data, uid, ins):
         if self.uid2ssid.get(uid) is None:
             return
-        ins = self.toIns(URI2CLASS_CAPTURE_FLAG, uri, data)
-        if ins:
-            n = self.getMethodName(ins)
-            logging.debug("F--> %d %d %s: %s" % (tsid, ssid, n, str(ins).replace("\n", " ")))
-            f = self.gainFlag(tsid, uid)
-            return getattr(f, n)(ins)
+        n = self.getMethodName(ins)
+        logging.debug("F--> %d %d %s: %s" % (tsid, ssid, n, str(ins).replace("\n", " ")))
+        f = self.gainFlag(tsid, uid)
+        return getattr(f, n)(ins)
 
 
     def checkInRoom(self, ins):

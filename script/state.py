@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, logging
+import time, log
 
 from logic_pb2 import *
 from timer import Timer
@@ -58,7 +58,7 @@ class IdleState(State):
             pb = L2CNotifyPreview()
             pb.MergeFrom(pv)
             self.room.UniOrBroadcast(pb, uid)
-            logging.debug("PREVIEW: %s" % pb.desc)
+            log.debug("PREVIEW: %s" % pb.desc)
 
 
     def OnLeaveState(self):
@@ -121,21 +121,21 @@ class TimingState(State):
 
     def OnAnswerQuestion(self, ins):
         if ins.answer.answer.id != self.room.cur_qid:
-            logging.debug("OnAnswerQuestion id != cur_qid")
+            log.debug("OnAnswerQuestion id != cur_qid")
             return
         player = self.room.GetPlayer(ins.answer.user.uid)
         if not player:
-            logging.debug("OnAnswerQuestion no player")
+            log.debug("OnAnswerQuestion no player")
             return
         if not player.DoAnswer(ins.answer.answer.id, ins.answer.answer.answer):
-            logging.debug("OnAnswerQuestion DoAnswer false")
+            log.debug("OnAnswerQuestion DoAnswer false")
             return
         self.room.StatiAnswer(player, ins.answer.answer.answer)
         self.room.cc.CachePlayerAnswer(player.uid, ins.answer.answer.id)
 
 
     def OnNextStep(self, ins):
-        logging.warning("invalid next step in timing state")
+        log.warning("invalid next step in timing state")
 
 
     def OnLogin(self, ins):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import logging, time
+import log, time
 from logic_pb2 import *
 
 
@@ -29,10 +29,10 @@ class Player(object):
 
     def DoAnswer(self, qid, answer):
         if self.role == Presenter or self.role == Loser:
-            logging.debug("DoAnswer wrong role %s" % self.role)
+            log.debug("DoAnswer wrong role %s" % self.role)
             return False
         if self.answers.get(qid) is not None:
-            logging.debug("DoAnswer multi answer")
+            log.debug("DoAnswer multi answer")
             return False
         self.answers[qid] = answer
         return True
@@ -45,7 +45,7 @@ class Player(object):
             self.role = Survivor
         else:
             self.role = Reviver
-        logging.info("DoRevive sucess uid:%d status:%d" % (self.uid, status))
+        log.info("DoRevive sucess uid:%d status:%d" % (self.uid, status))
         return True
 
 

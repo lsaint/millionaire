@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import logging
+import log
 from logic_pb2 import A, B, C, D, UserAnswer
 from config import TOPN
 
@@ -32,7 +32,7 @@ class StatiMgr(object):
     def LogDistribution(self):
         total = reduce(lambda x, y: x+y, self.GetDistribution())
         right = self.abcd2count[self.right_answer]
-        logging.info("S-ANS %d %d %d %d" % (self.qid, total, right, total-right))
+        log.info("S-ANS %d %d %d %d" % (self.qid, total, right, total-right))
 
 
     def GetTopN(self):

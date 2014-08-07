@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import base64, logging
+import base64, log
 from uri import *
 from room import  NewRoom
 from sender import Sender
@@ -82,13 +82,13 @@ class WatchDog(Sender):
     def roomDispatch(self, tsid, ssid, uri, data, uid, ins):
         ssid = self.getssid(uid, ins)
         if not ssid:
-            logging.debug("not logined %s" % str(ins).replace("\n", ""))
+            log.debug("not logined %s" % str(ins).replace("\n", ""))
             return False
         room = self.gainRoom(tsid, ssid)
         if uid:
             room.SetPing(uid)
         method_name = self.getMethodName(ins)
-        logging.debug("R--> %d %d %s: %s" % (tsid, ssid, method_name, str(ins).replace("\n", " ")))
+        log.debug("R--> %d %d %s: %s" % (tsid, ssid, method_name, str(ins).replace("\n", " ")))
         if hasattr(room, method_name):
             method = getattr(room, method_name)
         elif hasattr(room.state, method_name):
@@ -102,7 +102,7 @@ class WatchDog(Sender):
         if self.uid2ssid.get(uid) is None:
             return
         n = self.getMethodName(ins)
-        logging.debug("F--> %d %d %s: %s" % (tsid, ssid, n, str(ins).replace("\n", " ")))
+        log.debug("F--> %d %d %s: %s" % (tsid, ssid, n, str(ins).replace("\n", " ")))
         f = self.gainFlag(tsid, uid)
         return getattr(f, n)(ins)
 
@@ -113,7 +113,7 @@ class WatchDog(Sender):
             if uid == 0:
                 return ins.subsid, uid
         except Exception as err:
-            logging.error("checkInRoom %s" % err)
+            log.error("checkInRoom %s" % err)
             return None, None
         else:
             return self.uid2ssid.get(uid), uid
@@ -130,7 +130,7 @@ class WatchDog(Sender):
         ssid = self.uid2ssid.get(ins.user.uid)
         # user who change ssid but did not login yet
         if ssid and ssid != ins.subsid:
-            logging.warn("register ssid not match. uid:%d" % ins.user.uid)
+            log.warn("register ssid not match. uid:%d" % ins.user.uid)
             return True
         return None
 

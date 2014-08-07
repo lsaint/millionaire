@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, logging, json, random, cPickle, traceback, treasure
+import time, log, json, random, cPickle, traceback, treasure
 from timer import Timer, g_timer
 from sender import Sender
 from state import *
@@ -20,14 +20,14 @@ def NewRoom(tsid, ssid, pickle_data=None):
         try:
             room = cPickle.loads(pickle_data)
             room.goon()
-            logging.info("GO ON room %d %d %s" % (tsid, ssid, room.state.Name()))
+            log.info("GO ON room %d %d %s" % (tsid, ssid, room.state.Name()))
         except Exception as err:
-            logging.error("GO ON room err: %s. clear cache and new room." % err)
-            logging.error(traceback.format_exc())
+            log.error("GO ON room err: %s. clear cache and new room." % err)
+            log.error(traceback.format_exc())
             room = Room(tsid, ssid)
             room.cc.Clear()
     else:
-        logging.info("no pickle data found")
+        log.info("no pickle data found")
         room = Room(tsid, ssid)
 
     return room
@@ -62,7 +62,7 @@ class Room(Sender):
 
     def pickle(self):
         self.cc.CacheState(cPickle.dumps(self))
-        logging.info("[PICKLE]tsid: %d, ssid: %d, status: %s" % (
+        log.info("[PICKLE]tsid: %d, ssid: %d, status: %s" % (
                                     self.tsid, self.ssid, self.state.Name()))
 
 
@@ -103,7 +103,7 @@ class Room(Sender):
             return
         self.state.OnLeaveState()
         self.state = state
-        logging.info("Enter======================================> %s" % state.Name())
+        log.info("Enter======================================> %s" % state.Name())
         self.cc.Clear()
         self.pickle()
         self.state.OnEnterState()
@@ -145,7 +145,7 @@ class Room(Sender):
         if not self.isPresenter(ins.user.uid):
             return
         if self.state.status != Ready:
-            logging.warn("match started")
+            log.warn("match started")
             return
         if ins.is_warmup:
             self.match = g_match_mgr.GetWarmupMatch()
@@ -154,11 +154,11 @@ class Room(Sender):
             self.is_warmup = False
         self.qpackage = g_match_mgr.GetQpackage(self.match.pid)
         if not self.match or not self.qpackage:
-            logging.warning("start match %d pid %d error" % (ins.match_id, self.qpackage or 0))
+            log.warning("start match %d pid %d error" % (ins.match_id, self.qpackage or 0))
             self.match = None
             return
         self.GenMid()
-        logging.info("START_MATCH %s %d %d" % (self.mid, self.ssid, ins.match_id))
+        log.info("START_MATCH %s %d %d" % (self.mid, self.ssid, ins.match_id))
         self.notifyMatchInfo()
         self.achecker = AwardChecker(self.mid, self.match.race_award, self.match.personal_award)
         self.SetState(self.timing_state)
@@ -222,7 +222,7 @@ class Room(Sender):
     def NotifySituation(self, cal_revive=True, uid=None):
         if cal_revive:
             self.CalReviverNum()
-            logging.info("S-PCU %d" % len(self.uid2player))
+            log.info("S-PCU %d" % len(self.uid2player))
         pb = L2CNotifySituation()
         pb.id = self.cur_qid
         pb.survivor_num = self.cur_survivor_num
@@ -277,7 +277,7 @@ class Room(Sender):
         map(lambda pb: self.Unicast(pb, player.uid), self.cache_billboard.values())
 
         self.cc.CacheLoginedPlayer(player.uid, player.name)
-        logging.info("S-DAU %d" % player.uid)
+        log.info("S-DAU %d" % player.uid)
 
 
 
@@ -302,7 +302,7 @@ class Room(Sender):
         player = self.GetPlayer(uid)
         if player:
             player.ping = time.time()
-            logging.debug("SetPing %d %d" % (player.uid, player.ping))
+            log.debug("SetPing %d %d" % (player.uid, player.ping))
 
 
     def NegatePresenter(self, player, silence=False):
@@ -368,7 +368,7 @@ class Room(Sender):
             self.Unicast(pb, player.uid)
             self.NotifySituation(False, player.uid)
         else:
-            logging.debug("revive_logout player:%d" % ins.user.uid)
+            log.debug("revive_logout player:%d" % ins.user.uid)
 
 
     def isPresenter(self, uid):
@@ -396,7 +396,7 @@ class Room(Sender):
     def CalReviverNum(self):
         self.cur_reviver_num = len(
                 tuple(v for (k,v) in self.uid2player.iteritems() if v.role == Reviver))
-        logging.debug("CalReviverNum %d %d" % (len(self.uid2player), self.cur_reviver_num))
+        log.debug("CalReviverNum %d %d" % (len(self.uid2player), self.cur_reviver_num))
 
 
     def CheckCurAward(self):
@@ -474,7 +474,7 @@ class Room(Sender):
         player = self.GetPlayer(ins.user.uid)
         if player and self.cur_qid == ins.id:
             player.DoRevive(self.state.status)
-            logging.info("%s S-REV %d %d" % (self.mid, self.cur_qid, player.uid))
+            log.info("%s S-REV %d %d" % (self.mid, self.cur_qid, player.uid))
             self.cc.CacheRevivedPlayer(player.uid)
         else:
             pb = L2FNotifyRevieRep()
@@ -499,7 +499,7 @@ class Room(Sender):
         player = self.GetPlayer(ins.user.uid)
         if player:
             del self.uid2player[player.uid]
-            logging.debug("Logout %d" % player.uid)
+            log.debug("Logout %d" % player.uid)
             self.cc.CacheLogoutedPlayer(player.uid)
         # OnNotifyMic1 will handle presenter logout
 
@@ -510,7 +510,7 @@ class Room(Sender):
         for uid, player in self.uid2player.iteritems():
             if now - player.ping > PING_LOST:
                 lost.append(uid)
-                logging.debug("CheckPing Lost %d %d %d" % (uid, now, player.ping))
+                log.debug("CheckPing Lost %d %d %d" % (uid, now, player.ping))
         for uid in lost:
             del self.uid2player[uid]
 
@@ -548,12 +548,12 @@ class Room(Sender):
             try:
                 done(GIFT, ret)
             except Exception as err:
-                logging.error("done_gift: %s" % err)
+                log.error("done_gift: %s" % err)
         def done_sponsor(sn, ret):
             try:
                 done(SPONSOR, ret)
             except Exception as err:
-                logging.error("done_sponsor: %s" % err)
+                log.error("done_sponsor: %s" % err)
         jn = json.dumps({"op": "gift", "param": BILLBOARD_NUM})
         PostAsync(BILLBOARD_URL, jn, done_gift)
         jn = json.dumps({"op": "sponsor", "param": BILLBOARD_NUM})
@@ -581,7 +581,7 @@ class Room(Sender):
 
     def OnChangeGameMode(self, ins):
         if ins.cur_mode != self.mode:
-            logging.error("change mode err")
+            log.error("change mode err")
             return
         self.mode = Flag if self.mode == Question else Question
         self.notifyGameMode()

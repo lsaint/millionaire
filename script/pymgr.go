@@ -25,7 +25,9 @@ type PyMgr struct {
 	httpChan chan *network.HttpReq
 	pm       *postman.Postman
 	pymod    *py.Module
-	gomod    py.GoModule
+
+	gomod  py.GoModule
+	logmod py.GoModule
 }
 
 func NewPyMgr(in chan *proto.GateInPack, out chan *proto.GateOutPack,
@@ -37,9 +39,13 @@ func NewPyMgr(in chan *proto.GateInPack, out chan *proto.GateOutPack,
 		pm:       postman.NewPostman()}
 	var err error
 	mgr.gomod, err = py.NewGoModule("go", "", NewGoModule(out, mgr.pm))
-	// defer gomod.Decref()
 	if err != nil {
 		log.Fatalln("NewGoModule failed:", err)
+	}
+
+	mgr.logmod, err = py.NewGoModule("log", "", NewLogModule())
+	if err != nil {
+		log.Fatalln("NewLogModule failed:", err)
 	}
 
 	code, err := py.CompileFile("./script/glue.py", py.FileInput)

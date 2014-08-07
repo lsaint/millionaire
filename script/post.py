@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import go, logging
+import go, log
 
 g_postsn = 0
 g_post_callback = {}
@@ -19,7 +19,7 @@ def OnPostDone(sn, ret):
         cb(sn, ret)
         del g_post_callback[sn]
     else:
-        logging.warn("not exist post sn %d" % sn)
+        log.warn("not exist post sn %d" % sn)
 
 
 def PostAsync(url, s, func=None, sn=None):

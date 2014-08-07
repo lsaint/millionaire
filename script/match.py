@@ -2,7 +2,7 @@
 #
 
 
-import go, json, time, logging
+import go, json, time, log
 from datetime import datetime
 
 from logic_pb2 import *
@@ -37,18 +37,18 @@ class MatchMgr(object):
     def doneLoadWList(self, sn, jn_presenter_wl):
         try:
             self.valid_presenters = json.loads(jn_presenter_wl)
-            logging.debug("load presenter whitelist sucess..")
+            log.debug("load presenter whitelist sucess..")
         except:
-            logging.error("load WList error: %s" % jn_presenter_wl)
+            log.error("load WList error: %s" % jn_presenter_wl)
 
 
     def doneLoadMatchAndQuestion(self, sn, ok):
         match = self.qsn2match.get(sn)
         if match and ok:
             self.matchs[match.id] = match
-            logging.debug("load match %d and qpackage %d sucess.." % (match.id, match.pid))
+            log.debug("load match %d and qpackage %d sucess.." % (match.id, match.pid))
         else:
-            logging.debug("load match %d fail" % (match.id if match else 0))
+            log.debug("load match %d fail" % (match.id if match else 0))
 
 
     def doneLoadMatch(self, sn, jn_match):
@@ -62,16 +62,16 @@ class MatchMgr(object):
                 self.qpackages[match.pid] = qpackage
                 self.qsn2match[sn] = match
                 #self.matchs[m["id"]] = 
-                logging.debug("match %d loaded, loading qpackage %d." % (match.id, match.pid))
+                log.debug("match %d loaded, loading qpackage %d." % (match.id, match.pid))
         except:
-            logging.error("load match error: %s" % jn_match)
+            log.error("load match error: %s" % jn_match)
 
 
     def doneLoadPreview(self, sn, jn_preview):
         try:
             pv = json.loads(jn_preview)
         except:
-            logging.error("load preview error: %s" % jn_preview)
+            log.error("load preview error: %s" % jn_preview)
             return
         start_s = time.strptime(pv["start"], TIME_FORMAT)
         end_s = time.strptime(pv["end"], TIME_FORMAT)
@@ -84,10 +84,10 @@ class MatchMgr(object):
             pb.start = pv["start"]
             pb.end = pv["end"]
             self.preview = pb
-            logging.debug("load preview sucess..")
+            log.debug("load preview sucess..")
         else:
             self.preview = None
-            logging.debug("load preview None")
+            log.debug("load preview None")
 
 
     def loadMatch(self, m):

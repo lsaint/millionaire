@@ -1,6 +1,6 @@
 
 
-import md5, json, time, logging
+import md5, json, time, log
 from post import PostAsync, GetPostSn
 from config import *
 from local import *

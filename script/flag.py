@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, cPickle, logging, json, treasure
+import time, cPickle, log, json, treasure
 from sender import Sender
 from logic_pb2 import *
 from timer import Timer
@@ -14,13 +14,13 @@ def NewFlagMgr(tsid, ssid, pickle_data=None):
         try:
             f = cPickle.loads(pickle_data)
             f.goon()
-            logging.info("GO ON flag %d %d" % (tsid, ssid))
+            log.info("GO ON flag %d %d" % (tsid, ssid))
         except Exception as err:
-            logging.error("GO ON flag err: %s. clear cache and new flag." % err)
+            log.error("GO ON flag err: %s. clear cache and new flag." % err)
             f = FlagMgr(tsid, ssid)
             f.cc.ClearFlag()
     else:
-        logging.info("no flag pickle data found")
+        log.info("no flag pickle data found")
         f = FlagMgr(tsid, ssid)
     return f
 
@@ -91,7 +91,7 @@ class FlagMgr(Sender):
 
 
     def changeDoneAction(self, a):
-        logging.info("FLAG done action %s --> %s" % (self.done_action, a))
+        log.info("FLAG done action %s --> %s" % (self.done_action, a))
         self.done_action = a
 
 
@@ -113,10 +113,10 @@ class FlagMgr(Sender):
         pb = L2CStartCaptureFlagRep()
         pb.ret = FL
         if not self.checkWhitelist(ins.user.uid):
-            logging.warn("%d not in flag whitelist" % ins.user.uid)
+            log.warn("%d not in flag whitelist" % ins.user.uid)
             return
         if not self.canBeStart():
-            logging.debug("flag started %s" % self.done_action)
+            log.debug("flag started %s" % self.done_action)
             return
         pb.ret = OK
         self.Unicast(pb, ins.user.uid)
@@ -143,22 +143,22 @@ class FlagMgr(Sender):
 
     def OnCaptureAction(self, ins):
         if ins.user.uid == self.owner.uid and ins.action == Attack:
-            logging.debug("attacking itself %d" % self.owner.uid)
+            log.debug("attacking itself %d" % self.owner.uid)
             return
 
         if self.done_action not in (FirstBlood, OwnerChange):
-            logging.debug("capture aciton on err status: %s" % self.done_action)
+            log.debug("capture aciton on err status: %s" % self.done_action)
             return
         a = self.gainaction(ins.user)
         a.update(ins)
         self.cc.CacheCaptureAction(cPickle.dumps(ins))
-        #logging.debug("self.uid2action %s" % self.uid2action)
+        #log.debug("self.uid2action %s" % self.uid2action)
 
         if ins.action == Inc_Max and self.maxhp < MAX_HP_LIMITATION:
             self.maxhp += ins.point
             if self.maxhp > MAX_HP_LIMITATION:
                 self.maxhp = MAX_HP_LIMITATION
-            logging.debug("capture aciton add %d point to maxhp, final %d" % (ins.point, self.maxhp) )
+            log.debug("capture aciton add %d point to maxhp, final %d" % (ins.point, self.maxhp) )
         
         t = self.top1
         if ins.action == Attack and t != self.checkAttackTop1(a):
@@ -233,7 +233,7 @@ class FlagMgr(Sender):
         self.notifyFlagMessage(Popup, s, None, uid)
 
         def done(sn, ret):
-            logging.info("VM_ADD_SILVER %d %d, ret: %s" % (uid, re, ret))
+            log.info("VM_ADD_SILVER %d %d, ret: %s" % (uid, re, ret))
             dt = json.loads(ret)
             if dt["op_ret"] == 1:
                 pb = L2CNotifyMoneyChange()

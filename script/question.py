@@ -3,7 +3,7 @@
 # json
 # [[id, desc, [right, wrong1, wrong2, wrong3], time]...]
 
-import json, random, logging
+import json, random, log
 from post import PostAsync
 from logic_pb2 import GameQuestion, A, B, C, D, TXT, PIC, L2CNotifyPreload 
 from config import *
@@ -26,12 +26,12 @@ class QuesionPackage(object):
 
 
     def parseJson(self, jn):
-        #logging.info("LoadQuestion: %s" % jn)
+        #log.info("LoadQuestion: %s" % jn)
         global OP_HEAD
         try:
             lt = json.loads(jn)
         except:
-            logging.error("load question error: %s" % jn)
+            log.error("load question error: %s" % jn)
             return False
         for q in lt:
             op = q[2]                           # options
@@ -56,7 +56,7 @@ class QuesionPackage(object):
                 q = self.pb_preload.pre.add()
                 q.id  = gq.id
                 q.pic_url = gq.pic_url
-                logging.debug("preloading %d %s" % (q.id, q.pic_url))
+                log.debug("preloading %d %s" % (q.id, q.pic_url.encode("utf-8")))
 
         return True
 

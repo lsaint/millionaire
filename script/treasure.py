@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import json, logging, hmac, hashlib
+import json, log, hmac, hashlib
 from post import PostAsync
 from config import *
 
@@ -9,7 +9,7 @@ def UpdateStatus(ssid, st):
     sign = hmac.new(BOX_KEY, "%d%d%d" % (BOX_APPID, st, ssid), hashlib.sha1).hexdigest()
     dt = {"appid": BOX_APPID, "status": st, "subsid": ssid, "sign": sign}
     def done(sn, ret):
-        logging.debug("update box status %d, ret: %s" % (st, ret))
+        log.debug("update box status %d, ret: %s" % (st, ret))
     PostAsync(BOX_URL_STATUS, json.dumps(dt), done)
 
 

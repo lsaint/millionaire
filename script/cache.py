@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import redis, cPickle
+import redigo, redis, cPickle
 from config import *
+
+redigo.dial(REDIGO_NETWORK, UNIX_DOMAIN_REDIS)
 
 g_cache = redis.StrictRedis(unix_socket_path=UNIX_DOMAIN_REDIS, db=0)
 g_cache.ping()
@@ -36,48 +38,62 @@ class CacheCenter(object):
     #
 
     def CacheState(self, pickle_data):
-        g_cache.hset(self.key_state, (self.tsid, self.ssid), pickle_data)
+        #g_cache.hset(self.key_state, (self.tsid, self.ssid), pickle_data)
+        redigo.do("hset", self.key_state, str((self.tsid, self.ssid)), pickle_data)
 
 
     def CacheLoginedPlayer(self, uid, name):
-        g_cache.hset(self.key_lpu, uid, name)
+        #g_cache.hset(self.key_lpu, uid, name)
+        redigo.do("hset", self.key_lpu, str(uid), name)
+        print("hset", self.key_lpu, str(uid), name)
 
 
     def CacheLogoutedPlayer(self, uid):
-        g_cache.hset(self.key_lpu, uid, "")
+        #g_cache.hset(self.key_lpu, uid, "")
+        redigo.do("hset", self.key_lpu, str(uid), "")
 
 
     def CacheRevivedPlayer(self, uid):
-        g_cache.lpush(self.key_rpu, uid)
+        #g_cache.lpush(self.key_rpu, uid)
+        redigo.do("lpush", self.key_rpu, str(uid))
 
 
     def CachePresenter(self, uid):
-        g_cache.set(self.key_pu, uid)
+        #g_cache.set(self.key_pu, uid)
+        redigo.do("set", self.key_pu, str(uid))
 
 
     def CachePlayerAnswer(self, uid, answer):
-        g_cache.hset(self.key_pa, uid, answer)
+        #g_cache.hset(self.key_pa, uid, answer)
+        redigo.do("hset", self.key_pa, str(uid), str(answer))
 
 
     # flag
     def CacheFlagStatus(self, pickle_data):
-        g_cache.hset(self.key_flag, (self.tsid, self.ssid), pickle_data)
+        #g_cache.hset(self.key_flag, (self.tsid, self.ssid), pickle_data)
+        redigo.do("hset", self.key_flag, str((self.tsid, self.ssid)), pickle_data)
 
 
     def CacheCaptureAction(self, pickle_action):
-        g_cache.lpush(self.key_ca, pickle_action)
+        #g_cache.lpush(self.key_ca, pickle_action)
+        redigo.do("lpush", self.key_ca, pickle_action)
+
 
     def CacheFlagTop1(self, uid):
-        g_cache.set(self.key_ft1, uid)
+        #g_cache.set(self.key_ft1, uid)
+        redigo.do("set", self.key_ft1, str(uid))
+
 
     # flag end
 
     def Clear(self):
-        g_cache.delete(self.key_lpu, self.key_rpu, self.key_pu, self.key_pa)
+        #g_cache.delete(self.key_lpu, self.key_rpu, self.key_pu, self.key_pa)
+        redigo.do("delete", self.key_lpu, self.key_rpu, self.key_pu, self.key_pa)
 
 
     def ClearFlag(self):
-        g_cache.delete(self.key_ca, self.key_ft1)
+        #g_cache.delete(self.key_ca, self.key_ft1)
+        redigo.do("delete", self.key_ca, self.key_ft1)
 
 
     def GetLoginoutedPlayers(self):

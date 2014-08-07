@@ -26,8 +26,9 @@ type PyMgr struct {
 	pm       *postman.Postman
 	pymod    *py.Module
 
-	gomod  py.GoModule
-	logmod py.GoModule
+	gomod    py.GoModule
+	logmod   py.GoModule
+	redismod py.GoModule
 }
 
 func NewPyMgr(in chan *proto.GateInPack, out chan *proto.GateOutPack,
@@ -46,6 +47,11 @@ func NewPyMgr(in chan *proto.GateInPack, out chan *proto.GateOutPack,
 	mgr.logmod, err = py.NewGoModule("log", "", NewLogModule())
 	if err != nil {
 		log.Fatalln("NewLogModule failed:", err)
+	}
+
+	mgr.redismod, err = py.NewGoModule("redigo", "", NewRedisModule())
+	if err != nil {
+		log.Fatalln("NewRedisModule failed:", err)
 	}
 
 	code, err := py.CompileFile("./script/glue.py", py.FileInput)

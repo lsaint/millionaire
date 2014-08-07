@@ -7,12 +7,29 @@ import (
 	"github.com/qiniu/py"
 )
 
+var LV = map[string]int{
+	"debug": 1,
+	"info":  2,
+	"warn":  3,
+	"error": 4,
+	"fatal": 5,
+}
+
+var LV_R = map[int]string{
+	1: "[DEBUG]",
+	2: "[INFO]",
+	3: "[WARN]",
+	4: "[ERROR]",
+	5: "[FATAL]",
+}
+
 type LogModule struct {
+	lv      int
 	logChan chan *LogItem
 }
 
 type LogItem struct {
-	Level   string
+	Lv      int
 	Content string
 }
 
@@ -22,13 +39,30 @@ func NewLogModule() *LogModule {
 	return mod
 }
 
+func (this *LogModule) Py_setlevel(args *py.Tuple) (ret *py.Base, err error) {
+	var level string
+	err = py.Parse(args, &level)
+	if err != nil {
+		fmt.Println("setlevel err:", err)
+		return
+	}
+	lv, ok := LV[level]
+	if !ok {
+		fmt.Println("not exist log level", level)
+		return
+	}
+	this.lv = lv
+	log.Println("set log level:", level, lv)
+	return py.IncNone(), nil
+}
+
 func (this *LogModule) logging() {
 	for item := range this.logChan {
-		log.Println(item.Level, item.Content)
+		log.Println(LV_R[item.Lv], item.Content)
 	}
 }
 
-func (this *LogModule) DoLog(level string, args *py.Tuple) {
+func (this *LogModule) DoLog(lv int, args *py.Tuple) {
 	var content string
 	err := py.Parse(args, &content)
 	if err != nil {
@@ -36,30 +70,32 @@ func (this *LogModule) DoLog(level string, args *py.Tuple) {
 		return
 	}
 
-	this.logChan <- &LogItem{Level: level, Content: content}
+	if this.lv <= lv {
+		this.logChan <- &LogItem{Lv: lv, Content: content}
+	}
 }
 
 func (this *LogModule) Py_debug(args *py.Tuple) (ret *py.Base, err error) {
-	this.DoLog("[DEBUG]", args)
+	this.DoLog(1, args)
 	return py.IncNone(), nil
 }
 
 func (this *LogModule) Py_info(args *py.Tuple) (ret *py.Base, err error) {
-	this.DoLog("[INFO]", args)
+	this.DoLog(2, args)
 	return py.IncNone(), nil
 }
 
 func (this *LogModule) Py_warn(args *py.Tuple) (ret *py.Base, err error) {
-	this.DoLog("[WARN]", args)
+	this.DoLog(3, args)
 	return py.IncNone(), nil
 }
 
 func (this *LogModule) Py_error(args *py.Tuple) (ret *py.Base, err error) {
-	this.DoLog("[ERROR]", args)
+	this.DoLog(4, args)
 	return py.IncNone(), nil
 }
 
 func (this *LogModule) Py_fatal(args *py.Tuple) (ret *py.Base, err error) {
-	this.DoLog("[FATAL]", args)
+	this.DoLog(5, args)
 	return py.IncNone(), nil
 }
